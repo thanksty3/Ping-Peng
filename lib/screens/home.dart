@@ -33,9 +33,9 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       leading: IconButton(
-        icon: const Icon(Icons.notifications, color: Colors.orange),
+        icon: const Icon(Icons.notifications, color: Colors.orange, size: 40),
         onPressed: () {
           Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => const Notifications()));
@@ -43,14 +43,14 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: <Widget>[
         IconButton(
-          icon: const Icon(Icons.search, color: Colors.orange),
+          icon: const Icon(Icons.search, color: Colors.orange, size: 40),
           onPressed: () {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => const Search()));
           },
         ),
         IconButton(
-          icon: const Icon(Icons.settings, color: Colors.orange),
+          icon: const Icon(Icons.settings, color: Colors.orange, size: 40),
           onPressed: () {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => const Settings()));
@@ -64,7 +64,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class NavBottomNavigationBar extends Home {
+class NavBottomNavigationBar extends StatelessWidget {
   const NavBottomNavigationBar({super.key});
 
   @override
@@ -77,17 +77,17 @@ class NavBottomNavigationBar extends Home {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           IconButton(
-            icon: const Icon(Icons.tv, color: Colors.white),
-            onPressed: () {
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => const Chats()));
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.chat, color: Colors.white),
+            icon: const Icon(Icons.tv, color: Colors.white, size: 30),
             onPressed: () {
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) => const Shows()));
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.chat, color: Colors.white, size: 30),
+            onPressed: () {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => const Chats()));
             },
           ),
         ],
