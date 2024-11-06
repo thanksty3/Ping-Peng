@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:ping_peng/screens/notifications.dart';
-import 'package:ping_peng/screens/search.dart';
-import 'package:ping_peng/screens/settings.dart';
 import 'package:ping_peng/screens/home.dart';
+import 'package:ping_peng/screens/notifications.dart';
+import 'package:ping_peng/screens/settings.dart';
 
-class Account extends Home {
-  const Account({super.key});
+class Search extends Home {
+  const Search({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const NavAppBar(),
-      backgroundColor: Colors.black87,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -55,13 +53,6 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
         },
       ),
       actions: <Widget>[
-        IconButton(
-          icon: const Icon(Icons.search, color: Colors.orange),
-          onPressed: () {
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => const Search()));
-          },
-        ),
         IconButton(
           icon: const Icon(Icons.settings, color: Colors.orange),
           onPressed: () {

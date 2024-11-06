@@ -1,103 +1,200 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ping_peng/screens/home.dart';
 
-class Create extends StatelessWidget {
-  const Create({super.key});
+class BecomePeng extends StatefulWidget {
+  const BecomePeng({super.key});
+
+  @override
+  BecomePengState createState() => BecomePengState();
+}
+
+class BecomePengState extends State<BecomePeng> {
+  // Text controllers
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _dobController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _usernameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _dobController.dispose();
+    super.dispose();
+  }
+
+  Future<void> signUp() async {
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user?.uid)
+          .set({
+        'username': _usernameController.text.trim(),
+        'email': _emailController.text.trim(),
+        'firstName': _firstNameController.text.trim(),
+        'lastName': _lastNameController.text.trim(),
+        'dob': _dobController.text.trim(),
+      });
+
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Home()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 const Text(
-                  "Become Peng!",
-                  style: TextStyle(color: Colors.orange, fontSize: 40),
+                  "Welcome Friend!",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 20),
-                const TextField(
+
+                // First Name Input
+                TextField(
+                  controller: _firstNameController,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'First Name',
-                      labelStyle: TextStyle(color: Colors.black87),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black87)),
-                      focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange))),
+                    labelText: 'First Name',
+                    labelStyle: const TextStyle(color: Colors.black87),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.black87),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.orange),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
-                const TextField(
+
+                // Last Name Input
+                TextField(
+                  controller: _lastNameController,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Last Name',
-                      labelStyle: TextStyle(color: Colors.black87),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black87)),
-                      focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange))),
+                    labelText: 'Last Name',
+                    labelStyle: const TextStyle(color: Colors.black87),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.black87),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.orange),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
-                const TextField(
+
+                // DOB Input
+                TextField(
+                  controller: _dobController,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'DOB: MM/DD/YYYY',
-                      labelStyle: TextStyle(color: Colors.black87),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black87)),
-                      focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange))),
+                    labelText: 'DOB: MM/DD/YYYY',
+                    labelStyle: const TextStyle(color: Colors.black87),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.black87),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.orange),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
-                const TextField(
+
+                // Email Input
+                TextField(
+                  controller: _emailController,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Email',
-                      labelStyle: TextStyle(color: Colors.black87),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black87)),
-                      focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange))),
+                    labelText: 'Email',
+                    labelStyle: const TextStyle(color: Colors.black87),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.black87),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.orange),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
-                const TextField(
+
+                // Username Input
+                TextField(
+                  controller: _usernameController,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Username',
-                      labelStyle: TextStyle(color: Colors.black87),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black87)),
-                      focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange))),
+                    labelText: 'Username',
+                    labelStyle: const TextStyle(color: Colors.black87),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.black87),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.orange),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
-                const TextField(
+
+                // Password Input
+                TextField(
+                  controller: _passwordController,
+                  obscureText: true,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Password',
-                      labelStyle: TextStyle(color: Colors.black87),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black87)),
-                      focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange))),
+                    labelText: 'Password',
+                    labelStyle: const TextStyle(color: Colors.black87),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.black87),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(color: Colors.orange),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
-                const TextField(
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Verify Password',
-                      labelStyle: TextStyle(color: Colors.black87),
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black87)),
-                      focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange))),
-                ),
-                const SizedBox(height: 20),
+
+                // Sign Up Button
                 Row(
                   children: [
-                    Container(width: 10),
+                    Container(width: 3),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: ElevatedButton(
@@ -107,36 +204,45 @@ class Create extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.black87,
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 50, vertical: 15)),
+                                horizontal: 25, vertical: 10)),
                         child: const Text(
                           'Cancel',
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20),
                         ),
                       ),
                     ),
-                    Container(width: 60),
+                    Container(width: 13),
                     Align(
                       alignment: Alignment.centerRight,
                       child: ElevatedButton(
-                        onPressed: () {
-                          //Deal With Login
-                        },
+                        onPressed: signUp,
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black87,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 50, vertical: 15)),
+                          backgroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 25,
+                            vertical: 10,
+                          ),
+                        ),
                         child: const Text(
-                          'Login',
-                          style: TextStyle(color: Colors.white),
+                          'Create Account',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ],
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
-/**/

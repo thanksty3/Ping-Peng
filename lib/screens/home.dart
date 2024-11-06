@@ -1,41 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:ping_peng/screens/chats.dart';
 import 'package:ping_peng/screens/notifications.dart';
 import 'package:ping_peng/screens/search.dart';
 import 'package:ping_peng/screens/settings.dart';
-import 'package:ping_peng/screens/home.dart';
+import 'package:ping_peng/screens/shows.dart';
 
-class Account extends Home {
-  const Account({super.key});
+class Home extends StatelessWidget {
+  const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const NavAppBar(),
-      backgroundColor: Colors.black87,
+    return const Scaffold(
+      appBar: NavAppBar(),
+      backgroundColor: Colors.white,
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 60, vertical: 10)),
-              child: const Text(
-                'Back',
-                style: TextStyle(
-                    color: Colors.orange,
-                    fontSize: 35,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 20),
-          ],
+        child: Text(
+          'Home Screen Content Goes Here',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 24,
+          ),
         ),
       ),
+      bottomNavigationBar: NavBottomNavigationBar(),
     );
   }
 }
@@ -75,4 +62,36 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+class NavBottomNavigationBar extends Home {
+  const NavBottomNavigationBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomAppBar(
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 2,
+      color: Colors.black,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.tv, color: Colors.white),
+            onPressed: () {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => const Chats()));
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.chat, color: Colors.white),
+            onPressed: () {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => const Shows()));
+            },
+          ),
+        ],
+      ),
+    );
+  }
 }
