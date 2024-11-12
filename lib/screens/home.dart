@@ -35,7 +35,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.black,
       leading: IconButton(
-        icon: const Icon(Icons.notifications, color: Colors.orange, size: 40),
+        icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
         onPressed: () {
           Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => const Notifications()));
@@ -43,14 +43,14 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: <Widget>[
         IconButton(
-          icon: const Icon(Icons.search, color: Colors.orange, size: 40),
+          icon: const Icon(Icons.search, color: Colors.orange, size: 30),
           onPressed: () {
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => const Search()));
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => Friends()));
           },
         ),
         IconButton(
-          icon: const Icon(Icons.settings, color: Colors.orange, size: 40),
+          icon: const Icon(Icons.settings, color: Colors.orange, size: 30),
           onPressed: () {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => const Settings()));

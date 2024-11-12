@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ping_peng/screens/search.dart';
+import 'package:ping_peng/screens/settings.dart';
 
 class Notifications extends StatelessWidget {
   const Notifications({super.key});
@@ -34,4 +35,34 @@ class Notifications extends StatelessWidget {
       ),
     );
   }
+}
+
+class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const NavAppBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.white,
+      leading: IconButton(
+        icon: const Icon(Icons.search, color: Colors.orange, size: 30),
+        onPressed: () {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const Friends()));
+        },
+      ),
+      actions: <Widget>[
+        IconButton(
+          icon: const Icon(Icons.settings, color: Colors.orange, size: 30),
+          onPressed: () {
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => const Settings()));
+          },
+        ),
+      ],
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

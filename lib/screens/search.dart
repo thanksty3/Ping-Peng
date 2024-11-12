@@ -3,17 +3,25 @@ import 'package:ping_peng/screens/home.dart';
 import 'package:ping_peng/screens/notifications.dart';
 import 'package:ping_peng/screens/settings.dart';
 
-class Search extends Home {
-  const Search({super.key});
+class Friends extends Home {
+  const Friends({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const NavAppBar(),
+      backgroundColor: Colors.white,
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
+            const Text(
+              'Friends',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange,
+                  fontSize: 40),
+            ),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
@@ -46,7 +54,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.white,
       leading: IconButton(
-        icon: const Icon(Icons.notifications, color: Colors.orange),
+        icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
         onPressed: () {
           Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => const Notifications()));
@@ -54,7 +62,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: <Widget>[
         IconButton(
-          icon: const Icon(Icons.settings, color: Colors.orange),
+          icon: const Icon(Icons.settings, color: Colors.orange, size: 30),
           onPressed: () {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => const Settings()));

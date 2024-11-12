@@ -12,8 +12,15 @@ class Chats extends Home {
       backgroundColor: Colors.black87,
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
+            Text(
+              "Chats",
+              style: TextStyle(
+                  color: Colors.orange,
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 20),
           ],
         ),
@@ -53,7 +60,7 @@ class NavBottomNavigationBar extends StatelessWidget {
             icon: const Icon(Icons.chat, color: Colors.white, size: 30),
             onPressed: () {
               Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => const Shows()));
+                  MaterialPageRoute(builder: (context) => const Chats()));
             },
           ),
         ],

@@ -86,16 +86,13 @@ class Settings extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               const Text(
                 "Settings",
-                style: TextStyle(
-                    color: Colors.orange,
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 50),
               //back button
               ElevatedButton(
                 onPressed: () {
@@ -173,7 +170,7 @@ class Settings extends StatelessWidget {
                       fontWeight: FontWeight.bold),
                 ),
               ),
-              const SizedBox(height: 50),
+              const SizedBox(height: 40),
               //logout button
               ElevatedButton(
                 onPressed: () => logOut(context),
@@ -205,7 +202,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.white,
       leading: IconButton(
-        icon: const Icon(Icons.notifications, color: Colors.orange),
+        icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
         onPressed: () {
           Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => const Notifications()));
@@ -213,10 +210,10 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: <Widget>[
         IconButton(
-          icon: const Icon(Icons.search, color: Colors.orange),
+          icon: const Icon(Icons.search, color: Colors.orange, size: 30),
           onPressed: () {
             Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => const Search()));
+                MaterialPageRoute(builder: (context) => const Friends()));
           },
         ),
       ],

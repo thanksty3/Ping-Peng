@@ -48,14 +48,11 @@ class ForgotPasswordState extends State<ForgotPassword> {
           padding: const EdgeInsets.all(16),
           child: SingleChildScrollView(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 const Text(
                   "Forgot Password",
-                  style: TextStyle(
-                      color: Colors.orange,
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 45, fontFamily: 'Jua'),
                 ),
                 // Logo
                 Container(
@@ -69,28 +66,6 @@ class ForgotPasswordState extends State<ForgotPassword> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Email
-                TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      labelText: "Email",
-                      labelStyle: const TextStyle(color: Colors.black87),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(color: Colors.black87),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(color: Colors.orange),
-                        borderRadius: BorderRadius.circular(12),
-                      )),
-                ),
-                const Text(
-                  '(An email will be sent to reset your password)',
-                  style: TextStyle(
-                      color: Colors.orange, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 60),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -126,6 +101,29 @@ class ForgotPasswordState extends State<ForgotPassword> {
                       ),
                     )
                   ],
+                ),
+                const SizedBox(height: 60),
+                // Email
+                TextField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: "Email",
+                      labelStyle: const TextStyle(color: Colors.black87),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.black87),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.orange),
+                        borderRadius: BorderRadius.circular(12),
+                      )),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'An email will be sent to reset your password',
+                  style: TextStyle(
+                      color: Colors.orange, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
