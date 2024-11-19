@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_peng/screens/account.dart';
@@ -88,11 +90,6 @@ class Settings extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              const Text(
-                "Settings",
-                style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 50),
               //back button
               ElevatedButton(
                 onPressed: () {
@@ -170,7 +167,7 @@ class Settings extends StatelessWidget {
                       fontWeight: FontWeight.bold),
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 60),
               //logout button
               ElevatedButton(
                 onPressed: () => logOut(context),
@@ -204,16 +201,22 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(
         icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
         onPressed: () {
-          Navigator.pushReplacement(context,
+          Navigator.push(context,
               MaterialPageRoute(builder: (context) => const Notifications()));
         },
       ),
       actions: <Widget>[
+        const Text(
+          'SETTINGS',
+          style:
+              TextStyle(fontFamily: 'Jua', color: Colors.orange, fontSize: 40),
+        ),
+        const SizedBox(width: 45),
         IconButton(
           icon: const Icon(Icons.search, color: Colors.orange, size: 30),
           onPressed: () {
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => const Friends()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const SearchFriends()));
           },
         ),
       ],

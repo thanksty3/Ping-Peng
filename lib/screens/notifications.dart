@@ -7,29 +7,14 @@ class Notifications extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const NavAppBar(),
+    return const Scaffold(
+      backgroundColor: Colors.white,
+      appBar: NavAppBar(),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 60, vertical: 10)),
-              child: const Text(
-                'Back',
-                style: TextStyle(
-                    color: Colors.orange,
-                    fontSize: 35,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
           ],
         ),
       ),
@@ -47,15 +32,15 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(
         icon: const Icon(Icons.search, color: Colors.orange, size: 30),
         onPressed: () {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const Friends()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const SearchFriends()));
         },
       ),
       actions: <Widget>[
         IconButton(
           icon: const Icon(Icons.settings, color: Colors.orange, size: 30),
           onPressed: () {
-            Navigator.pushReplacement(context,
+            Navigator.push(context,
                 MaterialPageRoute(builder: (context) => const Settings()));
           },
         ),

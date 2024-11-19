@@ -102,7 +102,7 @@ class ForgotPasswordState extends State<ForgotPassword> {
                     )
                   ],
                 ),
-                const SizedBox(height: 60),
+                const SizedBox(height: 20),
                 // Email
                 TextField(
                   controller: _emailController,

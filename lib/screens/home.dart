@@ -33,11 +33,11 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       leading: IconButton(
         icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
         onPressed: () {
-          Navigator.pushReplacement(context,
+          Navigator.push(context,
               MaterialPageRoute(builder: (context) => const Notifications()));
         },
       ),
@@ -45,14 +45,14 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: const Icon(Icons.search, color: Colors.orange, size: 30),
           onPressed: () {
-            Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (context) => Friends()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const SearchFriends()));
           },
         ),
         IconButton(
           icon: const Icon(Icons.settings, color: Colors.orange, size: 30),
           onPressed: () {
-            Navigator.pushReplacement(context,
+            Navigator.push(context,
                 MaterialPageRoute(builder: (context) => const Settings()));
           },
         ),
@@ -77,16 +77,31 @@ class NavBottomNavigationBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           IconButton(
-            icon: const Icon(Icons.tv, color: Colors.white, size: 30),
+            icon: const Icon(Icons.tv, color: Colors.white, size: 40),
             onPressed: () {
-              Navigator.pushReplacement(context,
+              Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const Shows()));
             },
           ),
           IconButton(
-            icon: const Icon(Icons.chat, color: Colors.white, size: 30),
+            icon: const Icon(Icons.not_interested, color: Colors.red, size: 50),
             onPressed: () {
-              Navigator.pushReplacement(context,
+              //handle switching to next peng
+            },
+          ),
+          IconButton(
+            iconSize: 200,
+            icon: Image.asset(
+              'assets/icons/like-ping.png',
+            ),
+            onPressed: () {
+              //handle adding friend and switching to the next peng
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.chat, color: Colors.white, size: 40),
+            onPressed: () {
+              Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const Chats()));
             },
           ),
