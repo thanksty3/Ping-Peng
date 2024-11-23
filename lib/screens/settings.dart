@@ -216,7 +216,7 @@ class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
           icon: const Icon(Icons.search, color: Colors.orange, size: 30),
           onPressed: () {
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const SearchFriends()));
+                MaterialPageRoute(builder: (context) => SearchScreen()));
           },
         ),
       ],

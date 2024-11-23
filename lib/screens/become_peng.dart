@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:ping_peng/database_services.dart';
+import 'package:ping_peng/database_services.dart' as database;
 import 'package:ping_peng/screens/login.dart';
 
 class BecomePeng extends StatefulWidget {
@@ -13,7 +13,7 @@ class BecomePeng extends StatefulWidget {
 }
 
 class BecomePengState extends State<BecomePeng> {
-  final _dbService = DatabaseService();
+  final _dbService = database.DatabaseService();
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
