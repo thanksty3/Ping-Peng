@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:ping_peng/database_services.dart';
+import 'package:ping_peng/screens/edit_profile.dart';
 import 'package:ping_peng/utils.dart';
-import 'package:ping_peng/screens/edit_info.dart';
 
 class Account extends StatefulWidget {
   const Account({super.key});
@@ -10,143 +11,226 @@ class Account extends StatefulWidget {
 }
 
 class _AccountState extends State<Account> {
+  final DatabaseService _databaseService = DatabaseService();
+
+  String _profilePictureUrl = 'assets/images/P!ngPeng.png';
+  String _firstName = '';
+  String _lastName = '';
+  String _username = '';
+  String _pengQuote = '';
+  List<String> _interests = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final userData = await _databaseService.getUserData();
+      if (userData != null) {
+        setState(() {
+          _profilePictureUrl = userData['profilePictureUrl'] ?? '';
+          _firstName = userData['firstName'] ?? '';
+          _lastName = userData['lastName'] ?? '';
+          _username = userData['username'] ?? '';
+          _pengQuote = userData['pengQuote'] ?? '';
+          _interests = List<String>.from(userData['myInterests'] ?? []);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load user data: $e')),
+      );
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const AccountNavAppBar(),
-      backgroundColor: Colors.white12,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            //profile picture that is fetched from firebase storage
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 100,
-                )
-              ],
-            ),
-            const SizedBox(height: 10),
-
-            //name and username fetched from firebase cloud
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Column(
-                  children: [
-                    Text('firstName lastName',
-                        style: TextStyle(fontFamily: 'Jua', fontSize: 25)),
-                    Text('@username',
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold)),
-                  ],
-                )
-              ],
-            ),
-
-            //edit button
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const EditInfo()));
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8))),
-                  child: const Text(
-                    'Edit Profile',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.black87),
-                  ),
-                ),
-              ],
-            ),
-
-            //interests and quote fetched from firebase cloud
-            FittedBox(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  //peng quote
-                  Column(
+      backgroundColor: Colors.black87,
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator(color: Colors.orange))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  // Profile Picture
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Peng Quote',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold)),
-                      const SizedBox(height: 10),
-                      Container(
-                        width: 150,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white),
-                          borderRadius: BorderRadius.circular(2),
-                          gradient: LinearGradient(
-                              colors: [Colors.orange, Colors.black87],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter),
-                        ),
-                        child: Card(
-                            color: Colors.white,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(2)),
-                            child: const Text(
-                              '"My Peng Quote"',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: Colors.black87),
-                            )),
-                      )
+                      CircleAvatar(
+                        radius: 100,
+                        backgroundImage: _profilePictureUrl.isNotEmpty
+                            ? NetworkImage(_profilePictureUrl)
+                            : AssetImage('assets/images/P!ngPeng.png')
+                                as ImageProvider,
+                      ),
                     ],
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(height: 10),
 
-                  //interests
-                  Column(
+                  // Name and Username
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 15),
-                      Text(
-                        'Interests',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
+                      Column(
+                        children: [
+                          Text(
+                            '$_firstName $_lastName',
+                            style: TextStyle(
+                              fontFamily: 'Jua',
+                              fontSize: 25,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            '@$_username',
+                            style: const TextStyle(
+                              color: Colors.orange,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 10),
-                      Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white),
-                            borderRadius: BorderRadius.circular(5),
-                            gradient: LinearGradient(
-                                colors: [Colors.orange, Colors.black87],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter)),
-                        width: 200,
-                        child: Wrap(
+                    ],
+                  ),
+
+                  // Edit Button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => EditProfilePage()),
+                          ).then((_) => _loadUserData());
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Edit Profile',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Peng Quote and Interests
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Peng Quote
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Chip(
-                              backgroundColor: Colors.white,
-                              label: Text(
-                                'interest',
-                                style:
-                                    TextStyle(fontFamily: 'Jua', fontSize: 15),
+                            const Text(
+                              'Peng Quote',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
-                            )
+                            ),
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.all(8.0),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.orange),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Text(
+                                _pengQuote.isNotEmpty
+                                    ? '"$_pengQuote"'
+                                    : 'No Peng Quote yet.',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
                           ],
                         ),
-                      )
+                      ),
+                      const SizedBox(width: 20),
+
+                      // Interests
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Interests',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.all(8.0),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.orange),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Wrap(
+                                spacing: 8.0,
+                                runSpacing: 4.0,
+                                children: _interests.isNotEmpty
+                                    ? _interests
+                                        .map(
+                                          (interest) => Chip(
+                                            backgroundColor: Colors.orange,
+                                            label: Text(
+                                              interest,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: 'Jua',
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                        .toList()
+                                    : [
+                                        const Text(
+                                          'No interests yet.',
+                                          style: TextStyle(color: Colors.white),
+                                        )
+                                      ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
-                  )
+                  ),
                 ],
               ),
-            )
-          ],
-        ),
-      ),
+            ),
       bottomNavigationBar: const AccountNavBottomNavigationBar(),
     );
   }

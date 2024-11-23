@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -7,6 +8,11 @@ class DatabaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
+
+  // Get the currently authenticated user
+  Future<User?> getCurrentUser() async {
+    return _auth.currentUser;
+  }
 
   // Create a new user document in Firestore
   Future<void> createUser(String uid, String firstName, String lastName,
@@ -20,108 +26,127 @@ class DatabaseService {
         "pengQuote": "",
         "myInterests": [],
         "profilePictureUrl": null,
-        "friends": []
+        "friends": [],
       });
       log("User created successfully for UID: $uid");
     } catch (e) {
       log("Failed to create user: $e");
-      rethrow; // Propagate the error for the caller to handle
+      rethrow;
     }
   }
 
-  // Fetch current user's data
+  // Fetch the current user's data
   Future<Map<String, dynamic>?> getUserData() async {
     try {
-      final User? user = _auth.currentUser;
+      final user = await getCurrentUser();
       if (user == null) throw Exception("No user is logged in.");
 
-      String uid = user.uid;
-
-      DocumentSnapshot<Map<String, dynamic>> userDoc =
-          await _firestore.collection('users').doc(uid).get();
+      final userDoc = await _firestore.collection('users').doc(user.uid).get();
       if (!userDoc.exists) throw Exception("User document does not exist.");
 
-      Map<String, dynamic>? data = userDoc.data();
-      if (data == null) throw Exception("User data is null.");
-
-      return {
-        'firstName': data['firstName'] ?? '',
-        'lastName': data['lastName'] ?? '',
-        'username': data['username'] ?? '',
-        'pengQuote': data['pengQuote'] ?? '',
-        'myInterests': List<String>.from(data['myInterests'] ?? []),
-      };
+      return userDoc.data();
     } catch (e) {
       log("Failed to fetch user data: $e");
       return null;
     }
   }
 
-  // Get the profile picture URL from Firebase Storage
-  Future<String> getProfilePictureUrl(String uid) async {
+  // Update the user's profile data
+  Future<void> updateUserData(
+      {String? pengQuote, List<String>? myInterests}) async {
     try {
-      String fileName = 'profilePictures/$uid';
-      Reference ref = _storage.ref().child(fileName);
-      return await ref.getDownloadURL();
+      final user = await getCurrentUser();
+      if (user == null) throw Exception("No user is logged in.");
+
+      final updates = <String, dynamic>{};
+      if (pengQuote != null) updates['pengQuote'] = pengQuote;
+      if (myInterests != null) updates['myInterests'] = myInterests;
+
+      await _firestore.collection('users').doc(user.uid).update(updates);
+      log("User data updated successfully.");
     } catch (e) {
-      log("Failed to get profile picture URL for UID: $uid, Error: $e");
-      return '';
-    }
-  }
-
-  //Read and log all users
-  Future<void> readUsers() async {
-    try {
-      final data = await _firestore.collection("users").get();
-      for (var doc in data.docs) {
-        log("User: ${doc.data()}");
-      }
-    } catch (e) {
-      log("Failed to read users: $e");
-    }
-  }
-
-  //Add or remove a friend
-  Future<void> updateFriends(
-      String currentUserId, String friendUserId, bool add) async {
-    String action = add ? "Adding" : "Removing";
-    try {
-      log("$action friend: $friendUserId for user: $currentUserId");
-
-      await _firestore.collection("users").doc(currentUserId).update({
-        'friends': add
-            ? FieldValue.arrayUnion([friendUserId])
-            : FieldValue.arrayRemove([friendUserId])
-      });
-
-      await _firestore.collection("users").doc(friendUserId).update({
-        'friends': add
-            ? FieldValue.arrayUnion([currentUserId])
-            : FieldValue.arrayRemove([currentUserId])
-      });
-
-      log("$action friend successful");
-    } catch (e) {
-      log("Failed to $action friend: $e");
+      log("Failed to update user data: $e");
       rethrow;
     }
   }
 
+  // Uploads image to Firebase Storage and stores the download URL in Firestore
+  Future<void> uploadAndSaveProfilePicture(File image) async {
+    try {
+      final user = await getCurrentUser();
+      if (user == null) throw Exception("No user is logged in.");
+
+      // Upload the image to Firebase Storage
+      final ref = _storage.ref().child('profilePictures/${user.uid}');
+      await ref.putFile(image);
+
+      // Get the download URL
+      final downloadUrl = await ref.getDownloadURL();
+
+      // Save the download URL in Firestore
+      await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .update({'profilePictureUrl': downloadUrl});
+
+      log("Profile picture uploaded and saved successfully.");
+    } catch (e) {
+      log("Failed to upload profile picture: $e");
+      rethrow;
+    }
+  }
+
+  // Fetches the profile picture URL from Firestore
+  Future<String?> fetchProfilePicture() async {
+    try {
+      final user = await getCurrentUser();
+      if (user == null) throw Exception("No user is logged in.");
+
+      final doc = await _firestore.collection('users').doc(user.uid).get();
+
+      if (doc.exists && doc.data() != null) {
+        return doc.data()?['profilePictureUrl'] as String?;
+      }
+      return null;
+    } catch (e) {
+      log("Failed to fetch profile picture: $e");
+      return null;
+    }
+  }
+
+  // Reset the user's profile picture to default
+  Future<void> resetProfilePicture() async {
+    try {
+      final user = await getCurrentUser();
+      if (user == null) throw Exception("No user is logged in.");
+
+      await _firestore.collection('users').doc(user.uid).update({
+        'profilePictureUrl': null,
+      });
+      log("Profile picture reset to default.");
+    } catch (e) {
+      log("Failed to reset profile picture: $e");
+      rethrow;
+    }
+  }
+
+  // Search for users by username
   Future<List<Map<String, dynamic>>> searchUsers(String query) async {
     try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
+      final querySnapshot = await _firestore
           .collection('users')
           .where('username', isGreaterThanOrEqualTo: query)
-          .where('username', isLessThanOrEqualTo: 'query\uf8ff')
+          .where('username', isLessThanOrEqualTo: '$query\uf8ff')
           .get();
+
       return querySnapshot.docs.map((doc) {
-        Map<String, dynamic> data = doc.data();
+        final data = doc.data();
         return {
           'userId': doc.id,
           'username': data['username'] ?? '',
           'firstName': data['firstName'] ?? '',
           'lastName': data['lastName'] ?? '',
-          'profilePictureUrl': data['prodilePictireUrl'] ?? ''
+          'profilePictureUrl': data['profilePictureUrl'] ?? '',
         };
       }).toList();
     } catch (e) {

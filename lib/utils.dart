@@ -274,20 +274,11 @@ class SearchNavAppBar extends StatelessWidget implements PreferredSizeWidget {
               MaterialPageRoute(builder: (context) => const Notifications()));
         },
       ),
+      title: Text(
+        'Search',
+        style: TextStyle(color: Colors.orange, fontSize: 40, fontFamily: 'Jua'),
+      ),
       actions: <Widget>[
-        const Text(
-          'SEARCH',
-          style:
-              TextStyle(fontFamily: 'Jua', color: Colors.orange, fontSize: 40),
-        ),
-        const SizedBox(width: 35),
-        IconButton(
-          icon: const Icon(Icons.search, color: Colors.orange, size: 30),
-          onPressed: () {
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => SearchScreen()));
-          },
-        ),
         IconButton(
           icon: const Icon(Icons.settings, color: Colors.orange, size: 30),
           onPressed: () {
