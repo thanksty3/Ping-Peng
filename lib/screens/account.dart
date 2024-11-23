@@ -63,7 +63,7 @@ class _AccountState extends State<Account> {
       body: _isLoading
           ? Center(child: CircularProgressIndicator(color: Colors.orange))
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -80,7 +80,7 @@ class _AccountState extends State<Account> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 5),
 
                   // Name and Username
                   Row(
@@ -107,6 +107,7 @@ class _AccountState extends State<Account> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 5),
 
                   // Edit Button
                   Row(
@@ -138,93 +139,101 @@ class _AccountState extends State<Account> {
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
 
                   // Peng Quote and Interests
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // Peng Quote
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Peng Quote',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Peng Quote',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            Container(
-                              padding: const EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.orange),
-                                borderRadius: BorderRadius.circular(5),
+                              const SizedBox(height: 10),
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.orange),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Text(
+                                  _pengQuote.isNotEmpty
+                                      ? '"$_pengQuote"'
+                                      : 'No Peng Quote yet.',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
                               ),
-                              child: Text(
-                                _pengQuote.isNotEmpty
-                                    ? '"$_pengQuote"'
-                                    : 'No Peng Quote yet.',
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 20),
+                      const SizedBox(height: 20),
 
                       // Interests
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Interests',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Interests',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            Container(
-                              padding: const EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.orange),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: Wrap(
-                                spacing: 8.0,
-                                runSpacing: 4.0,
-                                children: _interests.isNotEmpty
-                                    ? _interests
-                                        .map(
-                                          (interest) => Chip(
-                                            backgroundColor: Colors.orange,
-                                            label: Text(
-                                              interest,
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontFamily: 'Jua',
+                              const SizedBox(height: 10),
+                              Container(
+                                width: 300,
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.orange),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Wrap(
+                                  spacing: 8,
+                                  runSpacing: 4,
+                                  children: _interests.isNotEmpty
+                                      ? _interests
+                                          .map(
+                                            (interest) => Chip(
+                                              backgroundColor: Colors.orange,
+                                              label: Text(
+                                                interest,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontFamily: 'Jua',
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        )
-                                        .toList()
-                                    : [
-                                        const Text(
-                                          'No interests yet.',
-                                          style: TextStyle(color: Colors.white),
-                                        )
-                                      ],
+                                          )
+                                          .toList()
+                                      : [
+                                          const Text(
+                                            'No interests yet.',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          )
+                                        ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
                       ),
                     ],
                   ),

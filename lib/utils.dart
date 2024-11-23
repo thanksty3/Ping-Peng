@@ -339,7 +339,7 @@ class AccountNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       elevation: 1,
       leading: IconButton(
         icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),

@@ -47,7 +47,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _loadUserData();
   }
 
-  /// Load user data from Firestore
+  // Load user data from Firestore
   Future<void> _loadUserData() async {
     setState(() {
       _isLoading = true;
@@ -73,7 +73,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
   }
 
-  /// Save user data to Firestore
+  // Save user data to Firestore
   Future<void> _saveUserData() async {
     setState(() {
       _isLoading = true;
@@ -101,7 +101,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
   }
 
-  /// Handle profile picture selection and upload
+  // Handle profile picture selection and upload
   Future<void> _chooseProfilePicture() async {
     final picker = ImagePicker();
 
@@ -115,7 +115,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               leading: Icon(Icons.photo_library, color: Colors.orange),
               title: Text(
                 'Choose from Photo Library',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.orange),
               ),
               onTap: () async {
                 Navigator.pop(context);
@@ -130,51 +130,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     final image = File(pickedFile.path);
                     await _databaseService.uploadAndSaveProfilePicture(image);
 
-                    // Fetch and update the profile picture URL
                     final updatedUrl =
-                        await _databaseService.fetchProfilePicture();
-                    setState(() {
-                      _profilePictureUrl = updatedUrl ?? '';
-                      _isLoading = false;
-                    });
+                        await _databaseService.getProfilePictureUrl(
+                            (await _databaseService.getCurrentUser())!.uid);
+                    if (mounted) {
+                      setState(() {
+                        _profilePictureUrl = updatedUrl ?? '';
+                        _isLoading = false;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Profile picture updated!')),
+                      );
+                    }
                   }
                 } catch (e) {
-                  setState(() {
-                    _isLoading = false;
-                  });
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to update picture: $e')),
-                  );
-                }
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.image, color: Colors.orange),
-              title: Text(
-                'Set Default Image',
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () async {
-                Navigator.pop(context);
-                try {
-                  setState(() {
-                    _isLoading = true;
-                  });
-
-                  await _databaseService.resetProfilePicture();
-                  setState(() {
-                    _profilePictureUrl = '';
-                    _isLoading = false;
-                  });
-                } catch (e) {
-                  setState(() {
-                    _isLoading = false;
-                  });
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to reset picture: $e')),
-                  );
+                  if (mounted) {
+                    setState(() {
+                      _isLoading = false;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to update picture: $e')),
+                    );
+                  }
                 }
               },
             ),
@@ -246,13 +223,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       label: const Text(
                         'Peng Quote',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.orange,
                           fontFamily: 'Jua',
                           fontSize: 30,
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
+                        borderSide: BorderSide(color: Colors.orange),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.orange),
@@ -268,7 +245,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       style: TextStyle(
                         fontSize: 25,
                         fontFamily: 'Jua',
-                        color: Colors.white,
+                        color: Colors.orange,
                       ),
                     ),
                   ),

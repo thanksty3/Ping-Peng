@@ -70,47 +70,32 @@ class DatabaseService {
     }
   }
 
-  // Uploads image to Firebase Storage and stores the download URL in Firestore
+  // Upload and save the profile picture to Firebase Storage and Firestore
   Future<void> uploadAndSaveProfilePicture(File image) async {
     try {
       final user = await getCurrentUser();
       if (user == null) throw Exception("No user is logged in.");
 
-      // Upload the image to Firebase Storage
+      // Reference to Firebase Storage
       final ref = _storage.ref().child('profilePictures/${user.uid}');
+      log("Uploading file to: profilePictures/${user.uid}");
+
+      // Upload the image to Firebase Storage
       await ref.putFile(image);
+      log("Image uploaded successfully.");
 
-      // Get the download URL
+      // Retrieve the download URL
       final downloadUrl = await ref.getDownloadURL();
+      log("Download URL obtained: $downloadUrl");
 
-      // Save the download URL in Firestore
-      await _firestore
-          .collection('users')
-          .doc(user.uid)
-          .update({'profilePictureUrl': downloadUrl});
-
-      log("Profile picture uploaded and saved successfully.");
+      // Save the download URL to Firestore
+      await _firestore.collection('users').doc(user.uid).update({
+        'profilePictureUrl': downloadUrl,
+      });
+      log("Profile picture URL saved in Firestore.");
     } catch (e) {
-      log("Failed to upload profile picture: $e");
-      rethrow;
-    }
-  }
-
-  // Fetches the profile picture URL from Firestore
-  Future<String?> fetchProfilePicture() async {
-    try {
-      final user = await getCurrentUser();
-      if (user == null) throw Exception("No user is logged in.");
-
-      final doc = await _firestore.collection('users').doc(user.uid).get();
-
-      if (doc.exists && doc.data() != null) {
-        return doc.data()?['profilePictureUrl'] as String?;
-      }
-      return null;
-    } catch (e) {
-      log("Failed to fetch profile picture: $e");
-      return null;
+      log("Failed to upload and save profile picture: $e");
+      throw Exception("Failed to upload and save profile picture: $e");
     }
   }
 
@@ -126,7 +111,20 @@ class DatabaseService {
       log("Profile picture reset to default.");
     } catch (e) {
       log("Failed to reset profile picture: $e");
-      rethrow;
+      throw Exception("Failed to reset profile picture: $e");
+    }
+  }
+
+  // Get the profile picture URL for a specific user
+  Future<String?> getProfilePictureUrl(String userId) async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+      if (!userDoc.exists) throw Exception("User document does not exist.");
+
+      return userDoc.data()?['profilePictureUrl'];
+    } catch (e) {
+      log("Failed to retrieve profile picture URL: $e");
+      return null;
     }
   }
 
