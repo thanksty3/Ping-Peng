@@ -59,7 +59,7 @@ class _AccountState extends State<Account> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const AccountNavAppBar(),
-      backgroundColor: Colors.black87,
+      backgroundColor: Colors.black,
       body: _isLoading
           ? Center(child: CircularProgressIndicator(color: Colors.orange))
           : SingleChildScrollView(
@@ -92,16 +92,16 @@ class _AccountState extends State<Account> {
                             '$_firstName $_lastName',
                             style: TextStyle(
                               fontFamily: 'Jua',
-                              fontSize: 25,
+                              fontSize: 30,
                               color: Colors.white,
                             ),
                           ),
                           Text(
                             '@$_username',
                             style: const TextStyle(
-                              color: Colors.orange,
-                              fontWeight: FontWeight.bold,
-                            ),
+                                color: Colors.orange,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
                           ),
                         ],
                       ),
@@ -122,7 +122,7 @@ class _AccountState extends State<Account> {
                           ).then((_) => _loadUserData());
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
+                          backgroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -131,14 +131,13 @@ class _AccountState extends State<Account> {
                           'Edit Profile',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16),
                         ),
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 10),
 
                   // Peng Quote and Interests
@@ -155,8 +154,9 @@ class _AccountState extends State<Account> {
                               const Text(
                                 'Peng Quote',
                                 style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 25,
                                   fontWeight: FontWeight.bold,
+                                  fontFamily: 'Jua',
                                   color: Colors.white,
                                 ),
                               ),
@@ -172,7 +172,9 @@ class _AccountState extends State<Account> {
                                       ? '"$_pengQuote"'
                                       : 'No Peng Quote yet.',
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(color: Colors.white),
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ),
                             ],
@@ -191,8 +193,9 @@ class _AccountState extends State<Account> {
                               const Text(
                                 'Interests',
                                 style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 25,
                                   fontWeight: FontWeight.bold,
+                                  fontFamily: 'Jua',
                                   color: Colors.white,
                                 ),
                               ),

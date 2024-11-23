@@ -24,7 +24,7 @@ class HomeNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       leading: IconButton(
         icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
         onPressed: () {
@@ -72,21 +72,6 @@ class HomeNavBottomNavigationBar extends StatelessWidget {
             onPressed: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const Shows()));
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.not_interested, color: Colors.red, size: 50),
-            onPressed: () {
-              //handle switching to next peng
-            },
-          ),
-          IconButton(
-            iconSize: 200,
-            icon: Image.asset(
-              'assets/icons/like-ping.png',
-            ),
-            onPressed: () {
-              //handle adding friend and switching to the next peng
             },
           ),
           IconButton(

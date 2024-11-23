@@ -21,6 +21,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     'Beau',
     'Comedy',
     'Cooking',
+    'Crab Rangoon people',
     'Dancing',
     'Fashion',
     'Fitness',
