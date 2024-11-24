@@ -18,6 +18,26 @@ pickImage(ImageSource source) async {
   log('No images selected');
 }
 
+class NotificationsAppBar extends StatelessWidget
+    implements PreferredSizeWidget {
+  const NotificationsAppBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      iconTheme: IconThemeData(color: Colors.orange),
+      backgroundColor: Colors.black,
+      title: const Text(
+        'Notfications',
+        style: TextStyle(fontFamily: 'Jua', color: Colors.orange, fontSize: 40),
+      ),
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
 class HomeNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   const HomeNavAppBar({super.key});
 
@@ -28,8 +48,10 @@ class HomeNavAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(
         icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
         onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const Notifications()));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const NotificationsScreen()));
         },
       ),
       actions: <Widget>[
@@ -55,38 +77,6 @@ class HomeNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class HomeNavBottomNavigationBar extends StatelessWidget {
-  const HomeNavBottomNavigationBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomAppBar(
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 2,
-      color: Colors.black,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.tv, color: Colors.white, size: 40),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Shows()));
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.chat, color: Colors.white, size: 40),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Chats()));
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class ShowsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   const ShowsNavAppBar({super.key});
 
@@ -97,8 +87,10 @@ class ShowsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(
         icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
         onPressed: () {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const Notifications()));
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const NotificationsScreen()));
         },
       ),
       actions: <Widget>[
@@ -179,8 +171,10 @@ class ChatsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(
         icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
         onPressed: () {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const Notifications()));
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const NotificationsScreen()));
         },
       ),
       actions: <Widget>[
@@ -251,12 +245,14 @@ class SearchNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       leading: IconButton(
         icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
         onPressed: () {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => const Notifications()));
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const NotificationsScreen()));
         },
       ),
       title: Text(
@@ -331,7 +327,8 @@ class AccountNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         onPressed: () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const Notifications()),
+            MaterialPageRoute(
+                builder: (context) => const NotificationsScreen()),
           );
         },
       ),
@@ -399,4 +396,43 @@ class AccountNavBottomNavigationBar extends StatelessWidget {
       ),
     );
   }
+}
+
+class SettingsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const SettingsNavAppBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.black,
+      leading: IconButton(
+        icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const NotificationsScreen()));
+        },
+      ),
+      actions: <Widget>[
+        const Text(
+          'SETTINGS',
+          textAlign: TextAlign.center,
+          style:
+              TextStyle(fontFamily: 'Jua', color: Colors.orange, fontSize: 40),
+        ),
+        const SizedBox(width: 50),
+        IconButton(
+          icon: const Icon(Icons.search, color: Colors.orange, size: 30),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => SearchScreen()));
+          },
+        ),
+      ],
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

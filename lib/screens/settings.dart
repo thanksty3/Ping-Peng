@@ -6,8 +6,7 @@ import 'package:ping_peng/screens/account.dart';
 import 'package:ping_peng/screens/forgot_password.dart';
 import 'package:ping_peng/screens/home.dart';
 import 'package:ping_peng/screens/login.dart';
-import 'package:ping_peng/screens/notifications.dart';
-import 'package:ping_peng/screens/search.dart';
+import 'package:ping_peng/utils.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});
@@ -27,15 +26,21 @@ class Settings extends StatelessWidget {
       bool confirmed = await showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Are you sure you want to delete your account?'),
+          backgroundColor: Colors.black87,
+          title: const Text(
+            'Are you sure you want to delete your account?',
+            style: TextStyle(color: Colors.white),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child:
+                  const Text('Cancel', style: TextStyle(color: Colors.orange)),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Agree'),
+              child:
+                  const Text('Agree', style: TextStyle(color: Colors.orange)),
             ),
           ],
         ),
@@ -45,15 +50,21 @@ class Settings extends StatelessWidget {
         bool doubleConfirmed = await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Are you sure you sure?'),
+            backgroundColor: Colors.black87,
+            title: const Text(
+              'Are you sure you sure?',
+              style: TextStyle(color: Colors.white),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
+                child: const Text('Cancel',
+                    style: TextStyle(color: Colors.orange)),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text('Agree'),
+                child:
+                    const Text('Agree', style: TextStyle(color: Colors.orange)),
               ),
             ],
           ),
@@ -82,24 +93,25 @@ class Settings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const NavAppBar(),
-      backgroundColor: Colors.white,
+      appBar: const SettingsNavAppBar(),
+      backgroundColor: Colors.black87,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              //back button
+              // Home Button
               ElevatedButton(
                 onPressed: () {
                   Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => const Home()));
                 },
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black87,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 60, vertical: 10)),
+                  backgroundColor: Colors.orange,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 60, vertical: 10),
+                ),
                 child: const Text(
                   'Home',
                   style: TextStyle(
@@ -109,13 +121,14 @@ class Settings extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              //delete account button
+              // Delete Account Button
               ElevatedButton(
                 onPressed: () => deleteAccount(context),
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black87,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 15)),
+                  backgroundColor: Colors.orange,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                ),
                 child: const Text(
                   'Delete Account',
                   style: TextStyle(
@@ -125,7 +138,7 @@ class Settings extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              //password button
+              // Password Button
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -135,9 +148,10 @@ class Settings extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black87,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 60, vertical: 10)),
+                  backgroundColor: Colors.orange,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 60, vertical: 10),
+                ),
                 child: const Text(
                   'Password',
                   style: TextStyle(
@@ -147,7 +161,7 @@ class Settings extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              //profile button
+              // Profile Button
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -156,9 +170,10 @@ class Settings extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black87,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 60, vertical: 10)),
+                  backgroundColor: Colors.orange,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 60, vertical: 10),
+                ),
                 child: const Text(
                   'Profile',
                   style: TextStyle(
@@ -168,13 +183,14 @@ class Settings extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 60),
-              //logout button
+              // Logout Button
               ElevatedButton(
                 onPressed: () => logOut(context),
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black87,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 60, vertical: 10)),
+                  backgroundColor: Colors.orange,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 60, vertical: 10),
+                ),
                 child: const Text(
                   'Logout',
                   style: TextStyle(
@@ -189,40 +205,4 @@ class Settings extends StatelessWidget {
       ),
     );
   }
-}
-
-class NavAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const NavAppBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: Colors.white,
-      leading: IconButton(
-        icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const Notifications()));
-        },
-      ),
-      actions: <Widget>[
-        const Text(
-          'SETTINGS',
-          style:
-              TextStyle(fontFamily: 'Jua', color: Colors.orange, fontSize: 40),
-        ),
-        const SizedBox(width: 45),
-        IconButton(
-          icon: const Icon(Icons.search, color: Colors.orange, size: 30),
-          onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => SearchScreen()));
-          },
-        ),
-      ],
-    );
-  }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

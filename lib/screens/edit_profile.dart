@@ -4,6 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:ping_peng/database_services.dart';
 
 class EditProfilePage extends StatefulWidget {
+  const EditProfilePage({super.key});
+
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
 }

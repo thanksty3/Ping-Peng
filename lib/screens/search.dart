@@ -1,10 +1,10 @@
-// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:ping_peng/database_services.dart';
-import 'package:ping_peng/utils.dart';
+import 'package:ping_peng/screens/account.dart';
 
 class SearchScreen extends StatefulWidget {
+  const SearchScreen({super.key});
+
   @override
   _SearchScreenState createState() => _SearchScreenState();
 }
@@ -15,14 +15,18 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _isLoading = false;
 
   void _searchUsers(String query) async {
-    if (query.isEmpty) return;
+    if (query.isEmpty) {
+      setState(() {
+        _searchResults = [];
+      });
+      return;
+    }
 
     setState(() {
       _isLoading = true;
     });
 
-    DatabaseService dbService = DatabaseService();
-    List<Map<String, dynamic>> results = await dbService.searchUsers(query);
+    final results = await DatabaseService().searchUsers(query);
 
     setState(() {
       _searchResults = results;
@@ -33,65 +37,67 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white12,
-      appBar: SearchNavAppBar(),
+      appBar: AppBar(
+        title: const Text('Search'),
+      ),
       body: Column(
         children: [
-          // Search Input
+          // Search bar
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: _searchController,
-              onChanged: (value) {
-                _searchUsers(value);
-              },
-              cursorColor: Colors.orange,
-              style: TextStyle(color: Colors.white, fontFamily: 'Poppins'),
               decoration: InputDecoration(
-                  hintText: 'Search by username...',
-                  hintStyle: TextStyle(color: Colors.white),
-                  prefixIcon: Icon(Icons.search, color: Colors.orange),
-                  enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white)),
-                  focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.orange))),
+                prefixIcon: const Icon(Icons.search),
+                hintText: 'Search for users...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+              onChanged: (query) {
+                _searchUsers(query.trim());
+              },
             ),
           ),
-
-          // Search Results
+          // Search results
           _isLoading
-              ? Center(child: CircularProgressIndicator(color: Colors.orange))
+              ? const CircularProgressIndicator()
               : Expanded(
-                  child: ListView.builder(
-                    itemCount: _searchResults.length,
-                    itemBuilder: (context, index) {
-                      final user = _searchResults[index];
-                      return ListTile(
-                        leading: CircleAvatar(
-                          radius: 50,
-                          backgroundImage: user['profilePictureUrl'] != null
-                              ? NetworkImage(user['profilePictureUrl'])
-                              : AssetImage('assets/default_avatar.png')
-                                  as ImageProvider,
+                  child: _searchResults.isEmpty
+                      ? const Center(child: Text('No users found'))
+                      : ListView.builder(
+                          itemCount: _searchResults.length,
+                          itemBuilder: (context, index) {
+                            final user = _searchResults[index];
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage: user['profilePictureUrl'] !=
+                                        null
+                                    ? NetworkImage(user['profilePictureUrl'])
+                                    : null,
+                                child: user['profilePictureUrl'] == null
+                                    ? const Icon(Icons.person)
+                                    : null,
+                              ),
+                              title: Text(user['username']),
+                              subtitle: Text(
+                                  '${user['firstName']} ${user['lastName']}'),
+                              onTap: () {
+                                // Navigate to user profile
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        Account(userId: user['userId']),
+                                  ),
+                                );
+                              },
+                            );
+                          },
                         ),
-                        title: Text(
-                          '${user['firstName']} ${user['lastName']}',
-                          style: TextStyle(color: Colors.orange, fontSize: 20),
-                        ),
-                        subtitle: Text(
-                          user['username'],
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onTap: () {
-                          // Navigate to the user's profile (Implement this)
-                        },
-                      );
-                    },
-                  ),
                 ),
         ],
       ),
-      bottomNavigationBar: SearchNavBottomNavigationBar(),
     );
   }
 }

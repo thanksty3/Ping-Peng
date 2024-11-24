@@ -5,7 +5,6 @@ import 'package:ping_peng/utils.dart';
 class Shows extends Home {
   const Shows({super.key});
 
-  @override
   Widget build(BuildContext context) {
     return const Scaffold(
       appBar: ShowsNavAppBar(),

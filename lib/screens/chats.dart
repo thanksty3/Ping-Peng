@@ -5,7 +5,6 @@ import 'package:ping_peng/utils.dart';
 class Chats extends Home {
   const Chats({super.key});
 
-  @override
   Widget build(BuildContext context) {
     return const Scaffold(
       appBar: ChatsNavAppBar(),

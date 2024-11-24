@@ -4,7 +4,9 @@ import 'package:ping_peng/screens/edit_profile.dart';
 import 'package:ping_peng/utils.dart';
 
 class Account extends StatefulWidget {
-  const Account({super.key});
+  final String? userId; // User ID of the profile to display (optional)
+
+  const Account({super.key, this.userId});
 
   @override
   _AccountState createState() => _AccountState();
@@ -20,6 +22,8 @@ class _AccountState extends State<Account> {
   String _pengQuote = '';
   List<String> _interests = [];
   bool _isLoading = true;
+  bool _isCurrentUser = false;
+  String _friendStatus = 'add';
 
   @override
   void initState() {
@@ -33,7 +37,17 @@ class _AccountState extends State<Account> {
     });
 
     try {
-      final userData = await _databaseService.getUserData();
+      final currentUserId = (await _databaseService.getCurrentUser())?.uid;
+      final userId = widget.userId ?? currentUserId;
+
+      if (userId == null) {
+        throw Exception("No user ID provided or logged in.");
+      }
+
+      _isCurrentUser = currentUserId == userId;
+
+      // Fetch the user's data
+      final userData = await _databaseService.getUserDataForUserId(userId);
       if (userData != null) {
         setState(() {
           _profilePictureUrl = userData['profilePictureUrl'] ?? '';
@@ -42,6 +56,17 @@ class _AccountState extends State<Account> {
           _username = userData['username'] ?? '';
           _pengQuote = userData['pengQuote'] ?? '';
           _interests = List<String>.from(userData['myInterests'] ?? []);
+        });
+      }
+
+      // Determine friend status
+      if (widget.userId != null) {
+        final friendStatus = await _databaseService.getFriendStatus(
+          currentUserId!,
+          userId,
+        );
+        setState(() {
+          _friendStatus = friendStatus;
         });
       }
     } catch (e) {
@@ -53,6 +78,50 @@ class _AccountState extends State<Account> {
     setState(() {
       _isLoading = false;
     });
+  }
+
+  Future<void> _handleFriendButtonPress() async {
+    try {
+      final currentUserId = (await _databaseService.getCurrentUser())?.uid;
+      final profileUserId = widget.userId;
+
+      if (currentUserId == null || profileUserId == null) {
+        throw Exception("Invalid user IDs for friendship action.");
+      }
+
+      switch (_friendStatus) {
+        case 'add':
+          await _databaseService.addFriend(currentUserId, profileUserId);
+          setState(() {
+            _friendStatus = 'pending';
+          });
+          break;
+        case 'pending':
+          await _databaseService.denyFriendRequest(
+              currentUserId, profileUserId);
+          setState(() {
+            _friendStatus = 'add';
+          });
+          break;
+        case 'add_back':
+          await _databaseService.acceptFriendRequest(
+              currentUserId, profileUserId);
+          setState(() {
+            _friendStatus = 'friends';
+          });
+          break;
+        case 'friends':
+          await _databaseService.removeFriend(currentUserId, profileUserId);
+          setState(() {
+            _friendStatus = 'add';
+          });
+          break;
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Action failed: $e')),
+      );
+    }
   }
 
   @override
@@ -109,33 +178,59 @@ class _AccountState extends State<Account> {
                   ),
                   const SizedBox(height: 5),
 
-                  // Edit Button
+                  // Edit Profile or Add/Remove Friend Button
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => EditProfilePage()),
-                          ).then((_) => _loadUserData());
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          'Edit Profile',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                        ),
-                      ),
+                      _isCurrentUser
+                          ? ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => EditProfilePage()),
+                                ).then((_) => _loadUserData());
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text(
+                                'Edit Profile',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16),
+                              ),
+                            )
+                          : ElevatedButton(
+                              onPressed: _handleFriendButtonPress,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _friendStatus == 'friends'
+                                    ? Colors.red
+                                    : Colors.blue,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: Text(
+                                _friendStatus == 'pending'
+                                    ? 'Pending Request'
+                                    : _friendStatus == 'add_back'
+                                        ? 'Add Back'
+                                        : _friendStatus == 'friends'
+                                            ? 'Remove Friendly Peng'
+                                            : 'Add Friendly Peng',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
                     ],
                   ),
                   const SizedBox(height: 10),
