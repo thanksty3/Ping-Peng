@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ping_peng/database_services.dart';
 import 'package:ping_peng/screens/account.dart';
+import 'package:ping_peng/utils.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -37,21 +38,29 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Search'),
-      ),
+      appBar: SearchNavAppBar(),
+      backgroundColor: Colors.black,
       body: Column(
         children: [
           // Search bar
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
+              cursorColor: Colors.orange,
               controller: _searchController,
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: Colors.orange,
+                ),
                 hintText: 'Search for users...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.orange),
                 ),
               ),
               onChanged: (query) {
@@ -63,6 +72,7 @@ class _SearchScreenState extends State<SearchScreen> {
           _isLoading
               ? const CircularProgressIndicator()
               : Expanded(
+                  flex: 2,
                   child: _searchResults.isEmpty
                       ? const Center(child: Text('No users found'))
                       : ListView.builder(
@@ -79,9 +89,17 @@ class _SearchScreenState extends State<SearchScreen> {
                                     ? const Icon(Icons.person)
                                     : null,
                               ),
-                              title: Text(user['username']),
+                              title: Text(
+                                user['username'],
+                                style: TextStyle(
+                                    color: Colors.orange, fontSize: 20),
+                              ),
                               subtitle: Text(
-                                  '${user['firstName']} ${user['lastName']}'),
+                                '${user['firstName']} ${user['lastName']}',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                              ),
                               onTap: () {
                                 // Navigate to user profile
                                 Navigator.push(
@@ -98,6 +116,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
         ],
       ),
+      bottomNavigationBar: SearchNavBottomNavigationBar(),
     );
   }
 }

@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ping_peng/database_services.dart';
+import 'package:ping_peng/lists.dart';
+import 'package:ping_peng/utils.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -17,37 +19,39 @@ class _EditProfilePageState extends State<EditProfilePage> {
   List<String> _myInterests = [];
   bool _isLoading = false;
 
-  final List<String> interests = [
-    'Anime',
-    'Art',
-    'Beau',
-    'Comedy',
-    'Cooking',
-    'Crab Rangoon people',
-    'Dancing',
-    'Fashion',
-    'Fitness',
-    'Food',
-    'Gaming',
-    'Gardening',
-    'Hiking',
-    'Movies',
-    'Music',
-    'Pets',
-    'Photography',
-    'Reading',
-    'Science',
-    'Sports',
-    'Tech',
-    'Traveling',
-    'TV Shows',
-    'Writing',
-  ];
+  final List<String> interests = Interests().getInterests();
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black87,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: IconThemeData(color: Colors.orange),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back),
+        ),
+        actions: [
+          IconButton(
+            onPressed: _isLoading ? null : _saveUserData,
+            icon: const Icon(Icons.check, size: 25),
+          )
+        ],
+      ),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator(color: Colors.orange))
+          : editProfileScreen(),
+      bottomNavigationBar: AccountNavBottomNavigationBar(),
+    );
   }
 
   // Load user data from Firestore
@@ -164,128 +168,105 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black87,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        iconTheme: IconThemeData(color: Colors.orange),
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(Icons.arrow_back),
-        ),
-        actions: [
-          IconButton(
-            onPressed: _isLoading ? null : _saveUserData,
-            icon: const Icon(Icons.check, size: 25),
-          )
-        ],
-      ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: Colors.orange))
-          : SingleChildScrollView(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 100,
-                    backgroundImage: _profilePictureUrl.isNotEmpty
-                        ? NetworkImage(_profilePictureUrl)
-                        : AssetImage('assets/images/P!ngPeng.png')
-                            as ImageProvider,
-                  ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _chooseProfilePicture,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Edit Profile Picture',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  TextField(
-                    textAlign: TextAlign.center,
-                    controller: _pengQuoteController,
-                    cursorColor: Colors.orange,
-                    maxLines: 3,
-                    maxLength: 125,
-                    decoration: InputDecoration(
-                      label: const Text(
-                        'Peng Quote',
-                        style: TextStyle(
-                          color: Colors.orange,
-                          fontFamily: 'Jua',
-                          fontSize: 30,
-                        ),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.orange),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.orange),
-                      ),
-                    ),
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  SizedBox(height: 20),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Select Interests:',
-                      style: TextStyle(
-                        fontSize: 25,
-                        fontFamily: 'Jua',
-                        color: Colors.orange,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Wrap(
-                    spacing: 8.0,
-                    runSpacing: 4.0,
-                    children: interests.map((interest) {
-                      final isSelected = _myInterests.contains(interest);
-                      return FilterChip(
-                        backgroundColor:
-                            isSelected ? Colors.orange[100] : Colors.grey[800],
-                        selectedColor: Colors.orange,
-                        label: Text(
-                          interest,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                            color: isSelected ? Colors.white : Colors.orange,
-                          ),
-                        ),
-                        selected: isSelected,
-                        onSelected: (bool selected) {
-                          setState(() {
-                            if (selected) {
-                              _myInterests.add(interest);
-                            } else {
-                              _myInterests.remove(interest);
-                            }
-                          });
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ],
+  Widget editProfileScreen() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 100,
+            backgroundImage: _profilePictureUrl.isNotEmpty
+                ? NetworkImage(_profilePictureUrl)
+                : AssetImage('assets/images/P!ngPeng.png') as ImageProvider,
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: _isLoading ? null : _chooseProfilePicture,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
               ),
             ),
+            child: const Text(
+              'Edit Profile Picture',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          SizedBox(height: 20),
+          TextField(
+            textAlign: TextAlign.center,
+            controller: _pengQuoteController,
+            cursorColor: Colors.orange,
+            maxLines: 3,
+            maxLength: 125,
+            decoration: InputDecoration(
+              label: const Text(
+                'Peng Quote',
+                style: TextStyle(
+                  color: Colors.orange,
+                  fontFamily: 'Jua',
+                  fontSize: 30,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.orange),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.orange),
+              ),
+            ),
+            style: TextStyle(color: Colors.white),
+          ),
+          SizedBox(height: 20),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Select Interests:',
+              style: TextStyle(
+                fontSize: 25,
+                fontFamily: 'Jua',
+                color: Colors.orange,
+              ),
+            ),
+          ),
+          SizedBox(height: 10),
+          Wrap(
+            spacing: 8.0,
+            runSpacing: 4.0,
+            children: interests.map((interest) {
+              final isSelected = _myInterests.contains(interest);
+              return FilterChip(
+                backgroundColor:
+                    isSelected ? Colors.orange[100] : Colors.grey[800],
+                selectedColor: Colors.orange,
+                label: Text(
+                  interest,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: isSelected ? Colors.white : Colors.orange,
+                  ),
+                ),
+                selected: isSelected,
+                onSelected: (bool selected) {
+                  setState(() {
+                    if (selected) {
+                      _myInterests.add(interest);
+                    } else {
+                      _myInterests.remove(interest);
+                    }
+                  });
+                },
+              );
+            }).toList(),
+          ),
+        ],
+      ),
     );
   }
 }

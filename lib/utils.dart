@@ -28,7 +28,7 @@ class NotificationsAppBar extends StatelessWidget
       iconTheme: IconThemeData(color: Colors.orange),
       backgroundColor: Colors.black,
       title: const Text(
-        'Notfications',
+        'Peng Requests',
         style: TextStyle(fontFamily: 'Jua', color: Colors.orange, fontSize: 40),
       ),
     );
@@ -83,7 +83,7 @@ class ShowsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       leading: IconButton(
         icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
         onPressed: () {
@@ -167,7 +167,7 @@ class ChatsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       leading: IconButton(
         icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
         onPressed: () {

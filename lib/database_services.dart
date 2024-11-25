@@ -25,6 +25,7 @@ class DatabaseService {
         "myInterests": [],
         "profilePictureUrl": null,
         "friends": [],
+        "pendingFriends": []
       });
       log("User created successfully for UID: $uid");
     } catch (e) {
@@ -108,14 +109,9 @@ class DatabaseService {
 
   Future<void> addFriend(String currentUserId, String friendUserId) async {
     try {
-      // Add friend to current user's friend list
-      await _firestore.collection('users').doc(currentUserId).update({
-        'friends': FieldValue.arrayUnion([friendUserId]),
-      });
-
       // Add current user to the friend's friend list
       await _firestore.collection('users').doc(friendUserId).update({
-        'friends': FieldValue.arrayUnion([currentUserId]),
+        'friendRequests': FieldValue.arrayUnion([currentUserId]),
       });
 
       log("Friend added successfully.");
@@ -210,10 +206,11 @@ class DatabaseService {
       }
 
       final currentUserData = currentUserDoc.data()!;
+      final profileUserData = profileUserDoc.data()!;
 
       final friends = List<String>.from(currentUserData['friends'] ?? []);
       final sentRequests =
-          List<String>.from(currentUserData['sentRequests'] ?? []);
+          List<String>.from(profileUserData['friendRequests'] ?? []);
       final incomingRequests =
           List<String>.from(currentUserData['friendRequests'] ?? []);
 
@@ -330,6 +327,63 @@ class DatabaseService {
     } catch (e) {
       log("Failed to retrieve profile picture URL: $e");
       return null;
+    }
+  }
+
+  Future<String> createOrGetChatroom(String user1, String user2) async {
+    try {
+      // Generate a consistent chatroom ID
+      final chatRoomId =
+          (user1.compareTo(user2) < 0) ? '$user1\_$user2' : '$user2\_$user1';
+      final chatRoomRef = _firestore.collection('chatrooms').doc(chatRoomId);
+
+      // Check if chatroom exists
+      final chatRoomSnapshot = await chatRoomRef.get();
+      if (!chatRoomSnapshot.exists) {
+        // Create chatroom if it doesn't exist
+        await chatRoomRef.set({
+          'users': [user1, user2],
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+      return chatRoomId;
+    } catch (e) {
+      log("Failed to create or get chatroom: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> sendMessage(
+      String chatRoomId, String senderId, String text) async {
+    try {
+      final messageData = {
+        'senderId': senderId,
+        'text': text.trim(),
+        'timestamp': FieldValue.serverTimestamp(),
+      };
+      await _firestore
+          .collection('chatrooms')
+          .doc(chatRoomId)
+          .collection('messages')
+          .add(messageData);
+      log("Message sent to chatroom $chatRoomId");
+    } catch (e) {
+      log("Failed to send message: $e");
+      rethrow;
+    }
+  }
+
+  Stream<QuerySnapshot> getMessages(String chatRoomId) {
+    try {
+      return _firestore
+          .collection('chatrooms')
+          .doc(chatRoomId)
+          .collection('messages')
+          .orderBy('timestamp', descending: true)
+          .snapshots();
+    } catch (e) {
+      log("Failed to fetch messages: $e");
+      rethrow;
     }
   }
 }

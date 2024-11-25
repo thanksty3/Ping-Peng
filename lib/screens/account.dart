@@ -31,6 +31,18 @@ class _AccountState extends State<Account> {
     _loadUserData();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const AccountNavAppBar(),
+      backgroundColor: Colors.black,
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator(color: Colors.orange))
+          : accountPage(),
+      bottomNavigationBar: const AccountNavBottomNavigationBar(),
+    );
+  }
+
   Future<void> _loadUserData() async {
     setState(() {
       _isLoading = true;
@@ -124,221 +136,211 @@ class _AccountState extends State<Account> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const AccountNavAppBar(),
-      backgroundColor: Colors.black,
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: Colors.orange))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  // Profile Picture
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircleAvatar(
-                        radius: 100,
-                        backgroundImage: _profilePictureUrl.isNotEmpty
-                            ? NetworkImage(_profilePictureUrl)
-                            : AssetImage('assets/images/P!ngPeng.png')
-                                as ImageProvider,
+  Widget accountPage() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          // Profile Picture
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 100,
+                backgroundImage: _profilePictureUrl.isNotEmpty
+                    ? NetworkImage(_profilePictureUrl)
+                    : AssetImage('assets/images/P!ngPeng.png') as ImageProvider,
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+
+          // Name and Username
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
+                children: [
+                  Text(
+                    '$_firstName $_lastName',
+                    style: TextStyle(
+                      fontFamily: 'Jua',
+                      fontSize: 30,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Text(
+                    '@$_username',
+                    style: const TextStyle(
+                        color: Colors.orange,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
+
+          // Edit Profile or Add/Remove Friend Button
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _isCurrentUser
+                  ? ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => EditProfilePage()),
+                        ).then((_) => _loadUserData());
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-
-                  // Name and Username
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Column(
-                        children: [
-                          Text(
-                            '$_firstName $_lastName',
-                            style: TextStyle(
-                              fontFamily: 'Jua',
-                              fontSize: 30,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            '@$_username',
-                            style: const TextStyle(
-                                color: Colors.orange,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16),
-                          ),
-                        ],
+                      child: const Text(
+                        'Edit Profile',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
+                    )
+                  : ElevatedButton(
+                      onPressed: _handleFriendButtonPress,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _friendStatus == 'friends'
+                            ? Colors.red
+                            : Colors.blue,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        _friendStatus == 'pending'
+                            ? 'Pending Request'
+                            : _friendStatus == 'add_back'
+                                ? 'Add Back'
+                                : _friendStatus == 'friends'
+                                    ? 'Remove Friendly Peng'
+                                    : 'Add Friendly Peng',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+            ],
+          ),
+          const SizedBox(height: 10),
 
-                  // Edit Profile or Add/Remove Friend Button
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _isCurrentUser
-                          ? ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => EditProfilePage()),
-                                ).then((_) => _loadUserData());
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: const Text(
-                                'Edit Profile',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16),
-                              ),
-                            )
-                          : ElevatedButton(
-                              onPressed: _handleFriendButtonPress,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _friendStatus == 'friends'
-                                    ? Colors.red
-                                    : Colors.blue,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Text(
-                                _friendStatus == 'pending'
-                                    ? 'Pending Request'
-                                    : _friendStatus == 'add_back'
-                                        ? 'Add Back'
-                                        : _friendStatus == 'friends'
-                                            ? 'Remove Friendly Peng'
-                                            : 'Add Friendly Peng',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Peng Quote and Interests
+          // Peng Quote and Interests
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Peng Quote
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                   Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Peng Quote
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const Text(
-                                'Peng Quote',
-                                style: TextStyle(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Jua',
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.orange),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Text(
-                                  _pengQuote.isNotEmpty
-                                      ? '"$_pengQuote"'
-                                      : 'No Peng Quote yet.',
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                      const Text(
+                        'Peng Quote',
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Jua',
+                          color: Colors.white,
+                        ),
                       ),
-                      const SizedBox(height: 20),
-
-                      // Interests
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const Text(
-                                'Interests',
-                                style: TextStyle(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Jua',
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Container(
-                                width: 300,
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.orange),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Wrap(
-                                  spacing: 8,
-                                  runSpacing: 4,
-                                  children: _interests.isNotEmpty
-                                      ? _interests
-                                          .map(
-                                            (interest) => Chip(
-                                              backgroundColor: Colors.orange,
-                                              label: Text(
-                                                interest,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontFamily: 'Jua',
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                          .toList()
-                                      : [
-                                          const Text(
-                                            'No interests yet.',
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                          )
-                                        ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                      const SizedBox(height: 10),
+                      Container(
+                        width: 300,
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.orange),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Text(
+                          _pengQuote.isNotEmpty
+                              ? '"$_pengQuote"'
+                              : 'No Peng Quote yet.',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
-            ),
-      bottomNavigationBar: const AccountNavBottomNavigationBar(),
+              const SizedBox(height: 20),
+
+              // Interests
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Interests',
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Jua',
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        width: 300,
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.orange),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          children: _interests.isNotEmpty
+                              ? _interests
+                                  .map(
+                                    (interest) => Chip(
+                                      backgroundColor: Colors.orange,
+                                      label: Text(
+                                        interest,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'Jua',
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList()
+                              : [
+                                  const Text(
+                                    'No interests yet.',
+                                    style: TextStyle(color: Colors.white),
+                                  )
+                                ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
