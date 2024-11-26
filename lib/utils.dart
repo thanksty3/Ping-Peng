@@ -320,21 +320,12 @@ class AccountNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      iconTheme: IconThemeData(color: Colors.orange),
       backgroundColor: Colors.black,
       elevation: 1,
-      leading: IconButton(
-        icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
-        onPressed: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const NotificationsScreen()),
-          );
-        },
-      ),
       actions: <Widget>[
         IconButton(
-          icon: const Icon(Icons.search, color: Colors.orange, size: 30),
+          icon: const Icon(Icons.search, size: 30),
           onPressed: () {
             Navigator.push(
               context,
@@ -343,7 +334,7 @@ class AccountNavAppBar extends StatelessWidget implements PreferredSizeWidget {
           },
         ),
         IconButton(
-          icon: const Icon(Icons.settings, color: Colors.orange, size: 30),
+          icon: const Icon(Icons.settings, size: 30),
           onPressed: () {
             Navigator.pushReplacement(
               context,

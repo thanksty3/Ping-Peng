@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_string_escapes
+
 import 'package:flutter/material.dart';
 import 'package:ping_peng/database_services.dart';
 import 'package:ping_peng/utils.dart';
@@ -87,7 +89,6 @@ class _ChatsState extends State<Chats> {
         throw Exception("No logged-in user found.");
       }
 
-      // Fetch the current user's friends
       final userData =
           await _databaseService.getUserDataForUserId(currentUser.uid);
       if (userData == null || !userData.containsKey('friends')) {
@@ -97,8 +98,6 @@ class _ChatsState extends State<Chats> {
       final friendIds = List<String>.from(userData['friends']);
       final friendsData = await _databaseService.getUsersByIds(friendIds);
 
-      // Sort friends by a mocked "lastInteraction" field
-      // Replace "lastInteraction" with the actual logic if available
       friendsData.sort((a, b) =>
           (b['lastInteraction'] ?? 0).compareTo(a['lastInteraction'] ?? 0));
 
@@ -114,12 +113,40 @@ class _ChatsState extends State<Chats> {
     }
   }
 
-  void _navigateToChatroom(Map<String, dynamic> friend) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => Chatroom(), // Pass friend details
-      ),
-    );
+  void _navigateToChatroom(Map<String, dynamic> friend) async {
+    try {
+      final currentUser = await _databaseService.getCurrentUser();
+      if (currentUser == null) {
+        throw Exception("No logged-in user found.");
+      }
+
+      final chatRoomId = _generateChatRoomId(
+        currentUser.uid,
+        friend['userId'] ?? '',
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Chatroom(
+            username: '@${friend['username']}',
+            chatRoomId: chatRoomId,
+            friendProfilePictureUrl: friend['profilePictureUrl'] ?? '',
+            friendUserId: friend['userId'] ?? '',
+          ),
+        ),
+      );
+    } catch (e) {
+      debugPrint("Error navigating to chatroom: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Failed to open chatroom. Please try again."),
+        ),
+      );
+    }
+  }
+
+  String _generateChatRoomId(String user1, String user2) {
+    return (user1.compareTo(user2) < 0) ? "$user1\_$user2" : "$user2\_$user1";
   }
 }

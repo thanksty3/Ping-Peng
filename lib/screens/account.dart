@@ -24,6 +24,7 @@ class _AccountState extends State<Account> {
   bool _isLoading = true;
   bool _isCurrentUser = false;
   String _friendStatus = 'add';
+  bool _isHome = false;
 
   @override
   void initState() {
@@ -34,14 +35,23 @@ class _AccountState extends State<Account> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const AccountNavAppBar(),
+      appBar: !_isHome ? const AccountNavAppBar() : null,
       backgroundColor: Colors.black,
       body: _isLoading
           ? Center(child: CircularProgressIndicator(color: Colors.orange))
           : accountPage(),
-      bottomNavigationBar: const AccountNavBottomNavigationBar(),
+      bottomNavigationBar:
+          !_isHome ? const AccountNavBottomNavigationBar() : null,
     );
   }
+
+  void setIsHome(bool isHome) {
+    setState(() {
+      _isHome = isHome;
+    });
+  }
+
+  bool get isHome => _isHome;
 
   Future<void> _loadUserData() async {
     setState(() {

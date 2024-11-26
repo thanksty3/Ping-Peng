@@ -100,3 +100,25 @@ class Interests {
     return interests;
   }
 }
+
+class IceBreakers {
+  final List<String> icebreakers = [
+    "Imagine a penguin sliding into your DM; what would it say?",
+    "If you had to teach a penguin a skill, what would it be?",
+    "What kind of music do you think would be played at a penguin party?",
+    "What would you do if you saw a penguin wearing a beanie in the grocery store?",
+    "What would you do if you woke up as a penguin one day?",
+    "What accent do you think penguins would have if they can talk?",
+    "Penguins love sliding on ice; what's your \"can't-help-myself\" activity?",
+    "Imagine President Trump as a penguin.",
+    "If you had a pet penguin, what would you name it?",
+    "If you were a penguin, how long you lasting?"
+        "What's Penging?",
+    "How you doing?",
+    "This is your day my Peng!"
+  ];
+
+  List<String> getIcebreakers() {
+    return icebreakers;
+  }
+}
