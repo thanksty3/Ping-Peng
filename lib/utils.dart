@@ -122,45 +122,6 @@ class ShowsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class ShowsNavBottomNavigationBar extends StatelessWidget {
-  const ShowsNavBottomNavigationBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomAppBar(
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 4,
-      color: Colors.black,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline,
-                color: Colors.white, size: 50),
-            onPressed: () {
-              null;
-            },
-          ),
-          IconButton(
-            icon: Image.asset('assets/icons/orange-foot.png', height: 80),
-            onPressed: () {
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => const Home()));
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.chat, color: Colors.white, size: 40),
-            onPressed: () {
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => const Chats()));
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class ChatsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   const ChatsNavAppBar({super.key});
 

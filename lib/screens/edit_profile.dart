@@ -54,7 +54,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-  // Load user data from Firestore
   Future<void> _loadUserData() async {
     setState(() {
       _isLoading = true;
@@ -71,7 +70,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load user data: $e')),
+        SnackBar(
+          content: Text(
+            'Failed to load user data: $e',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          backgroundColor: Colors.white,
+        ),
       );
     }
 
@@ -80,7 +89,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
   }
 
-  // Save user data to Firestore
   Future<void> _saveUserData() async {
     setState(() {
       _isLoading = true;
@@ -93,13 +101,31 @@ class _EditProfilePageState extends State<EditProfilePage> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile updated successfully!')),
+        SnackBar(
+          content: Text(
+            'Profile updated successfully!',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          backgroundColor: Colors.white,
+        ),
       );
 
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save user data: $e')),
+        SnackBar(
+            content: Text(
+          'Failed to save user data: $e',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        )),
       );
     }
 
@@ -108,7 +134,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     });
   }
 
-  // Handle profile picture selection and upload
   Future<void> _chooseProfilePicture() async {
     final picker = ImagePicker();
 
@@ -146,7 +171,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         _isLoading = false;
                       });
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Profile picture updated!')),
+                        SnackBar(
+                            content: Text(
+                          'Profile picture updated!',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        )),
                       );
                     }
                   }
@@ -156,7 +189,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       _isLoading = false;
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Failed to update picture: $e')),
+                      SnackBar(
+                          content: Text(
+                        'Failed to update picture: $e',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      )),
                     );
                   }
                 }

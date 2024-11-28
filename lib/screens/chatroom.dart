@@ -276,7 +276,15 @@ class _ChatroomState extends State<Chatroom> {
       debugPrint("Error sending message: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Failed to send message."),
+          content: Text(
+            "Failed to send message.",
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          backgroundColor: Colors.white,
         ),
       );
     }

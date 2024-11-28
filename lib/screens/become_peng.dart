@@ -90,11 +90,29 @@ class BecomePengState extends State<BecomePeng> {
           errorMessage = 'An unknown error occurred.';
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $errorMessage')),
+        SnackBar(
+            content: Text(
+              'Error: $errorMessage',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            backgroundColor: Colors.black),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
+        SnackBar(
+            content: Text(
+              'Error: ${e.toString()}',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            backgroundColor: Colors.black),
       );
     }
   }
@@ -164,6 +182,7 @@ class BecomePengState extends State<BecomePeng> {
 
                   // First Name
                   TextFormField(
+                    cursorColor: Colors.orange,
                     controller: _firstNameController,
                     decoration: InputDecoration(
                       labelText: 'First Name',
@@ -182,6 +201,7 @@ class BecomePengState extends State<BecomePeng> {
 
                   // Last Name
                   TextFormField(
+                    cursorColor: Colors.orange,
                     controller: _lastNameController,
                     decoration: InputDecoration(
                       labelText: 'Last Name',
@@ -200,6 +220,7 @@ class BecomePengState extends State<BecomePeng> {
 
                   // Email
                   TextFormField(
+                    cursorColor: Colors.orange,
                     controller: _emailController,
                     decoration: InputDecoration(
                       labelText: 'Email',
@@ -222,6 +243,7 @@ class BecomePengState extends State<BecomePeng> {
 
                   // Username
                   TextFormField(
+                    cursorColor: Colors.orange,
                     controller: _usernameController,
                     decoration: InputDecoration(
                       labelText: 'Username',
@@ -240,6 +262,7 @@ class BecomePengState extends State<BecomePeng> {
 
                   // Password
                   TextFormField(
+                    cursorColor: Colors.orange,
                     controller: _passwordController,
                     obscureText: true,
                     decoration: InputDecoration(
@@ -262,6 +285,7 @@ class BecomePengState extends State<BecomePeng> {
 
                   // Verify Password
                   TextFormField(
+                    cursorColor: Colors.orange,
                     controller: _verifyPasswordController,
                     obscureText: true,
                     decoration: InputDecoration(

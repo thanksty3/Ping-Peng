@@ -1,12 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_peng/database_services.dart';
+import 'package:ping_peng/screens/chatroom.dart';
 import 'package:ping_peng/screens/edit_profile.dart';
 import 'package:ping_peng/utils.dart';
 
 class Account extends StatefulWidget {
-  final String? userId; // User ID of the profile to display (optional)
-
-  const Account({super.key, this.userId});
+  final String? userId;
+  final bool isHome;
+  const Account({super.key, this.userId, this.isHome = false});
 
   @override
   _AccountState createState() => _AccountState();
@@ -24,7 +26,6 @@ class _AccountState extends State<Account> {
   bool _isLoading = true;
   bool _isCurrentUser = false;
   String _friendStatus = 'add';
-  bool _isHome = false;
 
   @override
   void initState() {
@@ -35,23 +36,15 @@ class _AccountState extends State<Account> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: !_isHome ? const AccountNavAppBar() : null,
+      appBar: !widget.isHome ? const AccountNavAppBar() : null,
       backgroundColor: Colors.black,
       body: _isLoading
           ? Center(child: CircularProgressIndicator(color: Colors.orange))
           : accountPage(),
       bottomNavigationBar:
-          !_isHome ? const AccountNavBottomNavigationBar() : null,
+          !widget.isHome ? const AccountNavBottomNavigationBar() : null,
     );
   }
-
-  void setIsHome(bool isHome) {
-    setState(() {
-      _isHome = isHome;
-    });
-  }
-
-  bool get isHome => _isHome;
 
   Future<void> _loadUserData() async {
     setState(() {
@@ -68,7 +61,6 @@ class _AccountState extends State<Account> {
 
       _isCurrentUser = currentUserId == userId;
 
-      // Fetch the user's data
       final userData = await _databaseService.getUserDataForUserId(userId);
       if (userData != null) {
         setState(() {
@@ -81,7 +73,6 @@ class _AccountState extends State<Account> {
         });
       }
 
-      // Determine friend status
       if (widget.userId != null) {
         final friendStatus = await _databaseService.getFriendStatus(
           currentUserId!,
@@ -92,9 +83,17 @@ class _AccountState extends State<Account> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load user data: $e')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+          'Failed to load user data: $e',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        backgroundColor: Colors.white,
+      ));
     }
 
     setState(() {
@@ -141,7 +140,17 @@ class _AccountState extends State<Account> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Action failed: $e')),
+        SnackBar(
+          content: Text(
+            'Action failed: $e',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          backgroundColor: Colors.white,
+        ),
       );
     }
   }
@@ -158,6 +167,7 @@ class _AccountState extends State<Account> {
             children: [
               CircleAvatar(
                 radius: 100,
+                backgroundColor: Colors.black,
                 backgroundImage: _profilePictureUrl.isNotEmpty
                     ? NetworkImage(_profilePictureUrl)
                     : AssetImage('assets/images/P!ngPeng.png') as ImageProvider,
@@ -248,6 +258,61 @@ class _AccountState extends State<Account> {
                     ),
             ],
           ),
+          if (_friendStatus == 'friends') // Conditionally show the button
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: ElevatedButton(
+                  onPressed: () {
+                    final currentUserId =
+                        FirebaseAuth.instance.currentUser?.uid;
+                    if (currentUserId == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            "Error: User is not logged in.",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          backgroundColor: Colors.white,
+                        ),
+                      );
+                      return;
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Chatroom(
+                          username: _username,
+                          chatRoomId:
+                              '${widget.userId}_$currentUserId', // Correct ID
+                          friendProfilePictureUrl: _profilePictureUrl,
+                          friendUserId: widget.userId!,
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Message',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
           const SizedBox(height: 10),
 
           // Peng Quote and Interests

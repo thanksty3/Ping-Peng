@@ -140,7 +140,15 @@ class _ChatsState extends State<Chats> {
       debugPrint("Error navigating to chatroom: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Failed to open chatroom. Please try again."),
+          content: Text(
+            "Failed to open chatroom. Please try again.",
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          backgroundColor: Colors.white,
         ),
       );
     }

@@ -81,7 +81,15 @@ class Settings extends StatelessWidget {
           } catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Error: ${e.toString()}'),
+                content: Text(
+                  'Error: ${e.toString()}',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                backgroundColor: Colors.white,
               ),
             );
           }

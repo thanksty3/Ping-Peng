@@ -87,11 +87,36 @@ class DatabaseService {
   Future<List<Map<String, dynamic>>> getAllUsersExcept(
       String currentUserId) async {
     try {
+      // Fetch current user's data for filtering
+      final currentUserDoc =
+          await _firestore.collection('users').doc(currentUserId).get();
+
+      if (!currentUserDoc.exists) {
+        throw Exception("Current user document does not exist.");
+      }
+
+      final currentUserData = currentUserDoc.data()!;
+      final List<String> friends =
+          List<String>.from(currentUserData['friends'] ?? []);
+      final List<String> pendingFriends =
+          List<String>.from(currentUserData['pendingFriends'] ?? []);
+      final List<String> friendRequests =
+          List<String>.from(currentUserData['friendRequests'] ?? []);
+
+      // Combine all users to exclude
+      final Set<String> excludedUserIds = {
+        currentUserId,
+        ...friends,
+        ...pendingFriends,
+        ...friendRequests,
+      };
+
       final querySnapshot = await _firestore.collection('users').get();
 
-      return querySnapshot.docs
-          .where((doc) => doc.id != currentUserId) // Exclude the logged-in user
-          .map((doc) {
+      final filteredUsers = querySnapshot.docs.where((doc) {
+        final userId = doc.id;
+        return !excludedUserIds.contains(userId);
+      }).map((doc) {
         final data = doc.data();
         return {
           'userId': doc.id,
@@ -103,15 +128,16 @@ class DatabaseService {
           'profilePictureUrl': data['profilePictureUrl'] ?? '',
         };
       }).toList();
+
+      return filteredUsers;
     } catch (e) {
-      log("Failed to fetch users: $e");
+      log("Failed to fetch filtered users: $e");
       return [];
     }
   }
 
   Future<void> addFriend(String currentUserId, String friendUserId) async {
     try {
-      // Add current user to the friend's friend list
       await _firestore.collection('users').doc(friendUserId).update({
         'friendRequests': FieldValue.arrayUnion([currentUserId]),
       });
@@ -253,12 +279,10 @@ class DatabaseService {
 
   Future<List<Map<String, dynamic>>> searchUsers(String query) async {
     try {
-      // Firestore query for matching usernames
       final querySnapshot = await _firestore
           .collection('users')
           .where('username', isGreaterThanOrEqualTo: query)
-          .where('username',
-              isLessThanOrEqualTo: '$query\uf8ff') // Firestore range query
+          .where('username', isLessThanOrEqualTo: '$query\uf8ff')
           .get();
 
       return querySnapshot.docs.map((doc) {
@@ -282,19 +306,15 @@ class DatabaseService {
       final user = await getCurrentUser();
       if (user == null) throw Exception("No user is logged in.");
 
-      // Reference to Firebase Storage
       final ref = _storage.ref().child('profilePictures/${user.uid}');
       log("Uploading file to: profilePictures/${user.uid}");
 
-      // Upload the image to Firebase Storage
       await ref.putFile(image);
       log("Image uploaded successfully.");
 
-      // Retrieve the download URL
       final downloadUrl = await ref.getDownloadURL();
       log("Download URL obtained: $downloadUrl");
 
-      // Save the download URL to Firestore
       await _firestore.collection('users').doc(user.uid).update({
         'profilePictureUrl': downloadUrl,
       });
@@ -334,12 +354,10 @@ class DatabaseService {
 
   Future<String> createOrGetChatroom(String user1, String user2) async {
     try {
-      // Generate a consistent chatroom ID
       final chatRoomId =
           (user1.compareTo(user2) < 0) ? '$user1\_$user2' : '$user2\_$user1';
       final chatRoomRef = _firestore.collection('chatrooms').doc(chatRoomId);
 
-      // Check if chatroom exists
       final chatRoomSnapshot = await chatRoomRef.get();
       if (!chatRoomSnapshot.exists) {
         // Create chatroom if it doesn't exist

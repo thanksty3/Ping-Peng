@@ -38,7 +38,15 @@ class LoginState extends State<Login> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: ${e.toString()}'),
+          content: Text(
+            'Error: ${e.toString()}',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          backgroundColor: Colors.black,
         ),
       );
     }
@@ -69,6 +77,7 @@ class LoginState extends State<Login> {
 
                 // Email Input
                 TextField(
+                  cursorColor: Colors.orange,
                   controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
@@ -91,6 +100,7 @@ class LoginState extends State<Login> {
 
                 // Password Input
                 TextField(
+                  cursorColor: Colors.orange,
                   controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(

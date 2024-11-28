@@ -25,7 +25,15 @@ class ForgotPasswordState extends State<ForgotPassword> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Password reset email sent!'),
+          content: Text(
+            'Password reset email sent!',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          backgroundColor: Colors.black,
         ),
       );
       Navigator.pop(context);
@@ -33,7 +41,15 @@ class ForgotPasswordState extends State<ForgotPassword> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error: ${e.toString()}'),
+          content: Text(
+            'Error: ${e.toString()}',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          backgroundColor: Colors.black,
         ),
       );
     }
