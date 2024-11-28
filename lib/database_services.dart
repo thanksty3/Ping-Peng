@@ -10,6 +10,8 @@ class DatabaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
+  final CollectionReference _postCollection =
+      FirebaseFirestore.instance.collection('posts');
 
   Future<User?> getCurrentUser() async {
     return _auth.currentUser;
@@ -403,6 +405,137 @@ class DatabaseService {
           .snapshots();
     } catch (e) {
       log("Failed to fetch messages: $e");
+      rethrow;
+    }
+  }
+
+  Future<String> uploadPostToStorage(File file, String userId) async {
+    try {
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final fileName = '${timestamp}_${file.path.split('/').last}';
+      final ref = _storage.ref().child('shows/$userId/$fileName');
+
+      // Upload the file
+      await ref.putFile(file);
+
+      // Get the download URL
+      final downloadUrl = await ref.getDownloadURL();
+      log("File uploaded successfully. URL: $downloadUrl");
+
+      return downloadUrl;
+    } catch (e) {
+      log("Failed to upload file: $e");
+      throw Exception("Failed to upload file: $e");
+    }
+  }
+
+  // Add a new post
+  Future<void> addPost(String userId, String mediaUrl, String type) async {
+    try {
+      await _postCollection.add({
+        'userId': userId,
+        'mediaUrl': mediaUrl,
+        'type': type,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      log("Post added successfully for user: $userId");
+    } catch (e) {
+      log("Failed to add post: $e");
+      rethrow;
+    }
+  }
+
+  // Fetch the current user's posts
+  Future<List<Map<String, dynamic>>> getUserPosts(String userId) async {
+    try {
+      final now = DateTime.now();
+      final querySnapshot = await _postCollection
+          .where('userId', isEqualTo: userId)
+          .orderBy('timestamp', descending: true)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            final timestamp = (data['timestamp'] as Timestamp).toDate();
+            final isExpired = now.difference(timestamp).inHours >= 24;
+            return {
+              'postId': doc.id,
+              ...data,
+              'isExpired': isExpired,
+            };
+          })
+          .where((post) => !post['isExpired'])
+          .toList();
+    } catch (e) {
+      log("Failed to fetch user posts: $e");
+      return [];
+    }
+  }
+
+  // Fetch friends' posts
+  Future<List<Map<String, dynamic>>> getFriendsPosts(
+      String currentUserId) async {
+    try {
+      // Fetch the current user's friends list
+      final userDoc =
+          await _firestore.collection('users').doc(currentUserId).get();
+      if (!userDoc.exists) {
+        throw Exception("User document does not exist.");
+      }
+
+      final List<String> friends =
+          List<String>.from(userDoc.data()?['friends'] ?? []);
+
+      if (friends.isEmpty) {
+        log("User has no friends.");
+        return [];
+      }
+
+      // Fetch posts from the friends
+      final querySnapshot = await _firestore
+          .collection('posts')
+          .where('userId', whereIn: friends)
+          .orderBy('timestamp', descending: true)
+          .get();
+
+      // Combine post data with user details
+      List<Map<String, dynamic>> friendsPosts = [];
+      for (var postDoc in querySnapshot.docs) {
+        final postData = postDoc.data() as Map<String, dynamic>;
+        final userId = postData['userId'];
+
+        // Fetch user details for the post owner
+        final userDoc = await _firestore.collection('users').doc(userId).get();
+        if (userDoc.exists) {
+          final userData = userDoc.data()!;
+          friendsPosts.add({
+            'userId': userId,
+            'mediaUrl': postData['mediaUrl'],
+            'type': postData['type'],
+            'timestamp': postData['timestamp'],
+            'firstName': userData['firstName'] ?? '',
+            'lastName': userData['lastName'] ?? '',
+            'username': userData['username'] ?? '',
+            'profilePictureUrl': userData['profilePictureUrl'] ?? '',
+          });
+        }
+      }
+
+      return friendsPosts;
+    } catch (e) {
+      log("Failed to fetch friends' posts: $e");
+      return [];
+    }
+  }
+
+  // Delete a specific post
+  Future<void> deletePost(String postId) async {
+    try {
+      await _postCollection.doc(postId).delete();
+      log("Post deleted successfully: $postId");
+    } catch (e) {
+      log("Failed to delete post: $e");
       rethrow;
     }
   }

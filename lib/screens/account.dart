@@ -167,7 +167,6 @@ class _AccountState extends State<Account> {
             children: [
               CircleAvatar(
                 radius: 100,
-                backgroundColor: Colors.black,
                 backgroundImage: _profilePictureUrl.isNotEmpty
                     ? NetworkImage(_profilePictureUrl)
                     : AssetImage('assets/images/P!ngPeng.png') as ImageProvider,
@@ -411,6 +410,74 @@ class _AccountState extends State<Account> {
                     ],
                   ),
                 ],
+              ),
+              const SizedBox(height: 20),
+
+              // Shows Section
+              const Text(
+                'Shows',
+                style: TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Jua',
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 10),
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: _databaseService.getUserPosts(widget.userId ??
+                    (FirebaseAuth.instance.currentUser?.uid ?? '')),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(color: Colors.orange),
+                    );
+                  }
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No shows available.',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }
+                  final posts = snapshot.data!;
+                  return Column(
+                    children: posts.map((post) {
+                      return Column(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            child: post['type'] == 'photo'
+                                ? Image.network(
+                                    post['mediaUrl'],
+                                    fit: BoxFit.cover,
+                                  )
+                                : Center(
+                                    child: Icon(Icons.videocam,
+                                        color: Colors.orange, size: 100),
+                                  ),
+                          ),
+                          if (_isCurrentUser)
+                            ElevatedButton(
+                              onPressed: () async {
+                                await _databaseService
+                                    .deletePost(post['postId']);
+                                setState(() {});
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                              ),
+                              child: const Text(
+                                'Delete Post',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                        ],
+                      );
+                    }).toList(),
+                  );
+                },
               ),
             ],
           ),
