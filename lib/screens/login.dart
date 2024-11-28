@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ping_peng/screens/become_peng.dart';
 import 'package:ping_peng/screens/forgot_password.dart';
 import 'package:ping_peng/screens/home.dart';
+import 'package:ping_peng/utils.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -23,39 +24,10 @@ class LoginState extends State<Login> {
     super.dispose();
   }
 
-  Future<void> signIn() async {
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
-      if (!mounted) return;
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const Home()),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Error: ${e.toString()}',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          backgroundColor: Colors.black,
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -74,6 +46,7 @@ class LoginState extends State<Login> {
                     ),
                   ),
                 ),
+                divider(),
 
                 // Email Input
                 TextField(
@@ -81,11 +54,11 @@ class LoginState extends State<Login> {
                   controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
-                    labelStyle: const TextStyle(color: Colors.black87),
+                    labelStyle: const TextStyle(color: Colors.white),
                     prefixIcon: const Icon(Icons.email, color: Colors.orange),
                     enabledBorder: OutlineInputBorder(
                       borderSide: const BorderSide(
-                        color: Colors.black,
+                        color: Colors.white,
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -96,7 +69,7 @@ class LoginState extends State<Login> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                divider(),
 
                 // Password Input
                 TextField(
@@ -105,11 +78,11 @@ class LoginState extends State<Login> {
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    labelStyle: const TextStyle(color: Colors.black87),
+                    labelStyle: const TextStyle(color: Colors.white),
                     prefixIcon: const Icon(Icons.lock, color: Colors.orange),
                     enabledBorder: OutlineInputBorder(
                       borderSide: const BorderSide(
-                        color: Colors.black,
+                        color: Colors.white,
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -120,7 +93,7 @@ class LoginState extends State<Login> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                divider(),
 
                 // Forgot Password and Create Account Buttons
                 Row(
@@ -167,25 +140,19 @@ class LoginState extends State<Login> {
                   ],
                 ),
 
-                const SizedBox(height: 20),
+                divider(),
 
                 // Login Button
                 ElevatedButton(
                   onPressed: signIn,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 30,
-                      vertical: 10,
-                    ),
-                  ),
+                  style: buttonStyle(true),
                   child: const Text(
                     'Login',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25),
                   ),
                 ),
               ],
@@ -194,5 +161,34 @@ class LoginState extends State<Login> {
         ),
       ),
     );
+  }
+
+  Future<void> signIn() async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      if (!mounted) return;
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const Home()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Error: ${e.toString()}',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          backgroundColor: Colors.black,
+        ),
+      );
+    }
   }
 }

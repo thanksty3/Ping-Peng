@@ -3,13 +3,180 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_peng/screens/account.dart';
+import 'package:ping_peng/screens/chats.dart';
 import 'package:ping_peng/screens/forgot_password.dart';
 import 'package:ping_peng/screens/home.dart';
 import 'package:ping_peng/screens/login.dart';
+import 'package:ping_peng/screens/shows.dart';
 import 'package:ping_peng/utils.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const SettingsNavAppBar(),
+      backgroundColor: Colors.black87,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                // Chats Button
+                SizedBox(
+                  width: 500,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Chats()));
+                    },
+                    style: buttonStyle(false),
+                    child: const Text(
+                      'Chats',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 45,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                divider(),
+
+                // Delete Account Button
+                SizedBox(
+                  width: 500,
+                  child: ElevatedButton(
+                    onPressed: () => deleteAccount(context),
+                    style: buttonStyle(false),
+                    child: const Text(
+                      'Delete Account',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 45,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                divider(),
+
+                // Home Button
+                SizedBox(
+                  width: 500,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const Home()));
+                    },
+                    style: buttonStyle(false),
+                    child: const Text(
+                      'Home',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 45,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                divider(),
+
+                // Password Button
+                SizedBox(
+                  width: 500,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ForgotPassword()),
+                      );
+                    },
+                    style: buttonStyle(false),
+                    child: const Text(
+                      'Password',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 45,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                divider(),
+
+                // Profile Button
+                SizedBox(
+                  width: 500,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const Account()),
+                      );
+                    },
+                    style: buttonStyle(false),
+                    child: const Text(
+                      'Profile',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 45,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                divider(),
+
+                // Profile Button
+                SizedBox(
+                  width: 500,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const Shows()),
+                      );
+                    },
+                    style: buttonStyle(false),
+                    child: const Text(
+                      'Shows',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 45,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+
+                // Logout Button
+                SizedBox(
+                  width: 500,
+                  child: ElevatedButton(
+                    onPressed: () => logOut(context),
+                    style: buttonStyle(false),
+                    child: const Text(
+                      'Logout',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 45),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   Future<void> logOut(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
@@ -96,121 +263,5 @@ class Settings extends StatelessWidget {
         }
       }
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const SettingsNavAppBar(),
-      backgroundColor: Colors.black87,
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              // Home Button
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => const Home()));
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 60, vertical: 10),
-                ),
-                child: const Text(
-                  'Home',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 35,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Delete Account Button
-              ElevatedButton(
-                onPressed: () => deleteAccount(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                ),
-                child: const Text(
-                  'Delete Account',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 35,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Password Button
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ForgotPassword()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 60, vertical: 10),
-                ),
-                child: const Text(
-                  'Password',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 35,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Profile Button
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Account()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 60, vertical: 10),
-                ),
-                child: const Text(
-                  'Profile',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 35,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 60),
-              // Logout Button
-              ElevatedButton(
-                onPressed: () => logOut(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 60, vertical: 10),
-                ),
-                child: const Text(
-                  'Logout',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 35,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

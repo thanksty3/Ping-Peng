@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ping_peng/utils.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});
@@ -15,6 +16,96 @@ class ForgotPasswordState extends State<ForgotPassword> {
   void dispose() {
     _emailController.dispose();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                const Text(
+                  "Forgot Password",
+                  style: TextStyle(fontSize: 45, fontFamily: 'Jua'),
+                ),
+                // Logo
+                Container(
+                  height: 350,
+                  width: 350,
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/P!ngPeng.png'),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                divider(),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      style: buttonStyle(false),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    ElevatedButton(
+                      onPressed: sendPasswordResetEmail,
+                      style: buttonStyle(false),
+                      child: const Text(
+                        'Send Request',
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20),
+                      ),
+                    )
+                  ],
+                ),
+                divider(),
+
+                // Email
+                TextField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: "Email",
+                      labelStyle: const TextStyle(color: Colors.white),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.orange),
+                        borderRadius: BorderRadius.circular(12),
+                      )),
+                ),
+                divider(),
+                const Text(
+                  'An email will be sent to reset your password',
+                  style: TextStyle(
+                      color: Colors.orange, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> sendPasswordResetEmail() async {
@@ -55,97 +146,7 @@ class ForgotPasswordState extends State<ForgotPassword> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                const Text(
-                  "Forgot Password",
-                  style: TextStyle(fontSize: 45, fontFamily: 'Jua'),
-                ),
-                // Logo
-                Container(
-                  height: 350,
-                  width: 350,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/P!ngPeng.png'),
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black87,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 25, vertical: 10)),
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20),
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    ElevatedButton(
-                      onPressed: sendPasswordResetEmail,
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black87,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 25, vertical: 10)),
-                      child: const Text(
-                        'Send Request',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20),
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 20),
-                // Email
-                TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      labelText: "Email",
-                      labelStyle: const TextStyle(color: Colors.black87),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(color: Colors.black87),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(color: Colors.orange),
-                        borderRadius: BorderRadius.circular(12),
-                      )),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'An email will be sent to reset your password',
-                  style: TextStyle(
-                      color: Colors.orange, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+  SizedBox divider() {
+    return SizedBox(height: 20);
   }
 }

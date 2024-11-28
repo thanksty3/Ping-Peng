@@ -18,6 +18,20 @@ pickImage(ImageSource source) async {
   log('No images selected');
 }
 
+SizedBox divider() {
+  return SizedBox(height: 30);
+}
+
+ButtonStyle buttonStyle(bool isSettings) {
+  Color buttonColor = isSettings ? Colors.orange : Colors.white;
+
+  return ElevatedButton.styleFrom(
+      backgroundColor: buttonColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ));
+}
+
 class NotificationsAppBar extends StatelessWidget
     implements PreferredSizeWidget {
   const NotificationsAppBar({super.key});
