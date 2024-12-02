@@ -87,7 +87,7 @@ class BecomePengState extends State<BecomePeng> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  divider(),
 
                   // First Name
                   TextFormField(
@@ -167,7 +167,7 @@ class BecomePengState extends State<BecomePeng> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  divider(),
 
                   // Password
                   TextFormField(
@@ -190,7 +190,7 @@ class BecomePengState extends State<BecomePeng> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  divider(),
 
                   // Verify Password
                   TextFormField(

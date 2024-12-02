@@ -33,6 +33,8 @@ class ForgotPasswordState extends State<ForgotPassword> {
                   "Forgot Password",
                   style: TextStyle(fontSize: 45, fontFamily: 'Jua'),
                 ),
+                divider(),
+
                 // Logo
                 Container(
                   height: 350,

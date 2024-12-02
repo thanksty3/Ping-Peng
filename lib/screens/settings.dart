@@ -47,24 +47,6 @@ class Settings extends StatelessWidget {
                 ),
                 divider(),
 
-                // Delete Account Button
-                SizedBox(
-                  width: 500,
-                  child: ElevatedButton(
-                    onPressed: () => deleteAccount(context),
-                    style: buttonStyle(false),
-                    child: const Text(
-                      'Delete Account',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                divider(),
-
                 // Home Button
                 SizedBox(
                   width: 500,
@@ -153,7 +135,7 @@ class Settings extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 40),
+                divider(),
 
                 // Logout Button
                 SizedBox(
@@ -167,6 +149,24 @@ class Settings extends StatelessWidget {
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
                           fontSize: 45),
+                    ),
+                  ),
+                ),
+                divider(),
+
+                // Delete Account Button
+                SizedBox(
+                  width: 500,
+                  child: ElevatedButton(
+                    onPressed: () => deleteAccount(context),
+                    style: buttonStyle(false),
+                    child: const Text(
+                      'Delete',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 45,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),

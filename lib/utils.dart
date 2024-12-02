@@ -22,8 +22,8 @@ SizedBox divider() {
   return SizedBox(height: 30);
 }
 
-ButtonStyle buttonStyle(bool isSettings) {
-  Color buttonColor = isSettings ? Colors.orange : Colors.white;
+ButtonStyle buttonStyle(bool isLogin) {
+  Color buttonColor = isLogin ? Colors.orange : Colors.white;
 
   return ElevatedButton.styleFrom(
       backgroundColor: buttonColor,

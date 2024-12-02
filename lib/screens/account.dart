@@ -166,7 +166,7 @@ class _AccountState extends State<Account> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircleAvatar(
-                radius: 100,
+                radius: 120,
                 backgroundImage: _profilePictureUrl.isNotEmpty
                     ? NetworkImage(_profilePictureUrl)
                     : AssetImage('assets/images/P!ngPeng.png') as ImageProvider,
@@ -181,21 +181,8 @@ class _AccountState extends State<Account> {
             children: [
               Column(
                 children: [
-                  Text(
-                    '$_firstName $_lastName',
-                    style: TextStyle(
-                      fontFamily: 'Jua',
-                      fontSize: 30,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Text(
-                    '@$_username',
-                    style: const TextStyle(
-                        color: Colors.orange,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
-                  ),
+                  mainText('$_firstName $_lastName'),
+                  nameOfUser(),
                 ],
               ),
             ],
@@ -215,12 +202,7 @@ class _AccountState extends State<Account> {
                               builder: (context) => EditProfilePage()),
                         ).then((_) => _loadUserData());
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
+                      style: buttonStyle(false),
                       child: const Text(
                         'Edit Profile',
                         textAlign: TextAlign.center,
@@ -325,15 +307,7 @@ class _AccountState extends State<Account> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Peng Quote',
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Jua',
-                          color: Colors.white,
-                        ),
-                      ),
+                      mainText('Peng Quote'),
                       const SizedBox(height: 10),
                       Container(
                         width: 300,
@@ -355,75 +329,15 @@ class _AccountState extends State<Account> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              divider(),
 
               // Interests
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Interests',
-                        style: TextStyle(
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Jua',
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Container(
-                        width: 300,
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.orange),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Wrap(
-                          spacing: 8,
-                          runSpacing: 4,
-                          children: _interests.isNotEmpty
-                              ? _interests
-                                  .map(
-                                    (interest) => Chip(
-                                      backgroundColor: Colors.orange,
-                                      label: Text(
-                                        interest,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'Jua',
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                  .toList()
-                              : [
-                                  const Text(
-                                    'No interests yet.',
-                                    style: TextStyle(color: Colors.white),
-                                  )
-                                ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
+              interestsSection(),
+              divider(),
 
               // Shows Section
-              const Text(
-                'Shows',
-                style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Jua',
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 10),
+              mainText('Shows'),
+              divider(),
               FutureBuilder<List<Map<String, dynamic>>>(
                 future: _databaseService.getUserPosts(widget.userId ??
                     (FirebaseAuth.instance.currentUser?.uid ?? '')),
@@ -458,6 +372,8 @@ class _AccountState extends State<Account> {
                                         color: Colors.orange, size: 100),
                                   ),
                           ),
+                          divider(),
+                          //delete user's post if on account page
                           if (_isCurrentUser)
                             ElevatedButton(
                               onPressed: () async {
@@ -465,14 +381,17 @@ class _AccountState extends State<Account> {
                                     .deletePost(post['postId']);
                                 setState(() {});
                               },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                              ),
+                              style: buttonStyle(true),
                               child: const Text(
                                 'Delete Post',
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
+                          divider()
                         ],
                       );
                     }).toList(),
@@ -483,6 +402,80 @@ class _AccountState extends State<Account> {
           ),
         ],
       ),
+    );
+  }
+
+  Text nameOfUser() {
+    return Text(
+      '@$_username',
+      style: TextStyle(
+        fontSize: 20,
+        fontFamily: 'Jua',
+        color: Colors.orange,
+      ),
+    );
+  }
+
+  Text mainText(String text) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 40,
+        fontWeight: FontWeight.bold,
+        fontFamily: 'Jua',
+        color: Colors.white,
+      ),
+    );
+  }
+
+  Row interestsSection() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            mainText('Interests'),
+            const SizedBox(height: 10),
+            Container(
+              width: 300,
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.orange),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: _interests.isNotEmpty
+                    ? _interests
+                        .map(
+                          (interest) => Chip(
+                            backgroundColor: Colors.orange,
+                            label: Text(
+                              interest,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Jua',
+                                  fontSize: 18),
+                            ),
+                          ),
+                        )
+                        .toList()
+                    : [
+                        const Text(
+                          'No interests yet.',
+                          style: TextStyle(
+                              color: Colors.orange,
+                              fontFamily: 'Jua',
+                              fontSize: 18),
+                        )
+                      ],
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

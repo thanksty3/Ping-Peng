@@ -26,7 +26,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final bool hasMoreUsers = _currentUserIndex < _users.length;
+    final bool hasMoreUsers = _currentUserIndex < 30;
 
     return Scaffold(
       appBar: const HomeNavAppBar(),
@@ -57,7 +57,6 @@ class _HomeState extends State<Home> {
       if (_currentUserIndex < _users.length - 1) {
         _currentUserIndex++;
       } else {
-        _currentUserIndex = 0; // Loop back to the first user
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
