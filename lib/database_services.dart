@@ -477,7 +477,6 @@ class DatabaseService {
   Future<List<Map<String, dynamic>>> getFriendsPosts(
       String currentUserId) async {
     try {
-      // Fetch the current user's friends list
       final userDoc =
           await _firestore.collection('users').doc(currentUserId).get();
       if (!userDoc.exists) {
@@ -492,7 +491,6 @@ class DatabaseService {
         return [];
       }
 
-      // Fetch posts from the friends
       final querySnapshot = await _firestore
           .collection('posts')
           .where('userId', whereIn: friends)
@@ -505,7 +503,6 @@ class DatabaseService {
         final postData = postDoc.data() as Map<String, dynamic>;
         final userId = postData['userId'];
 
-        // Fetch user details for the post owner
         final userDoc = await _firestore.collection('users').doc(userId).get();
         if (userDoc.exists) {
           final userData = userDoc.data()!;
@@ -529,7 +526,6 @@ class DatabaseService {
     }
   }
 
-  // Delete a specific post
   Future<void> deletePost(String postId) async {
     try {
       await _postCollection.doc(postId).delete();

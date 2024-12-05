@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ping_peng/screens/account.dart';
 import 'package:ping_peng/utils.dart'; // Your utility file
 import 'package:ping_peng/database_services.dart'; // Import the DatabaseService
 
@@ -11,37 +12,6 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
   final DatabaseService _databaseService = DatabaseService();
-
-  Future<List<Map<String, dynamic>>> fetchNotifications() async {
-    try {
-      final currentUser = await _databaseService.getCurrentUser();
-      if (currentUser == null) {
-        throw Exception("No user is logged in.");
-      }
-      return await _databaseService.getUsersByIds(
-          await _databaseService.getFriendRequests(currentUser.uid));
-    } catch (e) {
-      debugPrint("Error fetching notifications: $e");
-      return [];
-    }
-  }
-
-  Future<void> handleFriendRequest(String friendUserId, bool isAccepted) async {
-    try {
-      final currentUser = await _databaseService.getCurrentUser();
-      if (currentUser == null) throw Exception("No user is logged in.");
-
-      if (isAccepted) {
-        await _databaseService.acceptFriendRequest(
-            currentUser.uid, friendUserId);
-      } else {
-        await _databaseService.denyFriendRequest(currentUser.uid, friendUserId);
-      }
-      setState(() {}); // Refresh the UI
-    } catch (e) {
-      debugPrint("Error handling friend request: $e");
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,16 +57,26 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: notification['profilePictureUrl'] != null
-                          ? NetworkImage(notification['profilePictureUrl'])
-                          : null,
-                      backgroundColor: Colors.grey,
-                      child: notification['profilePictureUrl'] == null
-                          ? const Icon(Icons.person,
-                              size: 40, color: Colors.white)
-                          : null,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    Account(userId: notification['userId'])));
+                      },
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundImage: notification['profilePictureUrl'] !=
+                                null
+                            ? NetworkImage(notification['profilePictureUrl'])
+                            : null,
+                        backgroundColor: Colors.grey,
+                        child: notification['profilePictureUrl'] == null
+                            ? const Icon(Icons.person,
+                                size: 40, color: Colors.white)
+                            : null,
+                      ),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -173,5 +153,36 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         },
       ),
     );
+  }
+
+  Future<List<Map<String, dynamic>>> fetchNotifications() async {
+    try {
+      final currentUser = await _databaseService.getCurrentUser();
+      if (currentUser == null) {
+        throw Exception("No user is logged in.");
+      }
+      return await _databaseService.getUsersByIds(
+          await _databaseService.getFriendRequests(currentUser.uid));
+    } catch (e) {
+      debugPrint("Error fetching notifications: $e");
+      return [];
+    }
+  }
+
+  Future<void> handleFriendRequest(String friendUserId, bool isAccepted) async {
+    try {
+      final currentUser = await _databaseService.getCurrentUser();
+      if (currentUser == null) throw Exception("No user is logged in.");
+
+      if (isAccepted) {
+        await _databaseService.acceptFriendRequest(
+            currentUser.uid, friendUserId);
+      } else {
+        await _databaseService.denyFriendRequest(currentUser.uid, friendUserId);
+      }
+      setState(() {}); // Refresh the UI
+    } catch (e) {
+      debugPrint("Error handling friend request: $e");
+    }
   }
 }

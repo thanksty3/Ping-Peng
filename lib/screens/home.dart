@@ -60,7 +60,7 @@ class _HomeState extends State<Home> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-              "No New Pengs to Show, Reloading...",
+              "No New Pengs to Show",
               style: TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
