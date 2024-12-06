@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ping_peng/screens/become_peng.dart';
 import 'package:ping_peng/screens/forgot_password.dart';
 import 'package:ping_peng/screens/home.dart';
-import 'package:ping_peng/utils.dart';
+import 'package:ping_peng/utils/utils.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});

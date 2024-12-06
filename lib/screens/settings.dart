@@ -8,7 +8,7 @@ import 'package:ping_peng/screens/forgot_password.dart';
 import 'package:ping_peng/screens/home.dart';
 import 'package:ping_peng/screens/login.dart';
 import 'package:ping_peng/screens/shows.dart';
-import 'package:ping_peng/utils.dart';
+import 'package:ping_peng/utils/utils.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});

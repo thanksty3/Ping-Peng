@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:ping_peng/database_services.dart';
+import 'package:ping_peng/utils/database_services.dart';
 import 'package:ping_peng/screens/account.dart';
-import 'package:ping_peng/utils.dart';
+import 'package:ping_peng/utils/utils.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});

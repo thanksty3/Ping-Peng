@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:ping_peng/database_services.dart';
-import 'package:ping_peng/lists.dart';
-import 'package:ping_peng/utils.dart';
+import 'package:ping_peng/utils/database_services.dart';
+import 'package:ping_peng/utils/lists.dart';
+import 'package:ping_peng/utils/utils.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});

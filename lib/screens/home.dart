@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:ping_peng/screens/chats.dart';
 import 'package:ping_peng/screens/shows.dart';
 import 'package:ping_peng/screens/account.dart';
-import 'package:ping_peng/database_services.dart';
-import 'package:ping_peng/utils.dart';
+import 'package:ping_peng/utils/database_services.dart';
+import 'package:ping_peng/utils/utils.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});

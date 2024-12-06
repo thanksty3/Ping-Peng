@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ping_peng/database_services.dart';
+import 'package:ping_peng/utils/database_services.dart';
 import 'package:ping_peng/screens/chatroom.dart';
 import 'package:ping_peng/screens/edit_profile.dart';
-import 'package:ping_peng/utils.dart';
+import 'package:ping_peng/utils/utils.dart';
 
 class Account extends StatefulWidget {
   final String? userId;

@@ -3,8 +3,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:ping_peng/screens/account.dart';
 import 'package:ping_peng/screens/chats.dart';
 import 'package:ping_peng/screens/home.dart';
-import 'package:ping_peng/utils.dart';
-import 'package:ping_peng/database_services.dart';
+import 'package:ping_peng/utils/utils.dart';
+import 'package:ping_peng/utils/database_services.dart';
 import 'dart:io';
 
 class Shows extends StatefulWidget {

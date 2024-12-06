@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:ping_peng/database_services.dart' as database;
+import 'package:ping_peng/utils/database_services.dart' as database;
 import 'package:ping_peng/screens/login.dart';
-import 'package:ping_peng/utils.dart';
+import 'package:ping_peng/utils/utils.dart';
 
 class BecomePeng extends StatefulWidget {
   const BecomePeng({super.key});

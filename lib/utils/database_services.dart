@@ -500,7 +500,7 @@ class DatabaseService {
       // Combine post data with user details
       List<Map<String, dynamic>> friendsPosts = [];
       for (var postDoc in querySnapshot.docs) {
-        final postData = postDoc.data() as Map<String, dynamic>;
+        final postData = postDoc.data();
         final userId = postData['userId'];
 
         final userDoc = await _firestore.collection('users').doc(userId).get();

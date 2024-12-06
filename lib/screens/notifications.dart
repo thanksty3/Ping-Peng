@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ping_peng/screens/account.dart';
-import 'package:ping_peng/utils.dart'; // Your utility file
-import 'package:ping_peng/database_services.dart'; // Import the DatabaseService
+import 'package:ping_peng/utils/utils.dart'; // Your utility file
+import 'package:ping_peng/utils/database_services.dart'; // Import the DatabaseService
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});

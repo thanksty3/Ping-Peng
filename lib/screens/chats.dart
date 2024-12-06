@@ -1,8 +1,8 @@
 // ignore_for_file: unnecessary_string_escapes
 
 import 'package:flutter/material.dart';
-import 'package:ping_peng/database_services.dart';
-import 'package:ping_peng/utils.dart';
+import 'package:ping_peng/utils/database_services.dart';
+import 'package:ping_peng/utils/utils.dart';
 
 import 'chatroom.dart';
 
