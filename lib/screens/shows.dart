@@ -147,21 +147,8 @@ class _ShowsState extends State<Shows> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.videocam, color: Colors.orange),
-                title: const Text("Upload Video (Max 10 sec)",
-                    style: TextStyle(color: Colors.white)),
-                onTap: () async {
-                  Navigator.pop(context);
-                  final XFile? video =
-                      await picker.pickVideo(source: ImageSource.gallery);
-                  if (video != null) {
-                    await _uploadMedia(context, File(video.path), 'video');
-                  }
-                },
-              ),
-              ListTile(
                 leading: const Icon(Icons.camera_alt, color: Colors.orange),
-                title: const Text("Take Photo or Video",
+                title: const Text("Take Photo",
                     style: TextStyle(color: Colors.white)),
                 onTap: () async {
                   Navigator.pop(context);

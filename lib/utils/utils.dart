@@ -22,6 +22,14 @@ SizedBox divider() {
   return SizedBox(height: 30);
 }
 
+ButtonStyle deletePost() {
+  return ElevatedButton.styleFrom(
+      backgroundColor: Colors.red,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ));
+}
+
 ButtonStyle buttonStyle(bool isLogin) {
   Color buttonColor = isLogin ? Colors.orange : Colors.white;
 

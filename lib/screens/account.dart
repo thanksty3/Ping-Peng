@@ -382,11 +382,11 @@ class _AccountState extends State<Account> {
                                     .deletePost(post['postId']);
                                 setState(() {});
                               },
-                              style: buttonStyle(true),
+                              style: deletePost(),
                               child: const Text(
                                 'Delete Post',
                                 style: TextStyle(
-                                  color: Colors.black,
+                                  color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
                                 ),

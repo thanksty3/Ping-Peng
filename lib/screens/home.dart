@@ -26,7 +26,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final bool hasMoreUsers = _currentUserIndex < 30;
+    final bool hasMoreUsers = _currentUserIndex < _users.length;
 
     return Scaffold(
       appBar: const HomeNavAppBar(),
