@@ -51,6 +51,7 @@ class LoginState extends State<Login> {
                 // Email Input
                 TextField(
                   cursorColor: Colors.orange,
+                  style: TextStyle(color: Colors.orange),
                   controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
@@ -73,6 +74,7 @@ class LoginState extends State<Login> {
 
                 // Password Input
                 TextField(
+                  style: TextStyle(color: Colors.orange),
                   cursorColor: Colors.orange,
                   controller: _passwordController,
                   obscureText: true,

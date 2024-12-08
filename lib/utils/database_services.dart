@@ -29,7 +29,7 @@ class DatabaseService {
         "myInterests": [],
         "profilePictureUrl": null,
         "friends": [],
-        "pendingFriends": []
+        "pendingFriends": [],
       });
       log("User created successfully for UID: $uid");
     } catch (e) {

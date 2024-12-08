@@ -28,6 +28,53 @@ class _ShowsState extends State<Shows> {
     _fetchFriendsPosts();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const ShowsNavAppBar(),
+      backgroundColor: Colors.black,
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: Colors.orange),
+            )
+          : _friendsPosts.isEmpty
+              ? const Center(
+                  child: Text(
+                    "No shows available!",
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                )
+              : PageView.builder(
+                  controller: _horizontalPageController,
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _friendsPosts.length,
+                  itemBuilder: (context, friendIndex) {
+                    final friendPosts = _friendsPosts[friendIndex]['posts'];
+                    return friendPosts.isEmpty
+                        ? Center(
+                            child: Text(
+                              "No posts from this user.",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          )
+                        : PageView.builder(
+                            controller: _verticalPageController,
+                            scrollDirection: Axis.vertical,
+                            itemCount: friendPosts.length,
+                            itemBuilder: (context, postIndex) {
+                              return _buildPostView(
+                                friendPosts[postIndex],
+                                _friendsPosts[friendIndex],
+                              );
+                            },
+                          );
+                  },
+                ),
+      bottomNavigationBar: const ShowsNavBottomNavigationBar(),
+    );
+  }
+
   Future<void> _fetchFriendsPosts() async {
     setState(() {
       _isLoading = true;
@@ -37,11 +84,9 @@ class _ShowsState extends State<Shows> {
       final currentUser = await _databaseService.getCurrentUser();
       if (currentUser == null) throw Exception("No user is logged in.");
 
-      // Fetch posts from friends
       final friendsPosts =
           await _databaseService.getFriendsPosts(currentUser.uid);
 
-      // Group posts by friend for horizontal and vertical navigation
       final groupedPosts = <Map<String, dynamic>>[];
       for (var post in friendsPosts) {
         final friendIndex = groupedPosts
@@ -157,53 +202,6 @@ class _ShowsState extends State<Shows> {
         backgroundColor: Colors.white,
       ));
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const ShowsNavAppBar(),
-      backgroundColor: Colors.black,
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.orange),
-            )
-          : _friendsPosts.isEmpty
-              ? const Center(
-                  child: Text(
-                    "No shows available!",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                )
-              : PageView.builder(
-                  controller: _horizontalPageController,
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _friendsPosts.length,
-                  itemBuilder: (context, friendIndex) {
-                    final friendPosts = _friendsPosts[friendIndex]['posts'];
-                    return friendPosts.isEmpty
-                        ? Center(
-                            child: Text(
-                              "No posts from this user.",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 18),
-                            ),
-                          )
-                        : PageView.builder(
-                            controller: _verticalPageController,
-                            scrollDirection: Axis.vertical,
-                            itemCount: friendPosts.length,
-                            itemBuilder: (context, postIndex) {
-                              return _buildPostView(
-                                friendPosts[postIndex],
-                                _friendsPosts[friendIndex],
-                              );
-                            },
-                          );
-                  },
-                ),
-      bottomNavigationBar: const ShowsNavBottomNavigationBar(),
-    );
   }
 
   Widget _buildPostView(

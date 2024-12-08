@@ -30,54 +30,11 @@ class _ChatsState extends State<Chats> {
       appBar: const ChatsNavAppBar(),
       backgroundColor: Colors.black,
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: _friends.length,
-              itemBuilder: (context, index) {
-                final friend = _friends[index];
-                return GestureDetector(
-                  onTap: () => _navigateToChatroom(friend),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10.0, horizontal: 15.0),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 40,
-                          backgroundImage: friend['profilePictureUrl'] != null
-                              ? NetworkImage(friend['profilePictureUrl'])
-                              : null,
-                          backgroundColor: Colors.grey,
-                        ),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${friend['firstName']} ${friend['lastName']}',
-                              style: const TextStyle(
-                                fontFamily: 'Jua',
-                                fontSize: 19,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              '@${friend['username']}',
-                              style: const TextStyle(
-                                color: Colors.orange,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+          ? const Center(
+              child: CircularProgressIndicator(
+              color: Colors.orange,
+            ))
+          : chatsScreen(),
       bottomNavigationBar: const ChatsNavBottomNavigationBar(),
     );
   }
@@ -156,5 +113,60 @@ class _ChatsState extends State<Chats> {
 
   String _generateChatRoomId(String user1, String user2) {
     return (user1.compareTo(user2) < 0) ? "$user1\_$user2" : "$user2\_$user1";
+  }
+
+  Widget chatsScreen() {
+    return ListView.builder(
+      itemCount: _friends.length,
+      itemBuilder: (context, index) {
+        final friend = _friends[index];
+        return GestureDetector(
+          onTap: () => _navigateToChatroom(friend),
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: friend['profilePictureUrl'] != null
+                      ? NetworkImage(friend['profilePictureUrl'])
+                      : null,
+                  backgroundColor: Colors.black,
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${friend['firstName']} ${friend['lastName']}',
+                      style: const TextStyle(
+                        fontFamily: 'Jua',
+                        fontSize: 19,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      '@${friend['username']}',
+                      style: const TextStyle(
+                        color: Colors.orange,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(width: 20),
+                CircleAvatar(
+                  radius: 5,
+                  backgroundColor: Colors.orange,
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

@@ -166,6 +166,7 @@ class _AccountState extends State<Account> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircleAvatar(
+                backgroundColor: Colors.black,
                 radius: 120,
                 backgroundImage: _profilePictureUrl.isNotEmpty
                     ? NetworkImage(_profilePictureUrl)
