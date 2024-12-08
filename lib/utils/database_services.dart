@@ -12,6 +12,7 @@ class DatabaseService {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final CollectionReference _postCollection =
       FirebaseFirestore.instance.collection('posts');
+  final Map<String, Map<String, dynamic>> _userCache = {};
 
   Future<User?> getCurrentUser() async {
     return _auth.currentUser;
@@ -74,12 +75,21 @@ class DatabaseService {
 
   Future<Map<String, dynamic>?> getUserDataForUserId(String userId) async {
     try {
+      if (_userCache.containsKey(userId)) {
+        return _userCache[userId];
+      }
+
       final userDoc = await _firestore.collection('users').doc(userId).get();
       if (!userDoc.exists) {
         throw Exception("User document does not exist for user ID: $userId");
       }
 
-      return userDoc.data();
+      final userData = userDoc.data();
+      if (userData != null) {
+        _userCache[userId] = userData;
+      }
+
+      return userData;
     } catch (e) {
       log("Failed to fetch user data for userId $userId: $e");
       return null;
@@ -89,7 +99,6 @@ class DatabaseService {
   Future<List<Map<String, dynamic>>> getAllUsersExcept(
       String currentUserId) async {
     try {
-      // Fetch current user's data for filtering
       final currentUserDoc =
           await _firestore.collection('users').doc(currentUserId).get();
 
@@ -105,7 +114,6 @@ class DatabaseService {
       final List<String> friendRequests =
           List<String>.from(currentUserData['friendRequests'] ?? []);
 
-      // Combine all users to exclude
       final Set<String> excludedUserIds = {
         currentUserId,
         ...friends,
@@ -155,12 +163,10 @@ class DatabaseService {
     try {
       WriteBatch batch = _firestore.batch();
 
-      // Remove friend from current user's friend list
       batch.update(_firestore.collection('users').doc(currentUserId), {
         'friends': FieldValue.arrayRemove([friendUserId]),
       });
 
-      // Remove current user from the friend's friend list
       batch.update(_firestore.collection('users').doc(friendUserId), {
         'friends': FieldValue.arrayRemove([currentUserId]),
       });
@@ -191,13 +197,11 @@ class DatabaseService {
     try {
       WriteBatch batch = _firestore.batch();
 
-      // Add requester to current user's friends
       batch.update(_firestore.collection('users').doc(currentUserId), {
         'friends': FieldValue.arrayUnion([requesterId]),
         'friendRequests': FieldValue.arrayRemove([requesterId]),
       });
 
-      // Add current user to requester's friends
       batch.update(_firestore.collection('users').doc(requesterId), {
         'friends': FieldValue.arrayUnion([currentUserId]),
       });
@@ -226,27 +230,30 @@ class DatabaseService {
   Future<String> getFriendStatus(
       String currentUserId, String profileUserId) async {
     try {
-      final currentUserDoc =
-          await _firestore.collection('users').doc(currentUserId).get();
-      final profileUserDoc =
-          await _firestore.collection('users').doc(profileUserId).get();
+      final currentUserDoc = await _firestore
+          .collection('users')
+          .doc(currentUserId)
+          .get(GetOptions(source: Source.cache));
+
+      final profileUserDoc = await _firestore
+          .collection('users')
+          .doc(profileUserId)
+          .get(GetOptions(source: Source.cache));
 
       if (!currentUserDoc.exists || !profileUserDoc.exists) {
         throw Exception("One or both user documents do not exist.");
       }
 
-      final currentUserData = currentUserDoc.data()!;
-      final profileUserData = profileUserDoc.data()!;
-
-      final friends = List<String>.from(currentUserData['friends'] ?? []);
+      final friends =
+          List<String>.from(currentUserDoc.data()?['friends'] ?? []);
       final sentRequests =
-          List<String>.from(profileUserData['friendRequests'] ?? []);
+          List<String>.from(profileUserDoc.data()?['friendRequests'] ?? []);
       final incomingRequests =
-          List<String>.from(currentUserData['friendRequests'] ?? []);
+          List<String>.from(currentUserDoc.data()?['friendRequests'] ?? []);
 
       if (friends.contains(profileUserId)) {
         return 'friends';
-      } else if (sentRequests.contains(profileUserId)) {
+      } else if (sentRequests.contains(currentUserId)) {
         return 'pending';
       } else if (incomingRequests.contains(profileUserId)) {
         return 'add_back';
@@ -362,7 +369,6 @@ class DatabaseService {
 
       final chatRoomSnapshot = await chatRoomRef.get();
       if (!chatRoomSnapshot.exists) {
-        // Create chatroom if it doesn't exist
         await chatRoomRef.set({
           'users': [user1, user2],
           'createdAt': FieldValue.serverTimestamp(),
@@ -415,10 +421,8 @@ class DatabaseService {
       final fileName = '${timestamp}_${file.path.split('/').last}';
       final ref = _storage.ref().child('shows/$userId/$fileName');
 
-      // Upload the file
       await ref.putFile(file);
 
-      // Get the download URL
       final downloadUrl = await ref.getDownloadURL();
       log("File uploaded successfully. URL: $downloadUrl");
 
@@ -429,7 +433,6 @@ class DatabaseService {
     }
   }
 
-  // Add a new post
   Future<void> addPost(String userId, String mediaUrl, String type) async {
     try {
       await _postCollection.add({
@@ -445,7 +448,6 @@ class DatabaseService {
     }
   }
 
-  // Fetch the current user's posts
   Future<List<Map<String, dynamic>>> getUserPosts(String userId) async {
     try {
       final now = DateTime.now();
@@ -473,7 +475,6 @@ class DatabaseService {
     }
   }
 
-  // Fetch friends' posts
   Future<List<Map<String, dynamic>>> getFriendsPosts(
       String currentUserId) async {
     try {
@@ -497,29 +498,31 @@ class DatabaseService {
           .orderBy('timestamp', descending: true)
           .get();
 
-      // Combine post data with user details
-      List<Map<String, dynamic>> friendsPosts = [];
-      for (var postDoc in querySnapshot.docs) {
+      final friendsDocs = await _firestore
+          .collection('users')
+          .where(FieldPath.documentId, whereIn: friends)
+          .get();
+
+      final friendsData = {
+        for (var doc in friendsDocs.docs) doc.id: doc.data()
+      };
+
+      return querySnapshot.docs.map((postDoc) {
         final postData = postDoc.data();
         final userId = postData['userId'];
+        final userData = _userCache[userId] ?? friendsData[userId];
 
-        final userDoc = await _firestore.collection('users').doc(userId).get();
-        if (userDoc.exists) {
-          final userData = userDoc.data()!;
-          friendsPosts.add({
-            'userId': userId,
-            'mediaUrl': postData['mediaUrl'],
-            'type': postData['type'],
-            'timestamp': postData['timestamp'],
-            'firstName': userData['firstName'] ?? '',
-            'lastName': userData['lastName'] ?? '',
-            'username': userData['username'] ?? '',
-            'profilePictureUrl': userData['profilePictureUrl'] ?? '',
-          });
-        }
-      }
-
-      return friendsPosts;
+        return {
+          'userId': userId,
+          'mediaUrl': postData['mediaUrl'],
+          'type': postData['type'],
+          'timestamp': postData['timestamp'],
+          'firstName': userData?['firstName'] ?? '',
+          'lastName': userData?['lastName'] ?? '',
+          'username': userData?['username'] ?? '',
+          'profilePictureUrl': userData?['profilePictureUrl'] ?? '',
+        };
+      }).toList();
     } catch (e) {
       log("Failed to fetch friends' posts: $e");
       return [];
