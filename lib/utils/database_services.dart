@@ -367,36 +367,111 @@ class DatabaseService {
           (user1.compareTo(user2) < 0) ? '$user1\_$user2' : '$user2\_$user1';
       final chatRoomRef = _firestore.collection('chatrooms').doc(chatRoomId);
 
-      final chatRoomSnapshot = await chatRoomRef.get();
-      if (!chatRoomSnapshot.exists) {
-        await chatRoomRef.set({
-          'users': [user1, user2],
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      }
+      await _firestore.runTransaction((transaction) async {
+        final snapshot = await transaction.get(chatRoomRef);
+
+        if (!snapshot.exists) {
+          transaction.set(chatRoomRef, {
+            'users': [user1, user2],
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        }
+      });
+
       return chatRoomId;
     } catch (e) {
-      log("Failed to create or get chatroom: $e");
+      log("Failed to create or get chatroom: ${e.toString()}");
       rethrow;
     }
   }
 
   Future<void> sendMessage(
       String chatRoomId, String senderId, String text) async {
+    if (text.trim().isEmpty) return;
+
     try {
       final messageData = {
         'senderId': senderId,
         'text': text.trim(),
         'timestamp': FieldValue.serverTimestamp(),
+        'status': 'delivered',
       };
+
+      final chatRoomRef = _firestore.collection('chatrooms').doc(chatRoomId);
+
+      await _firestore.runTransaction((transaction) async {
+        transaction.set(
+          chatRoomRef.collection('messages').doc(),
+          messageData,
+        );
+
+        transaction.update(chatRoomRef, {
+          'lastMessage': text.trim(),
+          'lastMessageTimestamp': FieldValue.serverTimestamp(),
+        });
+      });
+
+      log("Message sent to chatroom $chatRoomId");
+    } catch (e) {
+      log("Failed to send message: ${e.toString()}");
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getChatroomDetails(String chatRoomId) async {
+    try {
+      final chatRoomDoc =
+          await _firestore.collection('chatrooms').doc(chatRoomId).get();
+      if (!chatRoomDoc.exists) {
+        return null;
+      }
+      return chatRoomDoc.data();
+    } catch (e) {
+      log("Failed to get chatroom details for $chatRoomId: $e");
+      return null;
+    }
+  }
+
+  Future<void> updateLastOpened(String chatRoomId) async {
+    try {
+      final currentUserId = _auth.currentUser?.uid;
+      if (currentUserId == null) {
+        throw Exception("No logged-in user.");
+      }
+
+      final chatRoomRef = _firestore.collection('chatrooms').doc(chatRoomId);
+
+      await _firestore.runTransaction((transaction) async {
+        final chatRoomSnapshot = await transaction.get(chatRoomRef);
+
+        if (!chatRoomSnapshot.exists) {
+          throw Exception("Chatroom does not exist.");
+        }
+
+        transaction.update(chatRoomRef, {
+          'lastOpened.$currentUserId': FieldValue.serverTimestamp(),
+        });
+      });
+
+      log("Updated last opened for chatRoomId: $chatRoomId by user: $currentUserId");
+    } catch (e) {
+      log("Failed to update last opened: ${e.toString()}");
+      rethrow;
+    }
+  }
+
+  Future<void> updateMessageStatus(
+      String chatRoomId, String messageId, String status) async {
+    try {
       await _firestore
           .collection('chatrooms')
           .doc(chatRoomId)
           .collection('messages')
-          .add(messageData);
-      log("Message sent to chatroom $chatRoomId");
+          .doc(messageId)
+          .update({'status': status});
+      log("Updated message $messageId status to $status.");
     } catch (e) {
-      log("Failed to send message: $e");
+      log("Failed to update message status: $e");
       rethrow;
     }
   }
@@ -412,6 +487,36 @@ class DatabaseService {
     } catch (e) {
       log("Failed to fetch messages: $e");
       rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getUnreadMessages(
+      String chatRoomId, String userId) async {
+    try {
+      final chatRoomDoc =
+          await _firestore.collection('chatrooms').doc(chatRoomId).get();
+      if (!chatRoomDoc.exists) throw Exception("Chatroom does not exist.");
+
+      final lastOpened = chatRoomDoc.data()?['lastOpened']?[userId];
+      if (lastOpened == null) {
+        log("No lastOpened timestamp found for user: $userId in chatroom: $chatRoomId");
+        return [];
+      }
+
+      final messagesSnapshot = await _firestore
+          .collection('chatrooms')
+          .doc(chatRoomId)
+          .collection('messages')
+          .where('timestamp', isGreaterThan: lastOpened)
+          .orderBy('timestamp', descending: true)
+          .get();
+
+      return messagesSnapshot.docs
+          .map((doc) => {'id': doc.id, ...doc.data()})
+          .toList();
+    } catch (e) {
+      log("Failed to fetch unread messages for user: $userId in chatroom: $chatRoomId. Error: $e");
+      return [];
     }
   }
 

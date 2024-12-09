@@ -88,7 +88,8 @@ class _HomeState extends State<Home> {
 
       setState(() {
         _users = users;
-        print("Loaded users: ${_users.map((user) => user['userId']).toList()}");
+        debugPrint(
+            "Loaded users: ${_users.map((user) => user['userId']).toList()}");
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,10 +1,8 @@
-// ignore_for_file: unnecessary_string_escapes
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_peng/utils/database_services.dart';
 import 'package:ping_peng/utils/utils.dart';
-
-import 'chatroom.dart';
+import 'package:ping_peng/screens/chatroom.dart';
 
 class Chats extends StatefulWidget {
   const Chats({super.key});
@@ -55,8 +53,47 @@ class _ChatsState extends State<Chats> {
       final friendIds = List<String>.from(userData['friends']);
       final friendsData = await _databaseService.getUsersByIds(friendIds);
 
-      friendsData.sort((a, b) =>
-          (b['lastInteraction'] ?? 0).compareTo(a['lastInteraction'] ?? 0));
+      for (var friend in friendsData) {
+        final chatRoomId = await _databaseService.createOrGetChatroom(
+          currentUser.uid,
+          friend['userId'],
+        );
+
+        final lastMessageSnapshot = await FirebaseFirestore.instance
+            .collection('chatrooms')
+            .doc(chatRoomId)
+            .collection('messages')
+            .orderBy('timestamp', descending: true)
+            .limit(1)
+            .get();
+
+        final lastMessageDoc = lastMessageSnapshot.docs.isNotEmpty
+            ? lastMessageSnapshot.docs.first
+            : null;
+
+        friend['lastMessage'] = lastMessageDoc != null
+            ? lastMessageDoc['text'] ?? 'No messages yet'
+            : 'No messages yet';
+
+        friend['lastInteraction'] = lastMessageDoc != null
+            ? lastMessageDoc['timestamp']?.toDate()
+            : null;
+
+        final chatRoomData =
+            await _databaseService.getChatroomDetails(chatRoomId);
+        final lastOpened = chatRoomData?['lastOpened']?[currentUser.uid];
+        friend['hasNewMessage'] = lastMessageDoc != null &&
+            lastMessageDoc['timestamp'] != null &&
+            (lastOpened == null ||
+                lastMessageDoc['timestamp']
+                    .toDate()
+                    .isAfter(lastOpened.toDate()));
+      }
+
+      friendsData.sort((a, b) => (b['lastInteraction'] ??
+              DateTime.fromMillisecondsSinceEpoch(0))
+          .compareTo(
+              a['lastInteraction'] ?? DateTime.fromMillisecondsSinceEpoch(0)));
 
       setState(() {
         _friends = friendsData;
@@ -70,6 +107,15 @@ class _ChatsState extends State<Chats> {
     }
   }
 
+  Future<void> _updateLastOpened(String chatRoomId) async {
+    try {
+      await _databaseService.updateLastOpened(chatRoomId);
+      debugPrint("Updated last opened for chatRoomId: $chatRoomId");
+    } catch (e) {
+      debugPrint("Failed to update lastOpened: $e");
+    }
+  }
+
   void _navigateToChatroom(Map<String, dynamic> friend) async {
     try {
       final currentUser = await _databaseService.getCurrentUser();
@@ -77,7 +123,7 @@ class _ChatsState extends State<Chats> {
         throw Exception("No logged-in user found.");
       }
 
-      final chatRoomId = _generateChatRoomId(
+      final chatRoomId = await _databaseService.createOrGetChatroom(
         currentUser.uid,
         friend['userId'] ?? '',
       );
@@ -92,11 +138,15 @@ class _ChatsState extends State<Chats> {
             friendUserId: friend['userId'] ?? '',
           ),
         ),
-      );
+      ).then((_) {
+        _updateLastOpened(chatRoomId);
+        _loadFriends();
+      });
     } catch (e) {
       debugPrint("Error navigating to chatroom: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
+          backgroundColor: Colors.white,
           content: Text(
             "Failed to open chatroom. Please try again.",
             style: TextStyle(
@@ -105,14 +155,9 @@ class _ChatsState extends State<Chats> {
               fontSize: 16,
             ),
           ),
-          backgroundColor: Colors.white,
         ),
       );
     }
-  }
-
-  String _generateChatRoomId(String user1, String user2) {
-    return (user1.compareTo(user2) < 0) ? "$user1\_$user2" : "$user2\_$user1";
   }
 
   Widget chatsScreen() {
@@ -135,33 +180,47 @@ class _ChatsState extends State<Chats> {
                   backgroundColor: Colors.black,
                 ),
                 const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${friend['firstName']} ${friend['lastName']}',
-                      style: const TextStyle(
-                        fontFamily: 'Jua',
-                        fontSize: 19,
-                        color: Colors.white,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${friend['firstName']} ${friend['lastName']}',
+                        style: const TextStyle(
+                          fontFamily: 'Jua',
+                          fontSize: 19,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      '@${friend['username']}',
-                      style: const TextStyle(
-                        color: Colors.orange,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                      const SizedBox(height: 5),
+                      Text(
+                        '@${friend['username']}',
+                        style: const TextStyle(
+                          color: Colors.orange,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 5),
+                      Text(
+                        friend['lastMessage'] ?? 'No messages yet',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(width: 20),
-                CircleAvatar(
-                  radius: 5,
-                  backgroundColor: Colors.orange,
-                )
+                if (friend['hasNewMessage'] == true) ...[
+                  const SizedBox(width: 10),
+                  const CircleAvatar(
+                    radius: 5,
+                    backgroundColor: Colors.orange,
+                  ),
+                ],
               ],
             ),
           ),

@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:ping_peng/utils/database_services.dart';
 import 'package:ping_peng/utils/lists.dart';
 import 'package:ping_peng/screens/account.dart';
 
@@ -23,10 +23,27 @@ class Chatroom extends StatefulWidget {
 }
 
 class _ChatroomState extends State<Chatroom> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final DatabaseService _databaseService = DatabaseService();
   final TextEditingController _messageController = TextEditingController();
   bool _iceBreakersVisible = false;
+  String? _currentUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeUser();
+    _updateLastOpened();
+    _markMessagesAsSeen();
+  }
+
+  Future<void> _initializeUser() async {
+    final currentUser = await _databaseService.getCurrentUser();
+    if (currentUser != null) {
+      setState(() {
+        _currentUserId = currentUser.uid;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -67,29 +84,13 @@ class _ChatroomState extends State<Chatroom> {
         ],
       ),
       backgroundColor: Colors.black,
-      body: Column(
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                _iceBreakersVisible ? _iceBreakersMenu() : _messageList(),
-              ],
-            ),
-          ),
-          _messageInput(),
-        ],
-      ),
+      body: chatroomScreen(),
     );
   }
 
   Widget _messageList() {
     return StreamBuilder<QuerySnapshot>(
-      stream: _firestore
-          .collection('chatrooms')
-          .doc(widget.chatRoomId)
-          .collection('messages')
-          .orderBy('timestamp', descending: true)
-          .snapshots(),
+      stream: _databaseService.getMessages(widget.chatRoomId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -105,6 +106,10 @@ class _ChatroomState extends State<Chatroom> {
           );
         }
 
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _markMessagesAsSeen();
+        });
+
         final messages = snapshot.data!.docs;
 
         return ListView.builder(
@@ -112,7 +117,7 @@ class _ChatroomState extends State<Chatroom> {
           itemCount: messages.length,
           itemBuilder: (context, index) {
             final message = messages[index];
-            final isMyMessage = message['senderId'] == _auth.currentUser?.uid;
+            final isMyMessage = message['senderId'] == _currentUserId;
 
             return _messageBubble(message['text'] ?? '', isMyMessage);
           },
@@ -253,24 +258,11 @@ class _ChatroomState extends State<Chatroom> {
   }
 
   Future<void> _sendMessage(String message) async {
-    if (message.trim().isEmpty) return;
-
-    final currentUser = _auth.currentUser;
-    if (currentUser == null) return;
-
-    final messageData = {
-      'senderId': currentUser.uid,
-      'text': message.trim(),
-      'timestamp': FieldValue.serverTimestamp(),
-    };
+    if (message.trim().isEmpty || _currentUserId == null) return;
 
     try {
-      await _firestore
-          .collection('chatrooms')
-          .doc(widget.chatRoomId)
-          .collection('messages')
-          .add(messageData);
-
+      await _databaseService.sendMessage(
+          widget.chatRoomId, _currentUserId!, message.trim());
       _messageController.clear();
     } catch (e) {
       debugPrint("Error sending message: $e");
@@ -279,14 +271,52 @@ class _ChatroomState extends State<Chatroom> {
           content: Text(
             "Failed to send message.",
             style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+                color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
           ),
           backgroundColor: Colors.white,
         ),
       );
     }
+  }
+
+  Future<void> _updateLastOpened() async {
+    if (_currentUserId == null) return;
+    try {
+      await _databaseService.updateLastOpened(widget.chatRoomId);
+      debugPrint(
+          "Updated last opened for ${widget.chatRoomId} by user $_currentUserId.");
+    } catch (e) {
+      debugPrint("Failed to update last opened: $e");
+    }
+  }
+
+  Future<void> _markMessagesAsSeen() async {
+    if (_currentUserId == null) return;
+    try {
+      final unreadMessages = await _databaseService.getUnreadMessages(
+          widget.chatRoomId, _currentUserId!);
+      for (var message in unreadMessages) {
+        await _databaseService.updateMessageStatus(
+            widget.chatRoomId, message['id'], 'seen');
+      }
+      debugPrint("Marked messages as seen.");
+    } catch (e) {
+      debugPrint("Failed to mark messages as seen: $e");
+    }
+  }
+
+  Widget chatroomScreen() {
+    return Column(
+      children: [
+        Expanded(
+          child: Stack(
+            children: [
+              _iceBreakersVisible ? _iceBreakersMenu() : _messageList(),
+            ],
+          ),
+        ),
+        _messageInput(),
+      ],
+    );
   }
 }
