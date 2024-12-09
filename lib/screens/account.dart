@@ -176,7 +176,6 @@ class _AccountState extends State<Account> {
           ),
           const SizedBox(height: 5),
 
-          // Name and Username
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -190,7 +189,6 @@ class _AccountState extends State<Account> {
           ),
           const SizedBox(height: 5),
 
-          // Edit Profile or Add/Remove Friend Button
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -200,8 +198,19 @@ class _AccountState extends State<Account> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => EditProfilePage()),
-                        ).then((_) => _loadUserData());
+                            builder: (context) => EditProfilePage(),
+                          ),
+                        ).then((updatedProfilePictureUrl) {
+                          if (updatedProfilePictureUrl != null) {
+                            // Update the profile picture instantly if a new one is saved
+                            setState(() {
+                              _profilePictureUrl = updatedProfilePictureUrl;
+                            });
+                          } else {
+                            // Reload all user data as a fallback
+                            _loadUserData();
+                          }
+                        });
                       },
                       style: buttonStyle(false),
                       child: const Text(

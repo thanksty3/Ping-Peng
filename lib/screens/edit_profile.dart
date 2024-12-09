@@ -15,9 +15,14 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final DatabaseService _databaseService = DatabaseService();
   final TextEditingController _pengQuoteController = TextEditingController();
+
   String _profilePictureUrl = '';
   List<String> _myInterests = [];
   bool _isLoading = false;
+
+  String _temporaryProfilePictureUrl = '';
+  String _temporaryQuote = '';
+  List<String> _temporaryInterests = [];
 
   final List<String> interests = Interests().getInterests();
 
@@ -29,224 +34,166 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black87,
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        iconTheme: IconThemeData(color: Colors.orange),
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(Icons.arrow_back),
+    return WillPopScope(
+      onWillPop: () async {
+        _revertChanges();
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black87,
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          iconTheme: const IconThemeData(color: Colors.orange),
+          leading: IconButton(
+            onPressed: () {
+              _revertChanges();
+              Navigator.pop(context);
+            },
+            icon: const Icon(Icons.arrow_back),
+          ),
+          actions: [
+            IconButton(
+              onPressed: _isLoading ? null : _saveUserData,
+              icon: const Icon(Icons.check, size: 25),
+            ),
+          ],
         ),
-        actions: [
-          IconButton(
-            onPressed: _isLoading ? null : _saveUserData,
-            icon: const Icon(Icons.check, size: 25),
-          )
-        ],
+        body: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: Colors.orange))
+            : _editProfileScreen(),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: Colors.orange))
-          : editProfileScreen(),
-      bottomNavigationBar: AccountNavBottomNavigationBar(),
     );
   }
 
   Future<void> _loadUserData() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       final userData = await _databaseService.getUserData();
       if (userData != null) {
         setState(() {
           _profilePictureUrl = userData['profilePictureUrl'] ?? '';
-          _myInterests = List<String>.from(userData['myInterests'] ?? []);
           _pengQuoteController.text = userData['pengQuote'] ?? '';
+          _myInterests = List<String>.from(userData['myInterests'] ?? []);
+
+          _temporaryProfilePictureUrl = _profilePictureUrl;
+          _temporaryQuote = _pengQuoteController.text;
+          _temporaryInterests = List<String>.from(_myInterests);
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Failed to load user data: $e',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          backgroundColor: Colors.white,
-        ),
-      );
+      _showSnackBar('Failed to load user data: $e');
+    } finally {
+      setState(() => _isLoading = false);
     }
+  }
 
+  void _revertChanges() {
     setState(() {
-      _isLoading = false;
+      _temporaryProfilePictureUrl = _profilePictureUrl;
+      _temporaryQuote = _pengQuoteController.text;
+      _temporaryInterests = List.from(_myInterests);
     });
   }
 
   Future<void> _saveUserData() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
+      String? updatedProfilePictureUrl = _profilePictureUrl;
+
+      if (_temporaryProfilePictureUrl.isNotEmpty &&
+          !_temporaryProfilePictureUrl.startsWith('http')) {
+        final imageFile = File(_temporaryProfilePictureUrl);
+
+        await _databaseService.uploadAndSaveProfilePicture(imageFile);
+
+        updatedProfilePictureUrl = await _databaseService.getProfilePictureUrl(
+          (await _databaseService.getCurrentUser())!.uid,
+        );
+      }
+
       await _databaseService.updateUserData(
-        pengQuote: _pengQuoteController.text.trim(),
-        myInterests: _myInterests,
+        pengQuote: _temporaryQuote.trim(),
+        myInterests: _temporaryInterests,
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Profile updated successfully!',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          backgroundColor: Colors.white,
-        ),
-      );
+      setState(() {
+        _profilePictureUrl = updatedProfilePictureUrl ?? _profilePictureUrl;
+        _temporaryProfilePictureUrl = _profilePictureUrl;
+        _myInterests = List.from(_temporaryInterests);
+        _pengQuoteController.text = _temporaryQuote;
+      });
 
-      Navigator.pop(context);
+      // Pass the updated profile picture URL back to the Account page
+      Navigator.pop(context, updatedProfilePictureUrl);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-          'Failed to save user data: $e',
-          style: TextStyle(
+      _showSnackBar('Failed to save user data: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
-        )),
-      );
-    }
-
-    setState(() {
-      _isLoading = false;
-    });
+        ),
+        backgroundColor: Colors.white,
+      ),
+    );
   }
 
   Future<void> _chooseProfilePicture() async {
     final picker = ImagePicker();
 
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.photo_library, color: Colors.orange),
-              title: Text(
-                'Choose from Photo Library',
-                style: TextStyle(color: Colors.orange),
-              ),
-              onTap: () async {
-                Navigator.pop(context);
-                try {
-                  final pickedFile =
-                      await picker.pickImage(source: ImageSource.gallery);
-                  if (pickedFile != null) {
-                    setState(() {
-                      _isLoading = true;
-                    });
-
-                    final image = File(pickedFile.path);
-                    await _databaseService.uploadAndSaveProfilePicture(image);
-
-                    final updatedUrl =
-                        await _databaseService.getProfilePictureUrl(
-                            (await _databaseService.getCurrentUser())!.uid);
-                    if (mounted) {
-                      setState(() {
-                        _profilePictureUrl = updatedUrl ?? '';
-                        _isLoading = false;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text(
-                          'Profile picture updated!',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        )),
-                      );
-                    }
-                  }
-                } catch (e) {
-                  if (mounted) {
-                    setState(() {
-                      _isLoading = false;
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text(
-                        'Failed to update picture: $e',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      )),
-                    );
-                  }
-                }
-              },
-            ),
-          ],
-        );
-      },
-    );
+    try {
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _temporaryProfilePictureUrl = pickedFile.path;
+        });
+      }
+    } catch (e) {
+      _showSnackBar('Failed to pick image: $e');
+    }
   }
 
-  Widget editProfileScreen() {
+  Widget _editProfileScreen() {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
           CircleAvatar(
             radius: 100,
-            backgroundImage: _profilePictureUrl.isNotEmpty
-                ? NetworkImage(_profilePictureUrl)
-                : AssetImage('assets/images/P!ngPeng.png') as ImageProvider,
+            backgroundImage: _temporaryProfilePictureUrl.isNotEmpty
+                ? (_temporaryProfilePictureUrl.startsWith('http')
+                        ? NetworkImage(_temporaryProfilePictureUrl)
+                        : FileImage(File(_temporaryProfilePictureUrl)))
+                    as ImageProvider
+                : const AssetImage('assets/images/P!ngPeng.png'),
           ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: _isLoading ? null : _chooseProfilePicture,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text(
-              'Edit Profile Picture',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
+          _buildEditButton('Edit Profile Picture', _chooseProfilePicture),
+          const SizedBox(height: 20),
           TextField(
             textAlign: TextAlign.center,
             controller: _pengQuoteController,
             cursorColor: Colors.orange,
             maxLines: 3,
             maxLength: 125,
-            decoration: InputDecoration(
-              label: const Text(
+            onChanged: (value) {
+              _temporaryQuote = value;
+            },
+            decoration: const InputDecoration(
+              label: Text(
                 'Peng Quote',
                 style: TextStyle(
                   color: Colors.orange,
@@ -261,10 +208,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 borderSide: BorderSide(color: Colors.orange),
               ),
             ),
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ),
-          SizedBox(height: 20),
-          Align(
+          const SizedBox(height: 20),
+          const Align(
             alignment: Alignment.centerLeft,
             child: Text(
               'Select Interests:',
@@ -275,39 +222,58 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
             ),
           ),
-          SizedBox(height: 10),
-          Wrap(
-            spacing: 8.0,
-            runSpacing: 4.0,
-            children: interests.map((interest) {
-              final isSelected = _myInterests.contains(interest);
-              return FilterChip(
-                backgroundColor:
-                    isSelected ? Colors.orange[100] : Colors.grey[800],
-                selectedColor: Colors.orange,
-                label: Text(
-                  interest,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: isSelected ? Colors.white : Colors.orange,
-                  ),
-                ),
-                selected: isSelected,
-                onSelected: (bool selected) {
-                  setState(() {
-                    if (selected) {
-                      _myInterests.add(interest);
-                    } else {
-                      _myInterests.remove(interest);
-                    }
-                  });
-                },
-              );
-            }).toList(),
-          ),
+          const SizedBox(height: 10),
+          _buildInterestsChips(),
         ],
       ),
+    );
+  }
+
+  Widget _buildEditButton(String text, VoidCallback onPressed) {
+    return ElevatedButton(
+      onPressed: _isLoading ? null : onPressed,
+      style: buttonStyle(false),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInterestsChips() {
+    return Wrap(
+      spacing: 8.0,
+      runSpacing: 4.0,
+      children: interests.map((interest) {
+        final isSelected = _temporaryInterests.contains(interest);
+        return FilterChip(
+          backgroundColor: isSelected ? Colors.orange[100] : Colors.grey[800],
+          selectedColor: Colors.orange,
+          label: Text(
+            interest,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              color: isSelected ? Colors.white : Colors.orange,
+            ),
+          ),
+          selected: isSelected,
+          onSelected: (bool selected) {
+            setState(() {
+              if (selected) {
+                _temporaryInterests.add(interest);
+              } else {
+                _temporaryInterests.remove(interest);
+              }
+            });
+          },
+        );
+      }).toList(),
     );
   }
 }
