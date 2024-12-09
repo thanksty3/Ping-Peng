@@ -161,7 +161,6 @@ class _AccountState extends State<Account> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          // Profile Picture
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -175,7 +174,6 @@ class _AccountState extends State<Account> {
             ],
           ),
           const SizedBox(height: 5),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -188,7 +186,6 @@ class _AccountState extends State<Account> {
             ],
           ),
           const SizedBox(height: 5),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -202,12 +199,10 @@ class _AccountState extends State<Account> {
                           ),
                         ).then((updatedProfilePictureUrl) {
                           if (updatedProfilePictureUrl != null) {
-                            // Update the profile picture instantly if a new one is saved
                             setState(() {
                               _profilePictureUrl = updatedProfilePictureUrl;
                             });
                           } else {
-                            // Reload all user data as a fallback
                             _loadUserData();
                           }
                         });
@@ -249,7 +244,7 @@ class _AccountState extends State<Account> {
                     ),
             ],
           ),
-          if (_friendStatus == 'friends') // Conditionally show the button
+          if (_friendStatus == 'friends')
             Center(
               child: Padding(
                 padding: const EdgeInsets.only(top: 10),
@@ -278,8 +273,7 @@ class _AccountState extends State<Account> {
                       MaterialPageRoute(
                         builder: (context) => Chatroom(
                           username: _username,
-                          chatRoomId:
-                              '${widget.userId}_$currentUserId', // Correct ID
+                          chatRoomId: '${widget.userId}_$currentUserId',
                           friendProfilePictureUrl: _profilePictureUrl,
                           friendUserId: widget.userId!,
                         ),
@@ -303,14 +297,10 @@ class _AccountState extends State<Account> {
                 ),
               ),
             ),
-
           const SizedBox(height: 10),
-
-          // Peng Quote and Interests
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Peng Quote
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -340,12 +330,8 @@ class _AccountState extends State<Account> {
                 ],
               ),
               divider(),
-
-              // Interests
               interestsSection(),
               divider(),
-
-              // Shows Section
               mainText('Shows'),
               divider(),
               FutureBuilder<List<Map<String, dynamic>>>(
@@ -383,7 +369,6 @@ class _AccountState extends State<Account> {
                                   ),
                           ),
                           divider(),
-                          //delete user's post if on account page
                           if (_isCurrentUser)
                             ElevatedButton(
                               onPressed: () async {

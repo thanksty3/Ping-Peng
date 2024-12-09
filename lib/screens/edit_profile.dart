@@ -128,7 +128,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _pengQuoteController.text = _temporaryQuote;
       });
 
-      // Pass the updated profile picture URL back to the Account page
       Navigator.pop(context, updatedProfilePictureUrl);
     } catch (e) {
       _showSnackBar('Failed to save user data: $e');

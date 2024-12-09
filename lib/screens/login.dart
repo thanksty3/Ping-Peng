@@ -13,7 +13,6 @@ class Login extends StatefulWidget {
 }
 
 class LoginState extends State<Login> {
-  // Text controllers
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
