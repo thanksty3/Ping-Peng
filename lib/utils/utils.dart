@@ -18,6 +18,16 @@ pickImage(ImageSource source) async {
   log('No images selected');
 }
 
+const Color orange = Colors.orange;
+const Color black = Colors.black;
+
+Text header(String title) {
+  return Text(
+    title,
+    style: TextStyle(fontFamily: 'Jua', color: orange, fontSize: 40),
+  );
+}
+
 SizedBox divider() {
   return SizedBox(height: 30);
 }
@@ -31,7 +41,7 @@ ButtonStyle deletePost() {
 }
 
 ButtonStyle buttonStyle(bool isLogin) {
-  Color buttonColor = isLogin ? Colors.orange : Colors.white;
+  Color buttonColor = isLogin ? orange : Colors.white;
 
   return ElevatedButton.styleFrom(
       backgroundColor: buttonColor,
@@ -47,12 +57,9 @@ class NotificationsAppBar extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      iconTheme: IconThemeData(color: Colors.orange),
-      backgroundColor: Colors.black,
-      title: const Text(
-        'Peng Requests',
-        style: TextStyle(fontFamily: 'Jua', color: Colors.orange, fontSize: 40),
-      ),
+      iconTheme: IconThemeData(color: orange),
+      backgroundColor: black,
+      title: header('Peng Requests'),
     );
   }
 
@@ -66,9 +73,9 @@ class HomeNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.black,
+      backgroundColor: black,
       leading: IconButton(
-        icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
+        icon: const Icon(Icons.notifications, color: orange, size: 30),
         onPressed: () {
           Navigator.push(
               context,
@@ -78,14 +85,14 @@ class HomeNavAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: <Widget>[
         IconButton(
-          icon: const Icon(Icons.search, color: Colors.orange, size: 30),
+          icon: const Icon(Icons.search, color: orange, size: 30),
           onPressed: () {
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => SearchScreen()));
           },
         ),
         IconButton(
-          icon: const Icon(Icons.settings, color: Colors.orange, size: 30),
+          icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => const Settings()));
@@ -105,9 +112,9 @@ class ShowsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.black,
+      backgroundColor: black,
       leading: IconButton(
-        icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
+        icon: const Icon(Icons.notifications, color: orange, size: 30),
         onPressed: () {
           Navigator.pushReplacement(
               context,
@@ -116,21 +123,17 @@ class ShowsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         },
       ),
       actions: <Widget>[
-        const Text(
-          'Shows',
-          style:
-              TextStyle(fontFamily: 'Jua', color: Colors.orange, fontSize: 40),
-        ),
+        header('Shows'),
         const SizedBox(width: 35),
         IconButton(
-          icon: const Icon(Icons.search, color: Colors.orange, size: 30),
+          icon: const Icon(Icons.search, color: orange, size: 30),
           onPressed: () {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => SearchScreen()));
           },
         ),
         IconButton(
-          icon: const Icon(Icons.settings, color: Colors.orange, size: 30),
+          icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => const Settings()));
@@ -150,9 +153,9 @@ class ChatsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.black,
+      backgroundColor: black,
       leading: IconButton(
-        icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
+        icon: const Icon(Icons.notifications, color: orange, size: 30),
         onPressed: () {
           Navigator.pushReplacement(
               context,
@@ -161,21 +164,17 @@ class ChatsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         },
       ),
       actions: <Widget>[
-        const Text(
-          'CHATS',
-          style:
-              TextStyle(fontFamily: 'Jua', color: Colors.orange, fontSize: 40),
-        ),
-        const SizedBox(width: 35),
+        header('Chats'),
+        const SizedBox(width: 45),
         IconButton(
-          icon: const Icon(Icons.search, color: Colors.orange, size: 30),
+          icon: const Icon(Icons.search, color: orange, size: 30),
           onPressed: () {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => SearchScreen()));
           },
         ),
         IconButton(
-          icon: const Icon(Icons.settings, color: Colors.orange, size: 30),
+          icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => const Settings()));
@@ -197,7 +196,7 @@ class ChatsNavBottomNavigationBar extends StatelessWidget {
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
       notchMargin: 4,
-      color: Colors.black,
+      color: black,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -228,9 +227,9 @@ class SearchNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.black,
+      backgroundColor: black,
       leading: IconButton(
-        icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
+        icon: const Icon(Icons.notifications, color: orange, size: 30),
         onPressed: () {
           Navigator.pushReplacement(
               context,
@@ -240,11 +239,11 @@ class SearchNavAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       title: Text(
         'Search',
-        style: TextStyle(color: Colors.orange, fontSize: 40, fontFamily: 'Jua'),
+        style: TextStyle(color: orange, fontSize: 40, fontFamily: 'Jua'),
       ),
       actions: <Widget>[
         IconButton(
-          icon: const Icon(Icons.settings, color: Colors.orange, size: 30),
+          icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => const Settings()));
@@ -266,7 +265,7 @@ class SearchNavBottomNavigationBar extends StatelessWidget {
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
       notchMargin: 4,
-      color: Colors.black,
+      color: black,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -303,8 +302,8 @@ class AccountNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      iconTheme: IconThemeData(color: Colors.orange),
-      backgroundColor: Colors.black,
+      iconTheme: IconThemeData(color: orange),
+      backgroundColor: black,
       elevation: 1,
       actions: <Widget>[
         IconButton(
@@ -341,7 +340,7 @@ class AccountNavBottomNavigationBar extends StatelessWidget {
     return BottomAppBar(
       shape: const CircularNotchedRectangle(),
       notchMargin: 4,
-      color: Colors.black,
+      color: black,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
@@ -378,9 +377,9 @@ class SettingsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.black,
+      backgroundColor: black,
       leading: IconButton(
-        icon: const Icon(Icons.notifications, color: Colors.orange, size: 30),
+        icon: const Icon(Icons.notifications, color: orange, size: 30),
         onPressed: () {
           Navigator.push(
               context,
@@ -389,15 +388,10 @@ class SettingsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         },
       ),
       actions: <Widget>[
-        const Text(
-          'SETTINGS',
-          textAlign: TextAlign.center,
-          style:
-              TextStyle(fontFamily: 'Jua', color: Colors.orange, fontSize: 40),
-        ),
-        const SizedBox(width: 50),
+        header('Settings'),
+        const SizedBox(width: 65),
         IconButton(
-          icon: const Icon(Icons.search, color: Colors.orange, size: 30),
+          icon: const Icon(Icons.search, color: orange, size: 30),
           onPressed: () {
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => SearchScreen()));

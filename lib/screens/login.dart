@@ -181,7 +181,7 @@ class LoginState extends State<Login> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Error: ${e.toString()}',
+            'Invalid Username or Password',
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
