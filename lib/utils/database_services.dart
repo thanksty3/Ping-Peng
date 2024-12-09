@@ -643,4 +643,71 @@ class DatabaseService {
       rethrow;
     }
   }
+
+  Future<void> deleteUser(String userId) async {
+    try {
+      log("Starting deletion for user: $userId");
+
+      // Delete all user's posts
+      final userPostsSnapshot =
+          await _postCollection.where('userId', isEqualTo: userId).get();
+      for (var post in userPostsSnapshot.docs) {
+        await deletePost(post.id);
+      }
+      log("Deleted all posts for user: $userId");
+
+      // Delete the user's profile picture from Firebase Storage
+      final profilePictureRef = _storage.ref().child('profilePictures/$userId');
+      try {
+        await profilePictureRef.delete();
+        log("Deleted profile picture for user: $userId");
+      } catch (e) {
+        log("No profile picture to delete for user: $userId");
+      }
+
+      // Remove user from friends lists
+      final allUsersSnapshot = await _firestore.collection('users').get();
+      for (var userDoc in allUsersSnapshot.docs) {
+        final friends = List<String>.from(userDoc.data()['friends'] ?? []);
+        final pendingFriends =
+            List<String>.from(userDoc.data()['pendingFriends'] ?? []);
+        final friendRequests =
+            List<String>.from(userDoc.data()['friendRequests'] ?? []);
+
+        if (friends.contains(userId) ||
+            pendingFriends.contains(userId) ||
+            friendRequests.contains(userId)) {
+          await _firestore.collection('users').doc(userDoc.id).update({
+            'friends': FieldValue.arrayRemove([userId]),
+            'pendingFriends': FieldValue.arrayRemove([userId]),
+            'friendRequests': FieldValue.arrayRemove([userId]),
+          });
+        }
+      }
+      log("Removed user: $userId from all friend-related fields");
+
+      final chatroomsSnapshot = await _firestore
+          .collection('chatrooms')
+          .where('users', arrayContains: userId)
+          .get();
+      for (var chatroom in chatroomsSnapshot.docs) {
+        await _firestore.collection('chatrooms').doc(chatroom.id).delete();
+        log("Deleted chatroom: ${chatroom.id} involving user: $userId");
+      }
+
+      await _firestore.collection('users').doc(userId).delete();
+      log("Deleted Firestore document for user: $userId");
+
+      final user = _auth.currentUser;
+      if (user != null) {
+        await user.delete();
+        log("Deleted authentication account for user: $userId");
+      }
+
+      log("Deletion complete for user: $userId");
+    } catch (e) {
+      log("Failed to delete user: $userId. Error: $e");
+      rethrow;
+    }
+  }
 }

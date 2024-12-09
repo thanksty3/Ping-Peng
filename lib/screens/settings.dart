@@ -9,6 +9,7 @@ import 'package:ping_peng/screens/home.dart';
 import 'package:ping_peng/screens/login.dart';
 import 'package:ping_peng/screens/shows.dart';
 import 'package:ping_peng/utils/utils.dart';
+import 'package:ping_peng/utils/database_services.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});
@@ -189,6 +190,7 @@ class Settings extends StatelessWidget {
 
   Future<void> deleteAccount(BuildContext context) async {
     User? user = FirebaseAuth.instance.currentUser;
+
     if (user != null) {
       bool confirmed = await showDialog(
         context: context,
@@ -219,7 +221,7 @@ class Settings extends StatelessWidget {
           builder: (context) => AlertDialog(
             backgroundColor: Colors.black87,
             title: const Text(
-              'Are you sure you sure?',
+              'Are you absolutely sure?',
               style: TextStyle(color: Colors.white),
             ),
             actions: [
@@ -239,8 +241,14 @@ class Settings extends StatelessWidget {
 
         if (doubleConfirmed) {
           try {
+            final DatabaseService databaseService = DatabaseService();
+
+            await databaseService.deleteUser(user.uid);
+
             await user.delete();
+
             if (!context.mounted) return;
+
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const Login()),
@@ -250,7 +258,7 @@ class Settings extends StatelessWidget {
               SnackBar(
                 content: Text(
                   'Error: ${e.toString()}',
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -262,6 +270,20 @@ class Settings extends StatelessWidget {
           }
         }
       }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'No user is currently logged in.',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          backgroundColor: Colors.white,
+        ),
+      );
     }
   }
 }
