@@ -71,11 +71,18 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           // Search results
           _isLoading
-              ? const CircularProgressIndicator()
+              ? const Text(
+                  'Loading...',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                )
               : Expanded(
                   flex: 2,
                   child: _searchResults.isEmpty
-                      ? const Center(child: Text('No users found'))
+                      ? const Center(
+                          child: Text(
+                          'No users found...',
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        ))
                       : ListView.builder(
                           itemCount: _searchResults.length,
                           itemBuilder: (context, index) {

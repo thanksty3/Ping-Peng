@@ -12,14 +12,19 @@ class DatabaseService {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final CollectionReference _postCollection =
       FirebaseFirestore.instance.collection('posts');
-  final Map<String, Map<String, dynamic>> _userCache = {};
 
+  final Map<String, Map<String, dynamic>> _userCache = {};
   Future<User?> getCurrentUser() async {
     return _auth.currentUser;
   }
 
-  Future<void> createUser(String uid, String firstName, String lastName,
-      String email, String username) async {
+  Future<void> createUser(
+    String uid,
+    String firstName,
+    String lastName,
+    String email,
+    String username,
+  ) async {
     try {
       await _firestore.collection("users").doc(uid).set({
         "firstName": firstName.trim(),
@@ -367,6 +372,7 @@ class DatabaseService {
           (user1.compareTo(user2) < 0) ? '$user1\_$user2' : '$user2\_$user1';
       final chatRoomRef = _firestore.collection('chatrooms').doc(chatRoomId);
 
+      // Run a transaction to either create or confirm the existing chatroom doc
       await _firestore.runTransaction((transaction) async {
         final snapshot = await transaction.get(chatRoomRef);
 
@@ -648,7 +654,6 @@ class DatabaseService {
     try {
       log("Starting deletion for user: $userId");
 
-      // Delete all user's posts
       final userPostsSnapshot =
           await _postCollection.where('userId', isEqualTo: userId).get();
       for (var post in userPostsSnapshot.docs) {
@@ -656,7 +661,6 @@ class DatabaseService {
       }
       log("Deleted all posts for user: $userId");
 
-      // Delete the user's profile picture from Firebase Storage
       final profilePictureRef = _storage.ref().child('profilePictures/$userId');
       try {
         await profilePictureRef.delete();
@@ -665,7 +669,6 @@ class DatabaseService {
         log("No profile picture to delete for user: $userId");
       }
 
-      // Remove user from friends lists
       final allUsersSnapshot = await _firestore.collection('users').get();
       for (var userDoc in allUsersSnapshot.docs) {
         final friends = List<String>.from(userDoc.data()['friends'] ?? []);

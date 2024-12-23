@@ -39,7 +39,10 @@ class _AccountState extends State<Account> {
       appBar: !widget.isHome ? const AccountNavAppBar() : null,
       backgroundColor: Colors.black,
       body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: Colors.orange))
+          ? Text(
+              'Loading Profile...',
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            )
           : accountPage(),
       bottomNavigationBar:
           !widget.isHome ? const AccountNavBottomNavigationBar() : null,

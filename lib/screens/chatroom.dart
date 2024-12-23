@@ -60,7 +60,10 @@ class _ChatroomState extends State<Chatroom> {
         title: Text(
           widget.username,
           style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25),
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 25,
+          ),
         ),
         actions: [
           GestureDetector(
@@ -94,9 +97,13 @@ class _ChatroomState extends State<Chatroom> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
-            child: CircularProgressIndicator(color: Colors.orange),
+            child: Text(
+              'Loading Chats...',
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
           );
         }
+
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return const Center(
             child: Text(
@@ -106,19 +113,15 @@ class _ChatroomState extends State<Chatroom> {
           );
         }
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _markMessagesAsSeen();
-        });
+        _markMessagesAsSeen();
 
         final messages = snapshot.data!.docs;
-
         return ListView.builder(
           reverse: true,
           itemCount: messages.length,
           itemBuilder: (context, index) {
             final message = messages[index];
             final isMyMessage = message['senderId'] == _currentUserId;
-
             return _messageBubble(message['text'] ?? '', isMyMessage);
           },
         );
@@ -209,60 +212,61 @@ class _ChatroomState extends State<Chatroom> {
   Widget _iceBreakersMenu() {
     final List<String> icebreakers = IceBreakers().getIcebreakers();
 
-    return Positioned(
-      right: 50,
-      top: 0,
-      bottom: 60,
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: icebreakers.asMap().entries.map((entry) {
-            final iceBreaker = entry.value;
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: icebreakers.asMap().entries.map((entry) {
+          final iceBreaker = entry.value;
 
-            return GestureDetector(
-              onTap: () {
-                _sendMessage(iceBreaker);
-                setState(() {
-                  _iceBreakersVisible = false;
-                });
-              },
-              child: Center(
-                child: Container(
-                  color: Colors.black,
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 300,
-                        margin: const EdgeInsets.symmetric(vertical: 5),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 15),
-                        decoration: BoxDecoration(
-                          color: Colors.cyan[100],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          iceBreaker,
-                          style: const TextStyle(
-                              color: Colors.black, fontSize: 16),
-                        ),
+          return GestureDetector(
+            onTap: () {
+              _sendMessage(iceBreaker);
+              setState(() {
+                _iceBreakersVisible = false;
+              });
+            },
+            child: Center(
+              child: Container(
+                color: Colors.black,
+                child: Column(
+                  children: [
+                    Container(
+                      width: 300,
+                      margin: const EdgeInsets.symmetric(vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 15,
                       ),
-                    ],
-                  ),
+                      decoration: BoxDecoration(
+                        color: Colors.cyan[100],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        iceBreaker,
+                        style:
+                            const TextStyle(color: Colors.black, fontSize: 16),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            );
-          }).toList(),
-        ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
 
+  /// Sends a [message] from the current user to the Firestore chatroom.
   Future<void> _sendMessage(String message) async {
     if (message.trim().isEmpty || _currentUserId == null) return;
 
     try {
       await _databaseService.sendMessage(
-          widget.chatRoomId, _currentUserId!, message.trim());
+        widget.chatRoomId,
+        _currentUserId!,
+        message.trim(),
+      );
       _messageController.clear();
     } catch (e) {
       debugPrint("Error sending message: $e");
@@ -284,7 +288,8 @@ class _ChatroomState extends State<Chatroom> {
     try {
       await _databaseService.updateLastOpened(widget.chatRoomId);
       debugPrint(
-          "Updated last opened for ${widget.chatRoomId} by user $_currentUserId.");
+        "Updated last opened for ${widget.chatRoomId} by user $_currentUserId.",
+      );
     } catch (e) {
       debugPrint("Failed to update last opened: $e");
     }
@@ -294,10 +299,15 @@ class _ChatroomState extends State<Chatroom> {
     if (_currentUserId == null) return;
     try {
       final unreadMessages = await _databaseService.getUnreadMessages(
-          widget.chatRoomId, _currentUserId!);
+        widget.chatRoomId,
+        _currentUserId!,
+      );
       for (var message in unreadMessages) {
         await _databaseService.updateMessageStatus(
-            widget.chatRoomId, message['id'], 'seen');
+          widget.chatRoomId,
+          message['id'],
+          'seen',
+        );
       }
       debugPrint("Marked messages as seen.");
     } catch (e) {

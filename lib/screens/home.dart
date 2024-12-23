@@ -33,8 +33,10 @@ class _HomeState extends State<Home> {
       backgroundColor: Colors.black,
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: Colors.orange),
-            )
+              child: Text(
+              'Loading Profile...',
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ))
           : hasMoreUsers
               ? Account(
                   key: ValueKey(

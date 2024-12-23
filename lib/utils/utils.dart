@@ -116,7 +116,7 @@ class ShowsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(
         icon: const Icon(Icons.notifications, color: orange, size: 30),
         onPressed: () {
-          Navigator.pushReplacement(
+          Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => const NotificationsScreen()));
@@ -128,14 +128,14 @@ class ShowsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: const Icon(Icons.search, color: orange, size: 30),
           onPressed: () {
-            Navigator.pushReplacement(context,
+            Navigator.push(context,
                 MaterialPageRoute(builder: (context) => SearchScreen()));
           },
         ),
         IconButton(
           icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
-            Navigator.pushReplacement(context,
+            Navigator.push(context,
                 MaterialPageRoute(builder: (context) => const Settings()));
           },
         ),
@@ -157,7 +157,7 @@ class ChatsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(
         icon: const Icon(Icons.notifications, color: orange, size: 30),
         onPressed: () {
-          Navigator.pushReplacement(
+          Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => const NotificationsScreen()));
@@ -169,14 +169,14 @@ class ChatsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: const Icon(Icons.search, color: orange, size: 30),
           onPressed: () {
-            Navigator.pushReplacement(context,
+            Navigator.push(context,
                 MaterialPageRoute(builder: (context) => SearchScreen()));
           },
         ),
         IconButton(
           icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
-            Navigator.pushReplacement(context,
+            Navigator.push(context,
                 MaterialPageRoute(builder: (context) => const Settings()));
           },
         ),
@@ -203,14 +203,14 @@ class ChatsNavBottomNavigationBar extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.tv, color: Colors.white, size: 40),
             onPressed: () {
-              Navigator.pushReplacement(context,
+              Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const Shows()));
             },
           ),
           IconButton(
             icon: Image.asset('assets/icons/orange-foot.png', height: 80),
             onPressed: () {
-              Navigator.pushReplacement(context,
+              Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const Home()));
             },
           ),
@@ -231,7 +231,7 @@ class SearchNavAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(
         icon: const Icon(Icons.notifications, color: orange, size: 30),
         onPressed: () {
-          Navigator.pushReplacement(
+          Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => const NotificationsScreen()));
@@ -245,7 +245,7 @@ class SearchNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
-            Navigator.pushReplacement(context,
+            Navigator.push(context,
                 MaterialPageRoute(builder: (context) => const Settings()));
           },
         ),
@@ -279,14 +279,14 @@ class SearchNavBottomNavigationBar extends StatelessWidget {
           IconButton(
             icon: Image.asset('assets/icons/orange-foot.png', height: 80),
             onPressed: () {
-              Navigator.pushReplacement(context,
+              Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const Home()));
             },
           ),
           IconButton(
             icon: const Icon(Icons.chat, color: Colors.white, size: 40),
             onPressed: () {
-              Navigator.pushReplacement(context,
+              Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const Chats()));
             },
           ),
@@ -318,7 +318,7 @@ class AccountNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: const Icon(Icons.settings, size: 30),
           onPressed: () {
-            Navigator.pushReplacement(
+            Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const Settings()),
             );

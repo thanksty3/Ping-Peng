@@ -13,13 +13,34 @@ class Chats extends StatefulWidget {
 
 class _ChatsState extends State<Chats> {
   final DatabaseService _databaseService = DatabaseService();
-  List<Map<String, dynamic>> _friends = [];
+
+  final List<Map<String, dynamic>> _friends = [];
   bool _isLoading = true;
+  List<String> _friendIds = [];
+  final int _pageSize = 7;
+  int _currentIndex = 0;
+
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     _loadFriends();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_isLoading &&
+        _scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent) {
+      _loadMoreFriends();
+    }
   }
 
   @override
@@ -27,11 +48,13 @@ class _ChatsState extends State<Chats> {
     return Scaffold(
       appBar: const ChatsNavAppBar(),
       backgroundColor: Colors.black,
-      body: _isLoading
+      body: _isLoading && _friends.isEmpty
           ? const Center(
-              child: CircularProgressIndicator(
-              color: Colors.orange,
-            ))
+              child: Text(
+                'Loading Chats...',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            )
           : chatsScreen(),
       bottomNavigationBar: const ChatsNavBottomNavigationBar(),
     );
@@ -39,6 +62,10 @@ class _ChatsState extends State<Chats> {
 
   Future<void> _loadFriends() async {
     try {
+      setState(() {
+        _isLoading = true;
+      });
+
       final currentUser = await _databaseService.getCurrentUser();
       if (currentUser == null) {
         throw Exception("No logged-in user found.");
@@ -50,61 +77,80 @@ class _ChatsState extends State<Chats> {
         throw Exception("Failed to retrieve friends list.");
       }
 
-      final friendIds = List<String>.from(userData['friends']);
-      final friendsData = await _databaseService.getUsersByIds(friendIds);
+      _friendIds = List<String>.from(userData['friends']);
+      _friends.clear();
+      _currentIndex = 0;
 
-      for (var friend in friendsData) {
-        final chatRoomId = await _databaseService.createOrGetChatroom(
-          currentUser.uid,
-          friend['userId'],
-        );
-
-        final lastMessageSnapshot = await FirebaseFirestore.instance
-            .collection('chatrooms')
-            .doc(chatRoomId)
-            .collection('messages')
-            .orderBy('timestamp', descending: true)
-            .limit(1)
-            .get();
-
-        final lastMessageDoc = lastMessageSnapshot.docs.isNotEmpty
-            ? lastMessageSnapshot.docs.first
-            : null;
-
-        friend['lastMessage'] = lastMessageDoc != null
-            ? lastMessageDoc['text'] ?? 'No messages yet'
-            : 'No messages yet';
-
-        friend['lastInteraction'] = lastMessageDoc != null
-            ? lastMessageDoc['timestamp']?.toDate()
-            : null;
-
-        final chatRoomData =
-            await _databaseService.getChatroomDetails(chatRoomId);
-        final lastOpened = chatRoomData?['lastOpened']?[currentUser.uid];
-        friend['hasNewMessage'] = lastMessageDoc != null &&
-            lastMessageDoc['timestamp'] != null &&
-            (lastOpened == null ||
-                lastMessageDoc['timestamp']
-                    .toDate()
-                    .isAfter(lastOpened.toDate()));
-      }
-
-      friendsData.sort((a, b) => (b['lastInteraction'] ??
-              DateTime.fromMillisecondsSinceEpoch(0))
-          .compareTo(
-              a['lastInteraction'] ?? DateTime.fromMillisecondsSinceEpoch(0)));
-
-      setState(() {
-        _friends = friendsData;
-        _isLoading = false;
-      });
+      await _loadMoreFriends();
     } catch (e) {
       debugPrint("Error loading friends: $e");
+    } finally {
       setState(() {
         _isLoading = false;
       });
     }
+  }
+
+  Future<void> _loadMoreFriends() async {
+    if (_currentIndex >= _friendIds.length) return;
+
+    setState(() => _isLoading = true);
+
+    final endIndex = (_currentIndex + _pageSize).clamp(0, _friendIds.length);
+    final pageFriendIds = _friendIds.sublist(_currentIndex, endIndex);
+
+    final currentUser = await _databaseService.getCurrentUser();
+    if (currentUser == null) return;
+
+    final friendsData = await _databaseService.getUsersByIds(pageFriendIds);
+
+    for (var friend in friendsData) {
+      final chatRoomId = await _databaseService.createOrGetChatroom(
+        currentUser.uid,
+        friend['userId'],
+      );
+
+      final lastMessageSnapshot = await FirebaseFirestore.instance
+          .collection('chatrooms')
+          .doc(chatRoomId)
+          .collection('messages')
+          .orderBy('timestamp', descending: true)
+          .limit(1)
+          .get();
+
+      final lastMessageDoc = lastMessageSnapshot.docs.isNotEmpty
+          ? lastMessageSnapshot.docs.first
+          : null;
+
+      friend['lastMessage'] = lastMessageDoc != null
+          ? lastMessageDoc['text'] ?? 'No messages yet'
+          : 'No messages yet';
+
+      friend['lastInteraction'] =
+          lastMessageDoc != null ? lastMessageDoc['timestamp']?.toDate() : null;
+
+      final chatRoomData =
+          await _databaseService.getChatroomDetails(chatRoomId);
+      final lastOpened = chatRoomData?['lastOpened']?[currentUser.uid];
+      friend['hasNewMessage'] = lastMessageDoc != null &&
+          lastMessageDoc['timestamp'] != null &&
+          (lastOpened == null ||
+              lastMessageDoc['timestamp']
+                  .toDate()
+                  .isAfter(lastOpened.toDate()));
+    }
+
+    friendsData.sort((a, b) => (b['lastInteraction'] ??
+            DateTime.fromMillisecondsSinceEpoch(0))
+        .compareTo(
+            a['lastInteraction'] ?? DateTime.fromMillisecondsSinceEpoch(0)));
+
+    setState(() {
+      _friends.addAll(friendsData);
+      _isLoading = false;
+    });
+
+    _currentIndex = endIndex;
   }
 
   Future<void> _updateLastOpened(String chatRoomId) async {
@@ -161,7 +207,17 @@ class _ChatsState extends State<Chats> {
   }
 
   Widget chatsScreen() {
+    if (_friends.isEmpty) {
+      return const Center(
+        child: Text(
+          'No chats yet!',
+          style: TextStyle(color: Colors.white, fontSize: 18),
+        ),
+      );
+    }
+
     return ListView.builder(
+      controller: _scrollController,
       itemCount: _friends.length,
       itemBuilder: (context, index) {
         final friend = _friends[index];

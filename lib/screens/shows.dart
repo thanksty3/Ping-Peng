@@ -35,8 +35,10 @@ class _ShowsState extends State<Shows> {
       backgroundColor: Colors.black,
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: Colors.orange),
-            )
+              child: Text(
+              'Loading Shows...',
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ))
           : _friendsPosts.isEmpty
               ? const Center(
                   child: Text(
