@@ -53,5 +53,7 @@
 		<string>Microphone usage</string>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>GADApplicationIdentifier</key>
+                <string>ca-app-pub-8128309454998324~9595983133</string>
 	</dict>
 </plist>

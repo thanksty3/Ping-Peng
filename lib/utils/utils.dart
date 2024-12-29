@@ -1,5 +1,5 @@
-// ignore: unused_import
 import 'dart:developer';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ping_peng/screens/chats.dart';
@@ -9,13 +9,14 @@ import 'package:ping_peng/screens/search.dart';
 import 'package:ping_peng/screens/settings.dart';
 import 'package:ping_peng/screens/shows.dart';
 
-pickImage(ImageSource source) async {
+Future<Uint8List?> pickImage(ImageSource source) async {
   final ImagePicker imagePicker = ImagePicker();
   XFile? file = await imagePicker.pickImage(source: source);
   if (file != null) {
     return await file.readAsBytes();
   }
   log('No images selected');
+  return null;
 }
 
 const Color orange = Colors.orange;
@@ -29,25 +30,31 @@ Text header(String title) {
 }
 
 SizedBox divider() {
-  return SizedBox(height: 30);
+  return const SizedBox(height: 30);
+}
+
+SizedBox spacer() {
+  return const SizedBox(width: 30);
 }
 
 ButtonStyle deletePost() {
   return ElevatedButton.styleFrom(
-      backgroundColor: Colors.red,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ));
+    backgroundColor: Colors.red,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+  );
 }
 
 ButtonStyle buttonStyle(bool isLogin) {
   Color buttonColor = isLogin ? orange : Colors.white;
 
   return ElevatedButton.styleFrom(
-      backgroundColor: buttonColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ));
+    backgroundColor: buttonColor,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+  );
 }
 
 class NotificationsAppBar extends StatelessWidget
@@ -59,7 +66,7 @@ class NotificationsAppBar extends StatelessWidget
     return AppBar(
       iconTheme: IconThemeData(color: orange),
       backgroundColor: black,
-      title: header('Peng Requests'),
+      title: header(' Peng Requests'),
     );
   }
 
@@ -78,24 +85,29 @@ class HomeNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         icon: const Icon(Icons.notifications, color: orange, size: 30),
         onPressed: () {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const NotificationsScreen()));
+            context,
+            MaterialPageRoute(
+                builder: (context) => const NotificationsScreen()),
+          );
         },
       ),
       actions: <Widget>[
         IconButton(
           icon: const Icon(Icons.search, color: orange, size: 30),
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => SearchScreen()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SearchScreen()),
+            );
           },
         ),
         IconButton(
           icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const Settings()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Settings()),
+            );
           },
         ),
       ],
@@ -117,9 +129,10 @@ class ShowsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         icon: const Icon(Icons.notifications, color: orange, size: 30),
         onPressed: () {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const NotificationsScreen()));
+            context,
+            MaterialPageRoute(
+                builder: (context) => const NotificationsScreen()),
+          );
         },
       ),
       actions: <Widget>[
@@ -128,15 +141,19 @@ class ShowsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: const Icon(Icons.search, color: orange, size: 30),
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => SearchScreen()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SearchScreen()),
+            );
           },
         ),
         IconButton(
           icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const Settings()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Settings()),
+            );
           },
         ),
       ],
@@ -158,9 +175,10 @@ class ChatsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         icon: const Icon(Icons.notifications, color: orange, size: 30),
         onPressed: () {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const NotificationsScreen()));
+            context,
+            MaterialPageRoute(
+                builder: (context) => const NotificationsScreen()),
+          );
         },
       ),
       actions: <Widget>[
@@ -169,15 +187,19 @@ class ChatsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: const Icon(Icons.search, color: orange, size: 30),
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => SearchScreen()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SearchScreen()),
+            );
           },
         ),
         IconButton(
           icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const Settings()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Settings()),
+            );
           },
         ),
       ],
@@ -203,15 +225,19 @@ class ChatsNavBottomNavigationBar extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.tv, color: Colors.white, size: 40),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Shows()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Shows()),
+              );
             },
           ),
           IconButton(
             icon: Image.asset('assets/icons/orange-foot.png', height: 80),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Home()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Home()),
+              );
             },
           ),
           const SizedBox(width: 50),
@@ -232,9 +258,10 @@ class SearchNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         icon: const Icon(Icons.notifications, color: orange, size: 30),
         onPressed: () {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const NotificationsScreen()));
+            context,
+            MaterialPageRoute(
+                builder: (context) => const NotificationsScreen()),
+          );
         },
       ),
       title: Text(
@@ -245,8 +272,10 @@ class SearchNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const Settings()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Settings()),
+            );
           },
         ),
       ],
@@ -272,22 +301,28 @@ class SearchNavBottomNavigationBar extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.tv, color: Colors.white, size: 40),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Shows()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Shows()),
+              );
             },
           ),
           IconButton(
             icon: Image.asset('assets/icons/orange-foot.png', height: 80),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Home()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Home()),
+              );
             },
           ),
           IconButton(
             icon: const Icon(Icons.chat, color: Colors.white, size: 40),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Chats()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Chats()),
+              );
             },
           ),
         ],
@@ -347,22 +382,28 @@ class AccountNavBottomNavigationBar extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.tv, color: Colors.white, size: 30),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Shows()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Shows()),
+              );
             },
           ),
           IconButton(
             icon: Image.asset('assets/icons/orange-foot.png', height: 80),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Home()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Home()),
+              );
             },
           ),
           IconButton(
             icon: const Icon(Icons.chat, color: Colors.white, size: 30),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Chats()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Chats()),
+              );
             },
           ),
         ],
@@ -382,9 +423,10 @@ class SettingsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         icon: const Icon(Icons.notifications, color: orange, size: 30),
         onPressed: () {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const NotificationsScreen()));
+            context,
+            MaterialPageRoute(
+                builder: (context) => const NotificationsScreen()),
+          );
         },
       ),
       actions: <Widget>[
@@ -393,8 +435,10 @@ class SettingsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           icon: const Icon(Icons.search, color: orange, size: 30),
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => SearchScreen()));
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => SearchScreen()),
+            );
           },
         ),
       ],

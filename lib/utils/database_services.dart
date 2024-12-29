@@ -14,6 +14,7 @@ class DatabaseService {
       FirebaseFirestore.instance.collection('posts');
 
   final Map<String, Map<String, dynamic>> _userCache = {};
+
   Future<User?> getCurrentUser() async {
     return _auth.currentUser;
   }
@@ -49,10 +50,16 @@ class DatabaseService {
       final user = await getCurrentUser();
       if (user == null) throw Exception("No user is logged in.");
 
+      if (_userCache.containsKey(user.uid)) {
+        return _userCache[user.uid];
+      }
+
       final userDoc = await _firestore.collection('users').doc(user.uid).get();
       if (!userDoc.exists) throw Exception("User document does not exist.");
 
-      return userDoc.data();
+      final data = userDoc.data() as Map<String, dynamic>;
+      _userCache[user.uid] = data;
+      return data;
     } catch (e) {
       log("Failed to fetch user data: $e");
       return null;
@@ -69,7 +76,7 @@ class DatabaseService {
           .where((doc) => doc.exists)
           .map((doc) => {
                 'userId': doc.id,
-                ...doc.data()!,
+                ...doc.data() as Map<String, dynamic>,
               })
           .toList();
     } catch (e) {
@@ -111,7 +118,7 @@ class DatabaseService {
         throw Exception("Current user document does not exist.");
       }
 
-      final currentUserData = currentUserDoc.data()!;
+      final currentUserData = currentUserDoc.data() as Map<String, dynamic>;
       final List<String> friends =
           List<String>.from(currentUserData['friends'] ?? []);
       final List<String> pendingFriends =
@@ -284,6 +291,10 @@ class DatabaseService {
       if (myInterests != null) updates['myInterests'] = myInterests;
 
       await _firestore.collection('users').doc(user.uid).update(updates);
+
+      final cachedData = _userCache[user.uid] ?? {};
+      _userCache[user.uid] = {...cachedData, ...updates};
+
       log("User data updated successfully.");
     } catch (e) {
       log("Failed to update user data: $e");
@@ -332,6 +343,11 @@ class DatabaseService {
       await _firestore.collection('users').doc(user.uid).update({
         'profilePictureUrl': downloadUrl,
       });
+
+      if (_userCache.containsKey(user.uid)) {
+        _userCache[user.uid]!['profilePictureUrl'] = downloadUrl;
+      }
+
       log("Profile picture URL saved in Firestore.");
     } catch (e) {
       log("Failed to upload and save profile picture: $e");
@@ -347,6 +363,11 @@ class DatabaseService {
       await _firestore.collection('users').doc(user.uid).update({
         'profilePictureUrl': null,
       });
+
+      if (_userCache.containsKey(user.uid)) {
+        _userCache[user.uid]!['profilePictureUrl'] = null;
+      }
+
       log("Profile picture reset to default.");
     } catch (e) {
       log("Failed to reset profile picture: $e");
@@ -356,10 +377,20 @@ class DatabaseService {
 
   Future<String?> getProfilePictureUrl(String userId) async {
     try {
+      if (_userCache.containsKey(userId) &&
+          _userCache[userId]!['profilePictureUrl'] != null) {
+        return _userCache[userId]!['profilePictureUrl'] as String;
+      }
+
       final userDoc = await _firestore.collection('users').doc(userId).get();
       if (!userDoc.exists) throw Exception("User document does not exist.");
 
-      return userDoc.data()?['profilePictureUrl'];
+      final url = userDoc.data()?['profilePictureUrl'] as String?;
+      if (url != null) {
+        _userCache[userId] ??= {};
+        _userCache[userId]!['profilePictureUrl'] = url;
+      }
+      return url;
     } catch (e) {
       log("Failed to retrieve profile picture URL: $e");
       return null;
@@ -372,7 +403,6 @@ class DatabaseService {
           (user1.compareTo(user2) < 0) ? '$user1\_$user2' : '$user2\_$user1';
       final chatRoomRef = _firestore.collection('chatrooms').doc(chatRoomId);
 
-      // Run a transaction to either create or confirm the existing chatroom doc
       await _firestore.runTransaction((transaction) async {
         final snapshot = await transaction.get(chatRoomRef);
 
@@ -603,35 +633,47 @@ class DatabaseService {
         return [];
       }
 
-      final querySnapshot = await _firestore
+      final postsFuture = _firestore
           .collection('posts')
           .where('userId', whereIn: friends)
           .orderBy('timestamp', descending: true)
           .get();
 
-      final friendsDocs = await _firestore
+      final friendsDocsFuture = _firestore
           .collection('users')
           .where(FieldPath.documentId, whereIn: friends)
           .get();
 
+      final results = await Future.wait([postsFuture, friendsDocsFuture]);
+      final postsSnapshot = results[0] as QuerySnapshot;
+      final friendsDocsSnapshot = results[1] as QuerySnapshot;
+
       final friendsData = {
-        for (var doc in friendsDocs.docs) doc.id: doc.data()
+        for (var doc in friendsDocsSnapshot.docs)
+          doc.id: doc.data() as Map<String, dynamic>
       };
 
-      return querySnapshot.docs.map((postDoc) {
-        final postData = postDoc.data();
+      return postsSnapshot.docs.map((postDoc) {
+        final postData = postDoc.data() as Map<String, dynamic>;
         final userId = postData['userId'];
+
         final userData = _userCache[userId] ?? friendsData[userId];
+
+        if (userData != null && !_userCache.containsKey(userId)) {
+          _userCache[userId] = userData;
+        }
+
+        final userMap = userData;
 
         return {
           'userId': userId,
           'mediaUrl': postData['mediaUrl'],
           'type': postData['type'],
           'timestamp': postData['timestamp'],
-          'firstName': userData?['firstName'] ?? '',
-          'lastName': userData?['lastName'] ?? '',
-          'username': userData?['username'] ?? '',
-          'profilePictureUrl': userData?['profilePictureUrl'] ?? '',
+          'firstName': userMap?['firstName'] ?? '',
+          'lastName': userMap?['lastName'] ?? '',
+          'username': userMap?['username'] ?? '',
+          'profilePictureUrl': userMap?['profilePictureUrl'] ?? '',
         };
       }).toList();
     } catch (e) {
@@ -671,11 +713,10 @@ class DatabaseService {
 
       final allUsersSnapshot = await _firestore.collection('users').get();
       for (var userDoc in allUsersSnapshot.docs) {
-        final friends = List<String>.from(userDoc.data()['friends'] ?? []);
-        final pendingFriends =
-            List<String>.from(userDoc.data()['pendingFriends'] ?? []);
-        final friendRequests =
-            List<String>.from(userDoc.data()['friendRequests'] ?? []);
+        final data = userDoc.data();
+        final friends = List<String>.from(data['friends'] ?? []);
+        final pendingFriends = List<String>.from(data['pendingFriends'] ?? []);
+        final friendRequests = List<String>.from(data['friendRequests'] ?? []);
 
         if (friends.contains(userId) ||
             pendingFriends.contains(userId) ||
@@ -702,7 +743,7 @@ class DatabaseService {
       log("Deleted Firestore document for user: $userId");
 
       final user = _auth.currentUser;
-      if (user != null) {
+      if (user != null && user.uid == userId) {
         await user.delete();
         log("Deleted authentication account for user: $userId");
       }

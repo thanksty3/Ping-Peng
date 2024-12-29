@@ -36,13 +36,24 @@ class Settings extends StatelessWidget {
                           MaterialPageRoute(
                               builder: (context) => const Chats()));
                     },
-                    style: buttonStyle(false),
-                    child: const Text(
-                      'Chats',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold),
+                    style: buttonStyle(true),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(Icons.message, color: black, size: 40),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 5),
+                          child: Center(
+                            child: const Text(
+                              ' | Chats',
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 45,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -58,13 +69,21 @@ class Settings extends StatelessWidget {
                           MaterialPageRoute(
                               builder: (context) => const Home()));
                     },
-                    style: buttonStyle(false),
-                    child: const Text(
-                      'Home',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold),
+                    style: buttonStyle(true),
+                    child: Row(
+                      children: [
+                        Icon(Icons.home_filled, color: black, size: 40),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 5),
+                          child: const Text(
+                            ' | Home',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 45,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -81,13 +100,21 @@ class Settings extends StatelessWidget {
                             builder: (context) => const ForgotPassword()),
                       );
                     },
-                    style: buttonStyle(false),
-                    child: const Text(
-                      'Password',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold),
+                    style: buttonStyle(true),
+                    child: Row(
+                      children: [
+                        Icon(Icons.lock, color: black, size: 40),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 5),
+                          child: const Text(
+                            ' | Password',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 45,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -104,13 +131,21 @@ class Settings extends StatelessWidget {
                             builder: (context) => const Account()),
                       );
                     },
-                    style: buttonStyle(false),
-                    child: const Text(
-                      'Profile',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold),
+                    style: buttonStyle(true),
+                    child: Row(
+                      children: [
+                        Icon(Icons.person, color: black, size: 40),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 5),
+                          child: const Text(
+                            ' | Profile',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 45,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -126,13 +161,21 @@ class Settings extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => const Shows()),
                       );
                     },
-                    style: buttonStyle(false),
-                    child: const Text(
-                      'Shows',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold),
+                    style: buttonStyle(true),
+                    child: Row(
+                      children: [
+                        Icon(Icons.tv_rounded, color: black, size: 40),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 5),
+                          child: const Text(
+                            ' | Shows',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 45,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -143,13 +186,21 @@ class Settings extends StatelessWidget {
                   width: 500,
                   child: ElevatedButton(
                     onPressed: () => logOut(context),
-                    style: buttonStyle(false),
-                    child: const Text(
-                      'Logout',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 45),
+                    style: buttonStyle(true),
+                    child: Row(
+                      children: [
+                        Icon(Icons.logout_rounded, color: black, size: 40),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 5),
+                          child: const Text(
+                            ' | Logout',
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 45),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -160,14 +211,22 @@ class Settings extends StatelessWidget {
                   width: 500,
                   child: ElevatedButton(
                     onPressed: () => deleteAccount(context),
-                    style: buttonStyle(false),
-                    child: const Text(
-                      'Delete',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold),
+                    style: buttonStyle(true),
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_forever, color: black, size: 40),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 5),
+                          child: const Text(
+                            ' | Delete',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 45,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

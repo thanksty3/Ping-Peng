@@ -40,8 +40,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           if (notifications.isEmpty) {
             return const Center(
               child: Text(
-                "No Requests",
-                style: TextStyle(color: Colors.white, fontSize: 16),
+                'No New Peng Requests!',
+                style: TextStyle(color: Colors.white, fontSize: 18),
               ),
             );
           }

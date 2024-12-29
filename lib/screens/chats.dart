@@ -122,22 +122,39 @@ class _ChatsState extends State<Chats> {
           ? lastMessageSnapshot.docs.first
           : null;
 
-      friend['lastMessage'] = lastMessageDoc != null
-          ? lastMessageDoc['text'] ?? 'No messages yet'
-          : 'No messages yet';
+      if (lastMessageDoc != null) {
+        final lastMessageData = lastMessageDoc.data();
 
-      friend['lastInteraction'] =
-          lastMessageDoc != null ? lastMessageDoc['timestamp']?.toDate() : null;
+        friend['lastMessage'] = lastMessageData['text'] ?? 'No messages yet';
+        friend['lastInteraction'] = lastMessageData['timestamp'] != null
+            ? (lastMessageData['timestamp'] as Timestamp).toDate()
+            : null;
+      } else {
+        friend['lastMessage'] = 'No messages yet';
+        friend['lastInteraction'] = null;
+      }
 
       final chatRoomData =
           await _databaseService.getChatroomDetails(chatRoomId);
-      final lastOpened = chatRoomData?['lastOpened']?[currentUser.uid];
-      friend['hasNewMessage'] = lastMessageDoc != null &&
-          lastMessageDoc['timestamp'] != null &&
-          (lastOpened == null ||
-              lastMessageDoc['timestamp']
-                  .toDate()
-                  .isAfter(lastOpened.toDate()));
+      if (chatRoomData != null) {
+        final lastOpenedMap =
+            chatRoomData['lastOpened'] as Map<String, dynamic>?;
+
+        final lastOpenedValue =
+            lastOpenedMap != null ? lastOpenedMap[currentUser.uid] : null;
+
+        if (lastOpenedValue != null && friend['lastInteraction'] != null) {
+          final lastInteractionDate = friend['lastInteraction'] as DateTime;
+          final lastOpenedTimestamp = lastOpenedValue as Timestamp;
+          final lastOpenedDate = lastOpenedTimestamp.toDate();
+
+          friend['hasNewMessage'] = lastInteractionDate.isAfter(lastOpenedDate);
+        } else {
+          friend['hasNewMessage'] = (friend['lastInteraction'] != null);
+        }
+      } else {
+        friend['hasNewMessage'] = (friend['lastInteraction'] != null);
+      }
     }
 
     friendsData.sort((a, b) => (b['lastInteraction'] ??
