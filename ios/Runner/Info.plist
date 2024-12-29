@@ -54,6 +54,22 @@
 		<key>UIStatusBarHidden</key>
 		<false/>
 		<key>GADApplicationIdentifier</key>
-                <string>ca-app-pub-8128309454998324~9595983133</string>
+        <string>ca-app-pub-8128309454998324~9595983133</string>
+        <key>SKAdNetworkItems</key>
+        <array>
+            <dict>
+                <key>SKAdNetworkIdentifier</key>
+                <string>cstr6suwn9.skadnetwork</string>
+            </dict>
+            <dict>
+                <key>SKAdNetworkIdentifier</key>
+                <string>4fzdc2evr5.skadnetwork</string>
+            </dict>
+            <!-- Add other SKAdNetworkIdentifiers if needed -->
+        </array>
+
+        <key>NSUserTrackingUsageDescription</key>
+        <string>This identifier will be used to show personalized ads to you.</string>
+
 	</dict>
 </plist>
