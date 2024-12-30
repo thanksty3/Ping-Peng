@@ -3,6 +3,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ping_peng/screens/home.dart';
+import 'package:ping_peng/screens/account.dart';
 import 'package:ping_peng/utils/database_services.dart';
 import 'package:ping_peng/utils/lists.dart';
 import 'package:ping_peng/utils/utils.dart';
@@ -25,13 +27,42 @@ class _EditProfilePageState extends State<EditProfilePage> {
   String _temporaryProfilePictureUrl = '';
   String _temporaryQuote = '';
   List<String> _temporaryInterests = [];
+  bool _isNewUser = false;
 
   final List<String> interests = Interests().getInterests();
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _initializeUserData();
+  }
+
+  Future<void> _initializeUserData() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final user = await _databaseService.getCurrentUser();
+      if (user == null) throw Exception("No user is logged in.");
+
+      final isNewUser = await _databaseService.checkIfNewUser(user.uid);
+      final userData = await _databaseService.getUserData();
+
+      setState(() {
+        _isNewUser = isNewUser;
+        if (userData != null) {
+          _profilePictureUrl = userData['profilePictureUrl'] ?? '';
+          _pengQuoteController.text = userData['pengQuote'] ?? '';
+          _myInterests = List<String>.from(userData['myInterests'] ?? []);
+          _temporaryProfilePictureUrl = _profilePictureUrl;
+          _temporaryQuote = _pengQuoteController.text;
+          _temporaryInterests = List<String>.from(_myInterests);
+        }
+      });
+    } catch (e) {
+      _showSnackBar('Failed to load user data: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -42,10 +73,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
         return true;
       },
       child: Scaffold(
-        backgroundColor: Colors.black87,
+        backgroundColor: black,
         appBar: AppBar(
-          backgroundColor: Colors.black,
-          iconTheme: const IconThemeData(color: Colors.orange),
+          backgroundColor: black,
+          iconTheme: const IconThemeData(color: orange),
           leading: IconButton(
             onPressed: () {
               _revertChanges();
@@ -61,42 +92,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ],
         ),
         body: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(color: Colors.orange))
+            ? const Center(child: CircularProgressIndicator(color: orange))
             : _editProfileScreen(),
       ),
     );
-  }
-
-  Future<void> _loadUserData() async {
-    setState(() => _isLoading = true);
-
-    try {
-      final userData = await _databaseService.getUserData();
-      if (userData != null) {
-        setState(() {
-          _profilePictureUrl = userData['profilePictureUrl'] ?? '';
-          _pengQuoteController.text = userData['pengQuote'] ?? '';
-          _myInterests = List<String>.from(userData['myInterests'] ?? []);
-
-          _temporaryProfilePictureUrl = _profilePictureUrl;
-          _temporaryQuote = _pengQuoteController.text;
-          _temporaryInterests = List<String>.from(_myInterests);
-        });
-      }
-    } catch (e) {
-      _showSnackBar('Failed to load user data: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
-  }
-
-  void _revertChanges() {
-    setState(() {
-      _temporaryProfilePictureUrl = _profilePictureUrl;
-      _temporaryQuote = _pengQuoteController.text;
-      _temporaryInterests = List.from(_myInterests);
-    });
   }
 
   Future<void> _saveUserData() async {
@@ -128,12 +127,32 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _pengQuoteController.text = _temporaryQuote;
       });
 
-      Navigator.pop(context, updatedProfilePictureUrl);
+      final user = await _databaseService.getCurrentUser();
+      if (user != null && _isNewUser) {
+        await _databaseService.setNewUserFlag(user.uid, false);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Home()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const Account()),
+        );
+      }
     } catch (e) {
       _showSnackBar('Failed to save user data: $e');
     } finally {
       setState(() => _isLoading = false);
     }
+  }
+
+  void _revertChanges() {
+    setState(() {
+      _temporaryProfilePictureUrl = _profilePictureUrl;
+      _temporaryQuote = _pengQuoteController.text;
+      _temporaryInterests = List.from(_myInterests);
+    });
   }
 
   void _showSnackBar(String message) {
@@ -142,12 +161,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
         content: Text(
           message,
           style: const TextStyle(
-            color: Colors.black,
+            color: black,
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: white,
       ),
     );
   }
@@ -174,12 +193,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
         children: [
           CircleAvatar(
             radius: 100,
+            backgroundColor: black,
             backgroundImage: _temporaryProfilePictureUrl.isNotEmpty
                 ? (_temporaryProfilePictureUrl.startsWith('http')
                         ? NetworkImage(_temporaryProfilePictureUrl)
                         : FileImage(File(_temporaryProfilePictureUrl)))
                     as ImageProvider
-                : const AssetImage('assets/images/P!ngPeng.png'),
+                : const AssetImage('assets/images/Black_Peng.png'),
           ),
           const SizedBox(height: 20),
           _buildEditButton('Edit Profile Picture', _chooseProfilePicture),
@@ -187,7 +207,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           TextField(
             textAlign: TextAlign.center,
             controller: _pengQuoteController,
-            cursorColor: Colors.orange,
+            cursorColor: orange,
             maxLines: 3,
             maxLength: 125,
             onChanged: (value) {
@@ -197,19 +217,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
               label: Text(
                 'Peng Quote',
                 style: TextStyle(
-                  color: Colors.orange,
+                  color: orange,
                   fontFamily: 'Jua',
                   fontSize: 30,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.orange),
+                borderSide: BorderSide(color: orange),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.orange),
+                borderSide: BorderSide(color: orange),
               ),
             ),
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: white),
           ),
           const SizedBox(height: 20),
           const Align(
@@ -219,7 +239,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               style: TextStyle(
                 fontSize: 25,
                 fontFamily: 'Jua',
-                color: Colors.orange,
+                color: orange,
               ),
             ),
           ),
@@ -238,7 +258,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         text,
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: Colors.black,
+          color: black,
           fontWeight: FontWeight.bold,
           fontSize: 16,
         ),
@@ -254,13 +274,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
         final isSelected = _temporaryInterests.contains(interest);
         return FilterChip(
           backgroundColor: isSelected ? Colors.orange[100] : Colors.grey[800],
-          selectedColor: Colors.orange,
+          selectedColor: orange,
           label: Text(
             interest,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 15,
-              color: isSelected ? Colors.white : Colors.orange,
+              color: isSelected ? white : orange,
             ),
           ),
           selected: isSelected,

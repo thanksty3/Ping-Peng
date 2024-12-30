@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:ping_peng/screens/chats.dart';
 import 'package:ping_peng/screens/shows.dart';
 import 'package:ping_peng/screens/account.dart';
@@ -17,11 +18,22 @@ class _HomeState extends State<Home> {
   List<Map<String, dynamic>> _users = [];
   int _currentUserIndex = 0;
   bool _isLoading = true;
+  int _nextButtonCount = 0;
+
+  InterstitialAd? _interstitialAd;
+  bool _isAdLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _loadUsers();
+    _loadInterstitialAd();
+  }
+
+  @override
+  void dispose() {
+    _interstitialAd?.dispose();
+    super.dispose();
   }
 
   @override
@@ -34,13 +46,13 @@ class _HomeState extends State<Home> {
       body: _isLoading
           ? const Center(
               child: Text(
-              'Loading Profile...',
-              style: TextStyle(color: Colors.white, fontSize: 18),
-            ))
+                'Loading Profile...',
+                style: TextStyle(color: Colors.white, fontSize: 18),
+              ),
+            )
           : hasMoreUsers
               ? Account(
-                  key: ValueKey(
-                      _users[_currentUserIndex]['userId']), // Forces rebuild
+                  key: ValueKey(_users[_currentUserIndex]['userId']),
                   userId: _users[_currentUserIndex]['userId'],
                   isHome: true,
                 )
@@ -58,22 +70,64 @@ class _HomeState extends State<Home> {
     setState(() {
       if (_currentUserIndex < _users.length - 1) {
         _currentUserIndex++;
+        _nextButtonCount++;
+
+        if (_nextButtonCount % 10 == 0) {
+          _showInterstitialAd();
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "No New Pengs to Show",
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+        Center(
+          child: Text(
+            "No New Pengs to Show",
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
-            backgroundColor: Colors.white,
           ),
         );
       }
     });
+  }
+
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: 'ca-app-pub-3940256099942544/1033173712',
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          _interstitialAd = ad;
+          _isAdLoaded = true;
+          debugPrint('Interstitial Ad Loaded Successfully');
+        },
+        onAdFailedToLoad: (error) {
+          debugPrint('Failed to load interstitial ad: $error');
+          _isAdLoaded = false;
+        },
+      ),
+    );
+  }
+
+  void _showInterstitialAd() {
+    if (_isAdLoaded && _interstitialAd != null) {
+      _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (ad) {
+          ad.dispose();
+          _loadInterstitialAd();
+        },
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          ad.dispose();
+          debugPrint('Failed to show interstitial ad: $error');
+          _loadInterstitialAd();
+        },
+      );
+
+      _interstitialAd!.show();
+      _interstitialAd = null;
+      _isAdLoaded = false;
+    } else {
+      debugPrint('Interstitial ad not ready yet');
+    }
   }
 
   Future<void> _loadUsers() async {
@@ -98,7 +152,7 @@ class _HomeState extends State<Home> {
         SnackBar(
           content: Text(
             "Failed to load users: $e",
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
               fontSize: 16,

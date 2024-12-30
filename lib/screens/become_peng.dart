@@ -38,7 +38,7 @@ class BecomePengState extends State<BecomePeng> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: black,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -68,7 +68,7 @@ class BecomePengState extends State<BecomePeng> {
                         child: const Text(
                           'Cancel',
                           style: TextStyle(
-                              color: Colors.black,
+                              color: black,
                               fontWeight: FontWeight.bold,
                               fontSize: 20),
                         ),
@@ -79,7 +79,7 @@ class BecomePengState extends State<BecomePeng> {
                         child: const Text(
                           'Create Account',
                           style: TextStyle(
-                            color: Colors.black,
+                            color: black,
                             fontWeight: FontWeight.bold,
                             fontSize: 20,
                           ),
@@ -91,11 +91,12 @@ class BecomePengState extends State<BecomePeng> {
 
                   // First Name
                   TextFormField(
-                    cursorColor: Colors.orange,
+                    cursorColor: orange,
+                    style: TextStyle(color: white),
                     controller: _firstNameController,
                     decoration: InputDecoration(
                       labelText: 'First Name',
-                      labelStyle: const TextStyle(color: Colors.white),
+                      labelStyle: const TextStyle(color: white),
                       enabledBorder: enabledBorder,
                       focusedBorder: focusedBorder,
                     ),
@@ -110,11 +111,12 @@ class BecomePengState extends State<BecomePeng> {
 
                   // Last Name
                   TextFormField(
-                    cursorColor: Colors.orange,
+                    cursorColor: orange,
                     controller: _lastNameController,
+                    style: TextStyle(color: white),
                     decoration: InputDecoration(
                       labelText: 'Last Name',
-                      labelStyle: const TextStyle(color: Colors.white),
+                      labelStyle: const TextStyle(color: white),
                       enabledBorder: enabledBorder,
                       focusedBorder: focusedBorder,
                     ),
@@ -129,11 +131,12 @@ class BecomePengState extends State<BecomePeng> {
 
                   // Email
                   TextFormField(
-                    cursorColor: Colors.orange,
+                    cursorColor: orange,
                     controller: _emailController,
+                    style: TextStyle(color: white),
                     decoration: InputDecoration(
                       labelText: 'Email',
-                      labelStyle: const TextStyle(color: Colors.white),
+                      labelStyle: const TextStyle(color: white),
                       enabledBorder: enabledBorder,
                       focusedBorder: focusedBorder,
                     ),
@@ -152,11 +155,12 @@ class BecomePengState extends State<BecomePeng> {
 
                   // Username
                   TextFormField(
-                    cursorColor: Colors.orange,
+                    cursorColor: orange,
                     controller: _usernameController,
+                    style: TextStyle(color: white),
                     decoration: InputDecoration(
                       labelText: 'Username',
-                      labelStyle: const TextStyle(color: Colors.white),
+                      labelStyle: const TextStyle(color: white),
                       enabledBorder: enabledBorder,
                       focusedBorder: focusedBorder,
                     ),
@@ -171,12 +175,13 @@ class BecomePengState extends State<BecomePeng> {
 
                   // Password
                   TextFormField(
-                    cursorColor: Colors.orange,
+                    cursorColor: orange,
                     controller: _passwordController,
+                    style: TextStyle(color: white),
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      labelStyle: const TextStyle(color: Colors.white),
+                      labelStyle: const TextStyle(color: white),
                       enabledBorder: enabledBorder,
                       focusedBorder: focusedBorder,
                     ),
@@ -194,12 +199,13 @@ class BecomePengState extends State<BecomePeng> {
 
                   // Verify Password
                   TextFormField(
-                    cursorColor: Colors.orange,
+                    cursorColor: orange,
                     controller: _verifyPasswordController,
+                    style: TextStyle(color: white),
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Verify Password',
-                      labelStyle: const TextStyle(color: Colors.white),
+                      labelStyle: const TextStyle(color: white),
                       enabledBorder: enabledBorder,
                       focusedBorder: focusedBorder,
                     ),
@@ -272,12 +278,12 @@ class BecomePengState extends State<BecomePeng> {
             content: Text(
               'Error: $errorMessage',
               style: TextStyle(
-                color: Colors.white,
+                color: white,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
             ),
-            backgroundColor: Colors.black),
+            backgroundColor: black),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -285,23 +291,23 @@ class BecomePengState extends State<BecomePeng> {
             content: Text(
               'Error: ${e.toString()}',
               style: TextStyle(
-                color: Colors.white,
+                color: white,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
             ),
-            backgroundColor: Colors.black),
+            backgroundColor: black),
       );
     }
   }
 
   final OutlineInputBorder enabledBorder = OutlineInputBorder(
-    borderSide: const BorderSide(color: Colors.white),
+    borderSide: const BorderSide(color: white),
     borderRadius: BorderRadius.circular(12),
   );
 
   final OutlineInputBorder focusedBorder = OutlineInputBorder(
-    borderSide: const BorderSide(color: Colors.orange),
+    borderSide: const BorderSide(color: orange),
     borderRadius: BorderRadius.circular(12),
   );
 }

@@ -21,6 +21,7 @@ Future<Uint8List?> pickImage(ImageSource source) async {
 
 const Color orange = Colors.orange;
 const Color black = Colors.black;
+const Color white = Colors.white;
 
 Text header(String title) {
   return Text(
@@ -30,7 +31,7 @@ Text header(String title) {
 }
 
 SizedBox divider() {
-  return const SizedBox(height: 30);
+  return const SizedBox(height: 15);
 }
 
 SizedBox spacer() {

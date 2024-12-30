@@ -17,7 +17,7 @@ class Account extends StatefulWidget {
 class _AccountState extends State<Account> {
   final DatabaseService _databaseService = DatabaseService();
 
-  String _profilePictureUrl = 'assets/images/P!ngPeng.png';
+  String _profilePictureUrl = 'assets/images/Black_Peng.png';
   String _firstName = '';
   String _lastName = '';
   String _username = '';

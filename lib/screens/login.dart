@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:ping_peng/screens/become_peng.dart';
 import 'package:ping_peng/screens/forgot_password.dart';
 import 'package:ping_peng/screens/home.dart';
+import 'package:ping_peng/screens/edit_profile.dart';
+import 'package:ping_peng/utils/database_services.dart';
 import 'package:ping_peng/utils/utils.dart';
 
 class Login extends StatefulWidget {
@@ -15,6 +17,7 @@ class Login extends StatefulWidget {
 class LoginState extends State<Login> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final DatabaseService _databaseService = DatabaseService();
 
   @override
   void dispose() {
@@ -26,7 +29,7 @@ class LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: black,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -49,21 +52,21 @@ class LoginState extends State<Login> {
 
                 // Email Input
                 TextField(
-                  cursorColor: Colors.orange,
-                  style: TextStyle(color: Colors.orange),
+                  cursorColor: orange,
+                  style: TextStyle(color: white),
                   controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
-                    labelStyle: const TextStyle(color: Colors.white),
-                    prefixIcon: const Icon(Icons.email, color: Colors.orange),
+                    labelStyle: const TextStyle(color: white),
+                    prefixIcon: const Icon(Icons.email, color: orange),
                     enabledBorder: OutlineInputBorder(
                       borderSide: const BorderSide(
-                        color: Colors.white,
+                        color: white,
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.orange),
+                      borderSide: const BorderSide(color: orange),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
@@ -73,22 +76,22 @@ class LoginState extends State<Login> {
 
                 // Password Input
                 TextField(
-                  style: TextStyle(color: Colors.orange),
-                  cursorColor: Colors.orange,
+                  style: TextStyle(color: white),
+                  cursorColor: orange,
                   controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    labelStyle: const TextStyle(color: Colors.white),
-                    prefixIcon: const Icon(Icons.lock, color: Colors.orange),
+                    labelStyle: const TextStyle(color: white),
+                    prefixIcon: const Icon(Icons.lock, color: orange),
                     enabledBorder: OutlineInputBorder(
                       borderSide: const BorderSide(
-                        color: Colors.white,
+                        color: white,
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.orange),
+                      borderSide: const BorderSide(color: orange),
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
@@ -113,7 +116,7 @@ class LoginState extends State<Login> {
                         child: const Text(
                           'Become a Peng!',
                           style: TextStyle(
-                            color: Colors.orange,
+                            color: orange,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -132,7 +135,7 @@ class LoginState extends State<Login> {
                         child: const Text(
                           'Forgot Password?',
                           style: TextStyle(
-                            color: Colors.orange,
+                            color: orange,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -151,7 +154,7 @@ class LoginState extends State<Login> {
                     'Login',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: Colors.white,
+                        color: white,
                         fontWeight: FontWeight.bold,
                         fontSize: 25),
                   ),
@@ -170,11 +173,27 @@ class LoginState extends State<Login> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-      if (!mounted) return;
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const Home()),
-      );
+
+      final currentUser = FirebaseAuth.instance.currentUser;
+
+      if (currentUser != null) {
+        final isNewUser =
+            await _databaseService.checkIfNewUser(currentUser.uid);
+
+        if (!mounted) return;
+
+        if (isNewUser) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const EditProfilePage()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const Home()),
+          );
+        }
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -182,12 +201,12 @@ class LoginState extends State<Login> {
           content: Text(
             'Invalid Username or Password',
             style: TextStyle(
-              color: Colors.white,
+              color: white,
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
           ),
-          backgroundColor: Colors.black,
+          backgroundColor: black,
         ),
       );
     }

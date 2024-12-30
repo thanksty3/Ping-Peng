@@ -37,10 +37,36 @@ class DatabaseService {
         "profilePictureUrl": null,
         "friends": [],
         "pendingFriends": [],
+        "isNewUser": true,
       });
       log("User created successfully for UID: $uid");
     } catch (e) {
       log("Failed to create user: $e");
+      rethrow;
+    }
+  }
+
+  Future<bool> checkIfNewUser(String userId) async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+      if (!userDoc.exists) {
+        throw Exception("User document does not exist.");
+      }
+      return userDoc.data()?['isNewUser'] ?? false;
+    } catch (e) {
+      log("Failed to check new user status: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> setNewUserFlag(String userId, bool isNewUser) async {
+    try {
+      await _firestore.collection('users').doc(userId).update({
+        'isNewUser': isNewUser,
+      });
+      log("Updated isNewUser flag to $isNewUser for user: $userId");
+    } catch (e) {
+      log("Failed to update isNewUser flag: $e");
       rethrow;
     }
   }

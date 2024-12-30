@@ -45,7 +45,7 @@ class Settings extends StatelessWidget {
                           padding: const EdgeInsets.only(left: 5),
                           child: Center(
                             child: const Text(
-                              ' | Chats',
+                              '| Chats',
                               style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 45,
@@ -76,7 +76,7 @@ class Settings extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(left: 5),
                           child: const Text(
-                            ' | Home',
+                            '| Home',
                             style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 45,
@@ -107,7 +107,7 @@ class Settings extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(left: 5),
                           child: const Text(
-                            ' | Password',
+                            '| Password',
                             style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 45,
@@ -138,7 +138,7 @@ class Settings extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(left: 5),
                           child: const Text(
-                            ' | Profile',
+                            '| Profile',
                             style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 45,
@@ -168,7 +168,7 @@ class Settings extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(left: 5),
                           child: const Text(
-                            ' | Shows',
+                            '| Shows',
                             style: TextStyle(
                                 color: Colors.black,
                                 fontSize: 45,
@@ -193,7 +193,7 @@ class Settings extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(left: 5),
                           child: const Text(
-                            ' | Logout',
+                            '| Logout',
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
@@ -218,7 +218,7 @@ class Settings extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(left: 5),
                           child: const Text(
-                            ' | Delete',
+                            '| Delete',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                 color: Colors.black,
@@ -328,21 +328,10 @@ class Settings extends StatelessWidget {
             );
           }
         }
+
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => const Login()));
       }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'No user is currently logged in.',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          backgroundColor: Colors.white,
-        ),
-      );
     }
   }
 }
