@@ -135,7 +135,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           MaterialPageRoute(builder: (context) => const Home()),
         );
       } else {
-        Navigator.pushReplacement(
+        Navigator.pop(
           context,
           MaterialPageRoute(builder: (context) => const Account()),
         );

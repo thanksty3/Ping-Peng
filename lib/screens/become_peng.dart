@@ -92,7 +92,7 @@ class BecomePengState extends State<BecomePeng> {
                   // First Name
                   TextFormField(
                     cursorColor: orange,
-                    style: TextStyle(color: white),
+                    style: const TextStyle(color: white),
                     controller: _firstNameController,
                     decoration: InputDecoration(
                       labelText: 'First Name',
@@ -113,7 +113,7 @@ class BecomePengState extends State<BecomePeng> {
                   TextFormField(
                     cursorColor: orange,
                     controller: _lastNameController,
-                    style: TextStyle(color: white),
+                    style: const TextStyle(color: white),
                     decoration: InputDecoration(
                       labelText: 'Last Name',
                       labelStyle: const TextStyle(color: white),
@@ -133,7 +133,7 @@ class BecomePengState extends State<BecomePeng> {
                   TextFormField(
                     cursorColor: orange,
                     controller: _emailController,
-                    style: TextStyle(color: white),
+                    style: const TextStyle(color: white),
                     decoration: InputDecoration(
                       labelText: 'Email',
                       labelStyle: const TextStyle(color: white),
@@ -157,7 +157,7 @@ class BecomePengState extends State<BecomePeng> {
                   TextFormField(
                     cursorColor: orange,
                     controller: _usernameController,
-                    style: TextStyle(color: white),
+                    style: const TextStyle(color: white),
                     decoration: InputDecoration(
                       labelText: 'Username',
                       labelStyle: const TextStyle(color: white),
@@ -177,7 +177,7 @@ class BecomePengState extends State<BecomePeng> {
                   TextFormField(
                     cursorColor: orange,
                     controller: _passwordController,
-                    style: TextStyle(color: white),
+                    style: const TextStyle(color: white),
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Password',
@@ -201,7 +201,7 @@ class BecomePengState extends State<BecomePeng> {
                   TextFormField(
                     cursorColor: orange,
                     controller: _verifyPasswordController,
-                    style: TextStyle(color: white),
+                    style: const TextStyle(color: white),
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Verify Password',
@@ -233,15 +233,15 @@ class BecomePengState extends State<BecomePeng> {
       return;
     }
 
+    UserCredential? userCredential;
+
     try {
-      // Create user in Firebase Authentication
-      UserCredential userCredential =
+      userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      // Add user data to Firestore using DatabaseService
       await _dbService.createUser(
         userCredential.user?.uid ?? "",
         _firstNameController.text,
@@ -250,7 +250,6 @@ class BecomePengState extends State<BecomePeng> {
         _usernameController.text,
       );
 
-      // Navigate to Login page
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const Login()),
@@ -275,28 +274,33 @@ class BecomePengState extends State<BecomePeng> {
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(
-              'Error: $errorMessage',
-              style: TextStyle(
-                color: white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+          content: Text(
+            'Error: $errorMessage',
+            style: const TextStyle(
+              color: white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
-            backgroundColor: black),
+          ),
+          backgroundColor: black,
+        ),
       );
     } catch (e) {
+      if (userCredential?.user != null) {
+        await userCredential!.user!.delete();
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(
-              'Error: ${e.toString()}',
-              style: TextStyle(
-                color: white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+          content: Text(
+            'Error: ${e.toString()}',
+            style: const TextStyle(
+              color: white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
-            backgroundColor: black),
+          ),
+          backgroundColor: black,
+        ),
       );
     }
   }

@@ -27,6 +27,11 @@ class DatabaseService {
     String username,
   ) async {
     try {
+      final doesUsernameExist = await checkIfUsernameExists(username);
+      if (doesUsernameExist) {
+        throw Exception(
+            "Username already exists. Please choose a different one.");
+      }
       await _firestore.collection("users").doc(uid).set({
         "firstName": firstName.trim(),
         "lastName": lastName.trim(),
@@ -67,6 +72,20 @@ class DatabaseService {
       log("Updated isNewUser flag to $isNewUser for user: $userId");
     } catch (e) {
       log("Failed to update isNewUser flag: $e");
+      rethrow;
+    }
+  }
+
+  Future<bool> checkIfUsernameExists(String username) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection('users')
+          .where('username', isEqualTo: username)
+          .get();
+
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      log("Failed to check if username exists: $e");
       rethrow;
     }
   }
