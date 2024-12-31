@@ -172,7 +172,8 @@ class _AccountState extends State<Account> {
                 radius: 120,
                 backgroundImage: _profilePictureUrl.isNotEmpty
                     ? NetworkImage(_profilePictureUrl)
-                    : AssetImage('assets/images/P!ngPeng.png') as ImageProvider,
+                    : AssetImage('assets/images/Black_Peng.png')
+                        as ImageProvider,
               ),
             ],
           ),
