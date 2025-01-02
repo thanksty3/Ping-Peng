@@ -44,6 +44,7 @@ dependencies:
   flutter_native_splash: ^2.4.3
   cloud_functions: ^5.2.0
   google_mobile_ads: ^5.2.0
+  flutter_launcher_icons: ^0.14.2
 
 
 dev_dependencies:
@@ -57,6 +58,9 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
 
+flutter_launcher_icons:
+  ios: true
+  image_path: assets/icon/AppIcon.png
 
 
 flutter_native_splash:
