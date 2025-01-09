@@ -95,17 +95,11 @@ class BecomePengState extends State<BecomePeng> {
                     style: const TextStyle(color: white),
                     controller: _firstNameController,
                     decoration: InputDecoration(
-                      labelText: 'First Name',
+                      labelText: 'First Name (optional)',
                       labelStyle: const TextStyle(color: white),
                       enabledBorder: enabledBorder,
                       focusedBorder: focusedBorder,
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your first name';
-                      }
-                      return null;
-                    },
                   ),
                   divider(),
 
@@ -115,17 +109,11 @@ class BecomePengState extends State<BecomePeng> {
                     controller: _lastNameController,
                     style: const TextStyle(color: white),
                     decoration: InputDecoration(
-                      labelText: 'Last Name',
+                      labelText: 'Last Name (optional)',
                       labelStyle: const TextStyle(color: white),
                       enabledBorder: enabledBorder,
                       focusedBorder: focusedBorder,
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your last name';
-                      }
-                      return null;
-                    },
                   ),
                   divider(),
 

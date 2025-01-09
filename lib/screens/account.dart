@@ -37,11 +37,11 @@ class _AccountState extends State<Account> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: !widget.isHome ? const AccountNavAppBar() : null,
-      backgroundColor: Colors.black,
+      backgroundColor: black,
       body: _isLoading
           ? Text(
               'Loading Profile...',
-              style: TextStyle(color: Colors.white, fontSize: 18),
+              style: TextStyle(color: white, fontSize: 18),
             )
           : accountPage(),
       bottomNavigationBar:
@@ -90,12 +90,12 @@ class _AccountState extends State<Account> {
         content: Text(
           'Failed to load user data: $e',
           style: TextStyle(
-            color: Colors.black,
+            color: black,
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: white,
       ));
     }
 
@@ -147,12 +147,12 @@ class _AccountState extends State<Account> {
           content: Text(
             'Action failed: $e',
             style: TextStyle(
-              color: Colors.black,
+              color: black,
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
           ),
-          backgroundColor: Colors.white,
+          backgroundColor: white,
         ),
       );
     }
@@ -168,7 +168,7 @@ class _AccountState extends State<Account> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CircleAvatar(
-                backgroundColor: Colors.black,
+                backgroundColor: black,
                 radius: 120,
                 backgroundImage: _profilePictureUrl.isNotEmpty
                     ? NetworkImage(_profilePictureUrl)
@@ -183,7 +183,7 @@ class _AccountState extends State<Account> {
             children: [
               Column(
                 children: [
-                  mainText('$_firstName $_lastName'),
+                  mainText('@$_username'),
                   nameOfUser(),
                 ],
               ),
@@ -216,7 +216,7 @@ class _AccountState extends State<Account> {
                         'Edit Profile',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            color: Colors.black,
+                            color: black,
                             fontWeight: FontWeight.bold,
                             fontSize: 16),
                       ),
@@ -240,7 +240,7 @@ class _AccountState extends State<Account> {
                                     ? 'Remove Friendly Peng'
                                     : 'Add Friendly Peng',
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: white,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
                         ),
@@ -262,12 +262,12 @@ class _AccountState extends State<Account> {
                           content: Text(
                             "Error: User is not logged in.",
                             style: TextStyle(
-                              color: Colors.black,
+                              color: black,
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),
                           ),
-                          backgroundColor: Colors.white,
+                          backgroundColor: white,
                         ),
                       );
                       return;
@@ -285,7 +285,7 @@ class _AccountState extends State<Account> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
+                    backgroundColor: white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -293,7 +293,7 @@ class _AccountState extends State<Account> {
                   child: const Text(
                     'Message',
                     style: TextStyle(
-                      color: Colors.black,
+                      color: black,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -317,7 +317,7 @@ class _AccountState extends State<Account> {
                         width: 300,
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.orange),
+                          border: Border.all(color: orange),
                           borderRadius: BorderRadius.circular(5),
                         ),
                         child: Text(
@@ -326,7 +326,7 @@ class _AccountState extends State<Account> {
                               : 'No Peng Quote yet.',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+                              color: white, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -344,14 +344,14 @@ class _AccountState extends State<Account> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
-                      child: CircularProgressIndicator(color: Colors.orange),
+                      child: CircularProgressIndicator(color: orange),
                     );
                   }
                   if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(
                       child: Text(
                         'No shows available.',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: white),
                       ),
                     );
                   }
@@ -369,7 +369,7 @@ class _AccountState extends State<Account> {
                                   )
                                 : Center(
                                     child: Icon(Icons.videocam,
-                                        color: Colors.orange, size: 100),
+                                        color: orange, size: 100),
                                   ),
                           ),
                           divider(),
@@ -384,7 +384,7 @@ class _AccountState extends State<Account> {
                               child: const Text(
                                 'Delete Post',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: white,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
                                 ),
@@ -406,11 +406,11 @@ class _AccountState extends State<Account> {
 
   Text nameOfUser() {
     return Text(
-      '@$_username',
+      '$_firstName $_lastName',
       style: TextStyle(
-        fontSize: 20,
+        fontSize: 25,
         fontFamily: 'Jua',
-        color: Colors.orange,
+        color: orange,
       ),
     );
   }
@@ -422,7 +422,7 @@ class _AccountState extends State<Account> {
         fontSize: 40,
         fontWeight: FontWeight.bold,
         fontFamily: 'Jua',
-        color: Colors.white,
+        color: white,
       ),
     );
   }
@@ -440,7 +440,7 @@ class _AccountState extends State<Account> {
               width: 300,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.orange),
+                border: Border.all(color: orange),
                 borderRadius: BorderRadius.circular(5),
               ),
               child: Wrap(
@@ -450,11 +450,11 @@ class _AccountState extends State<Account> {
                     ? _interests
                         .map(
                           (interest) => Chip(
-                            backgroundColor: Colors.orange,
+                            backgroundColor: orange,
                             label: Text(
                               interest,
                               style: const TextStyle(
-                                  color: Colors.white,
+                                  color: white,
                                   fontFamily: 'Jua',
                                   fontSize: 18),
                             ),
@@ -465,9 +465,7 @@ class _AccountState extends State<Account> {
                         const Text(
                           'No interests yet.',
                           style: TextStyle(
-                              color: Colors.orange,
-                              fontFamily: 'Jua',
-                              fontSize: 18),
+                              color: orange, fontFamily: 'Jua', fontSize: 18),
                         )
                       ],
               ),
