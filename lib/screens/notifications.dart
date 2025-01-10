@@ -70,12 +70,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         backgroundImage: notification['profilePictureUrl'] !=
                                 null
                             ? NetworkImage(notification['profilePictureUrl'])
-                            : null,
-                        backgroundColor: Colors.grey,
-                        child: notification['profilePictureUrl'] == null
-                            ? const Icon(Icons.person,
-                                size: 40, color: Colors.white)
-                            : null,
+                            : AssetImage('assets/images/Black_Peng.png'),
+                        backgroundColor: black,
                       ),
                     ),
                     const SizedBox(width: 10),
