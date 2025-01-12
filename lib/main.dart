@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:io' show Platform; // <--- Added import for Platform check
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,18 +7,23 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:ping_peng/screens/login.dart';
 import 'package:ping_peng/screens/home.dart';
 import 'package:ping_peng/utils/utils.dart';
-import 'dart:async';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 1) Initialize Google Mobile Ads
   MobileAds.instance.initialize();
-
-  // 2) Initialize Firebase
   await Firebase.initializeApp();
 
-  runApp(MyApp());
+  if (Platform.isIOS) {
+    final TrackingStatus status =
+        await AppTrackingTransparency.trackingAuthorizationStatus;
+    if (status == TrackingStatus.notDetermined) {
+      await AppTrackingTransparency.requestTrackingAuthorization();
+    }
+  }
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -27,9 +34,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // This was your existing ad initialization.
-  // We leave it as-is (in case you need it for other ad formats).
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -59,7 +63,6 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-// Existing SplashScreen remains untouched
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -71,9 +74,10 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Keep your splash timer logic as is
     Timer(const Duration(seconds: 3), () async {
+      await FirebaseAuth.instance.currentUser?.reload();
       User? user = FirebaseAuth.instance.currentUser;
+
       if (user != null) {
         Navigator.pushReplacementNamed(context, '/home');
       } else {

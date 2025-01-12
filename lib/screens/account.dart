@@ -172,7 +172,7 @@ class _AccountState extends State<Account> {
                 radius: 120,
                 backgroundImage: _profilePictureUrl.isNotEmpty
                     ? NetworkImage(_profilePictureUrl)
-                    : AssetImage('assets/images/Black_Peng.png')
+                    : const AssetImage('assets/images/Black_Peng.png')
                         as ImageProvider,
               ),
             ],
@@ -301,6 +301,19 @@ class _AccountState extends State<Account> {
                 ),
               ),
             ),
+          const SizedBox(height: 5),
+          // Only show the report button if this is NOT the current user
+          if (!_isCurrentUser)
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              IconButton(
+                onPressed: _showReportMenu, // <--- Show the bottom sheet
+                icon: const Icon(
+                  Icons.report_problem,
+                  color: orange,
+                  size: 45,
+                ),
+              )
+            ]),
           const SizedBox(height: 10),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -407,7 +420,7 @@ class _AccountState extends State<Account> {
   Text nameOfUser() {
     return Text(
       '$_firstName $_lastName',
-      style: TextStyle(
+      style: const TextStyle(
         fontSize: 25,
         fontFamily: 'Jua',
         color: orange,
@@ -418,7 +431,7 @@ class _AccountState extends State<Account> {
   Text mainText(String text) {
     return Text(
       text,
-      style: TextStyle(
+      style: const TextStyle(
         fontSize: 40,
         fontWeight: FontWeight.bold,
         fontFamily: 'Jua',
@@ -473,6 +486,202 @@ class _AccountState extends State<Account> {
           ],
         ),
       ],
+    );
+  }
+
+  // --- Show bottom sheet with Block/Unblock and Report ---
+  void _showReportMenu() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: black,
+      builder: (context) {
+        return Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.block, color: Colors.red),
+              title: const Text(
+                'Block/Unblock User',
+                style: TextStyle(color: white),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _handleBlockUnblock();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.report, color: orange),
+              title: const Text(
+                'Report User',
+                style: TextStyle(color: white),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _showReportPrompt();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleBlockUnblock() async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Block/Unblock action triggered',
+          style: TextStyle(
+            color: black,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        backgroundColor: white,
+      ),
+    );
+
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId == null || widget.userId == null) {
+      return;
+    }
+    try {
+      final userData =
+          await _databaseService.getUserDataForUserId(currentUserId);
+      if (userData == null) return;
+
+      final blockedUsers = List<String>.from(userData['blockedUsers'] ?? []);
+      if (blockedUsers.contains(widget.userId)) {
+        await _databaseService.unblockUser(currentUserId, widget.userId!);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'You have unblocked $_username',
+              style: const TextStyle(
+                color: black,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            backgroundColor: white,
+          ),
+        );
+      } else {
+        await _databaseService.blockUser(currentUserId, widget.userId!);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'You have blocked $_username',
+              style: const TextStyle(
+                color: black,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+            backgroundColor: white,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Block/Unblock failed: $e',
+            style: const TextStyle(
+              color: black,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          backgroundColor: white,
+        ),
+      );
+    }
+  }
+
+  void _showReportPrompt() {
+    final TextEditingController reportController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: black,
+          title: const Text(
+            'Report User',
+            style: TextStyle(color: white),
+          ),
+          content: TextField(
+            cursorColor: orange,
+            controller: reportController,
+            maxLines: 5,
+            style: const TextStyle(color: white),
+            decoration: const InputDecoration(
+              hintText: 'Describe the issue here...',
+              hintStyle: TextStyle(color: Colors.grey),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: white),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: orange),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: orange),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                final reportText = reportController.text.trim();
+                if (reportText.isNotEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Report submitted: $reportText',
+                        style: const TextStyle(
+                          color: black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      backgroundColor: white,
+                    ),
+                  );
+
+                  final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+                  if (currentUserId != null && widget.userId != null) {
+                    final currentUserData = await _databaseService
+                        .getUserDataForUserId(currentUserId);
+                    final reportedUserData = await _databaseService
+                        .getUserDataForUserId(widget.userId!);
+
+                    if (currentUserData != null && reportedUserData != null) {
+                      await _databaseService.reportUser(
+                        reporterId: currentUserId,
+                        reporterUsername:
+                            currentUserData['username'] ?? 'unknown',
+                        reportedId: widget.userId!,
+                        reportedUsername:
+                            reportedUserData['username'] ?? 'unknown',
+                        reportedEmail: reportedUserData['email'] ?? 'N/A',
+                        reason: reportText,
+                      );
+                    }
+                  }
+                }
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'Submit',
+                style: TextStyle(color: orange),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -12,6 +12,8 @@ class DatabaseService {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final CollectionReference _postCollection =
       FirebaseFirestore.instance.collection('posts');
+  final CollectionReference _reportsCollection =
+      FirebaseFirestore.instance.collection('reports');
 
   final Map<String, Map<String, dynamic>> _userCache = {};
 
@@ -43,6 +45,7 @@ class DatabaseService {
         "friends": [],
         "pendingFriends": [],
         "isNewUser": true,
+        "blockedUsers": [],
       });
       log("User created successfully for UID: $uid");
     } catch (e) {
@@ -796,6 +799,55 @@ class DatabaseService {
       log("Deletion complete for user: $userId");
     } catch (e) {
       log("Failed to delete user: $userId. Error: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> reportUser({
+    required String reporterId,
+    required String reporterUsername,
+    required String reportedId,
+    required String reportedUsername,
+    required String reportedEmail,
+    required String reason,
+  }) async {
+    try {
+      await _reportsCollection.add({
+        'reporterId': reporterId,
+        'reporterUsername': reporterUsername,
+        'reportedId': reportedId,
+        'reportedUsername': reportedUsername,
+        'reportedEmail': reportedEmail,
+        'reason': reason,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      log("Report added successfully.");
+    } catch (e) {
+      log("Failed to add report: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> blockUser(String currentUserId, String userToBlock) async {
+    try {
+      await _firestore.collection('users').doc(currentUserId).update({
+        'blockedUsers': FieldValue.arrayUnion([userToBlock]),
+      });
+      log("$userToBlock blocked by $currentUserId.");
+    } catch (e) {
+      log("Failed to block user: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> unblockUser(String currentUserId, String userToUnblock) async {
+    try {
+      await _firestore.collection('users').doc(currentUserId).update({
+        'blockedUsers': FieldValue.arrayRemove([userToUnblock]),
+      });
+      log("$userToUnblock unblocked by $currentUserId.");
+    } catch (e) {
+      log("Failed to unblock user: $e");
       rethrow;
     }
   }

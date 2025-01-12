@@ -67,7 +67,6 @@
             </dict>
             <!-- Add other SKAdNetworkIdentifiers if needed -->
         </array>
-
         <key>NSUserTrackingUsageDescription</key>
         <string>This identifier will be used to show personalized ads to you.</string>
 

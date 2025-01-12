@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ping_peng/utils/database_services.dart' as database;
 import 'package:ping_peng/screens/login.dart';
 import 'package:ping_peng/utils/utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BecomePeng extends StatefulWidget {
   const BecomePeng({super.key});
@@ -23,6 +24,7 @@ class BecomePengState extends State<BecomePeng> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _agreedToTerms = false;
 
   @override
   void dispose() {
@@ -68,9 +70,10 @@ class BecomePengState extends State<BecomePeng> {
                         child: const Text(
                           'Cancel',
                           style: TextStyle(
-                              color: black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20),
+                            color: black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
                         ),
                       ),
                       ElevatedButton(
@@ -207,6 +210,44 @@ class BecomePengState extends State<BecomePeng> {
                       return null;
                     },
                   ),
+
+                  // EULA / Terms acceptance
+                  divider(),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: _agreedToTerms,
+                        activeColor: orange,
+                        checkColor: black,
+                        onChanged: (bool? newValue) {
+                          setState(() {
+                            _agreedToTerms = newValue ?? false;
+                          });
+                        },
+                      ),
+                      // Modified: Make "Terms and Conditions" clickable
+                      Expanded(
+                        child: Wrap(
+                          children: [
+                            const Text(
+                              'I agree to the ',
+                              style: TextStyle(color: white),
+                            ),
+                            InkWell(
+                              onTap: _launchTermsUrl,
+                              child: const Text(
+                                'Terms and Conditions',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -217,6 +258,23 @@ class BecomePengState extends State<BecomePeng> {
   }
 
   Future<void> signUp() async {
+    if (!_agreedToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'You must agree to the terms to create an account.',
+            style: TextStyle(
+              color: white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          backgroundColor: black,
+        ),
+      );
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -286,6 +344,24 @@ class BecomePengState extends State<BecomePeng> {
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
+          ),
+          backgroundColor: black,
+        ),
+      );
+    }
+  }
+
+  Future<void> _launchTermsUrl() async {
+    const url =
+        'https://www.termsfeed.com/live/4a68c137-9ad5-4be5-a5d2-c9f2f1730869';
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Could not open Terms & Conditions link.',
+            style: TextStyle(color: white, fontWeight: FontWeight.bold),
           ),
           backgroundColor: black,
         ),
