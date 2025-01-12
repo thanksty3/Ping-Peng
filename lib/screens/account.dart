@@ -27,6 +27,9 @@ class _AccountState extends State<Account> {
   bool _isCurrentUser = false;
   String _friendStatus = 'add';
 
+  // Added: track if the user is blocked by currentUser
+  bool _isBlocked = false;
+
   @override
   void initState() {
     super.initState();
@@ -64,6 +67,7 @@ class _AccountState extends State<Account> {
 
       _isCurrentUser = currentUserId == userId;
 
+      // Fetch profile user's data
       final userData = await _databaseService.getUserDataForUserId(userId);
       if (userData != null) {
         setState(() {
@@ -76,14 +80,26 @@ class _AccountState extends State<Account> {
         });
       }
 
-      if (widget.userId != null) {
+      // Determine friend status
+      if (widget.userId != null && currentUserId != null) {
         final friendStatus = await _databaseService.getFriendStatus(
-          currentUserId!,
+          currentUserId,
           userId,
         );
         setState(() {
           _friendStatus = friendStatus;
         });
+      }
+
+      // Determine if the current user has blocked this profile user
+      if (!_isCurrentUser && currentUserId != null) {
+        final currentUserData =
+            await _databaseService.getUserDataForUserId(currentUserId);
+        if (currentUserData != null) {
+          final blockedUsers =
+              List<String>.from(currentUserData['blockedUsers'] ?? []);
+          _isBlocked = blockedUsers.contains(userId);
+        }
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -164,6 +180,7 @@ class _AccountState extends State<Account> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          // Profile Picture
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -178,6 +195,7 @@ class _AccountState extends State<Account> {
             ],
           ),
           const SizedBox(height: 5),
+          // Username & Name
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -190,6 +208,7 @@ class _AccountState extends State<Account> {
             ],
           ),
           const SizedBox(height: 5),
+          // Friend Button or Edit Button
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -248,6 +267,7 @@ class _AccountState extends State<Account> {
                     ),
             ],
           ),
+          // "Message" button for friends
           if (_friendStatus == 'friends')
             Center(
               child: Padding(
@@ -302,7 +322,7 @@ class _AccountState extends State<Account> {
               ),
             ),
           const SizedBox(height: 5),
-          // Only show the report button if this is NOT the current user
+          // Report button if not current user
           if (!_isCurrentUser)
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               IconButton(
@@ -315,6 +335,7 @@ class _AccountState extends State<Account> {
               )
             ]),
           const SizedBox(height: 10),
+          // Peng Quote, Interests, Shows
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -489,19 +510,21 @@ class _AccountState extends State<Account> {
     );
   }
 
-  // --- Show bottom sheet with Block/Unblock and Report ---
   void _showReportMenu() {
     showModalBottomSheet(
       context: context,
       backgroundColor: black,
       builder: (context) {
+        // Decide label based on _isBlocked
+        final blockLabel = _isBlocked ? 'Unblock User' : 'Block User';
+
         return Wrap(
           children: [
             ListTile(
               leading: const Icon(Icons.block, color: Colors.red),
-              title: const Text(
-                'Block/Unblock User',
-                style: TextStyle(color: white),
+              title: Text(
+                blockLabel,
+                style: const TextStyle(color: white),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -526,32 +549,17 @@ class _AccountState extends State<Account> {
   }
 
   void _handleBlockUnblock() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Block/Unblock action triggered',
-          style: TextStyle(
-            color: black,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
-        backgroundColor: white,
-      ),
-    );
-
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
     if (currentUserId == null || widget.userId == null) {
       return;
     }
     try {
-      final userData =
-          await _databaseService.getUserDataForUserId(currentUserId);
-      if (userData == null) return;
-
-      final blockedUsers = List<String>.from(userData['blockedUsers'] ?? []);
-      if (blockedUsers.contains(widget.userId)) {
+      if (_isBlocked) {
+        // Unblock
         await _databaseService.unblockUser(currentUserId, widget.userId!);
+        setState(() {
+          _isBlocked = false; // Update UI
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -566,7 +574,11 @@ class _AccountState extends State<Account> {
           ),
         );
       } else {
+        // Block
         await _databaseService.blockUser(currentUserId, widget.userId!);
+        setState(() {
+          _isBlocked = true; // Update UI
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -612,6 +624,7 @@ class _AccountState extends State<Account> {
           content: TextField(
             cursorColor: orange,
             controller: reportController,
+            maxLength: 100,
             maxLines: 5,
             style: const TextStyle(color: white),
             decoration: const InputDecoration(

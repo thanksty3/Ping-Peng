@@ -72,28 +72,31 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _revertChanges();
         return true;
       },
-      child: Scaffold(
-        backgroundColor: black,
-        appBar: AppBar(
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Scaffold(
           backgroundColor: black,
-          iconTheme: const IconThemeData(color: orange),
-          leading: IconButton(
-            onPressed: () {
-              _revertChanges();
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.arrow_back),
-          ),
-          actions: [
-            IconButton(
-              onPressed: _isLoading ? null : _saveUserData,
-              icon: const Icon(Icons.check, size: 25),
+          appBar: AppBar(
+            backgroundColor: black,
+            iconTheme: const IconThemeData(color: orange),
+            leading: IconButton(
+              onPressed: () {
+                _revertChanges();
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_back),
             ),
-          ],
+            actions: [
+              IconButton(
+                onPressed: _isLoading ? null : _saveUserData,
+                icon: const Icon(Icons.check, size: 25),
+              ),
+            ],
+          ),
+          body: _isLoading
+              ? const Center(child: CircularProgressIndicator(color: orange))
+              : _editProfileScreen(),
         ),
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: orange))
-            : _editProfileScreen(),
       ),
     );
   }

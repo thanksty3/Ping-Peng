@@ -10,8 +10,10 @@ class DatabaseService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
+
   final CollectionReference _postCollection =
       FirebaseFirestore.instance.collection('posts');
+
   final CollectionReference _reportsCollection =
       FirebaseFirestore.instance.collection('reports');
 
@@ -744,24 +746,43 @@ class DatabaseService {
     try {
       log("Starting deletion for user: $userId");
 
-      final userPostsSnapshot =
-          await _postCollection.where('userId', isEqualTo: userId).get();
-      for (var post in userPostsSnapshot.docs) {
-        await deletePost(post.id);
+      final userPostsSnapshot = await _firestore
+          .collection('posts')
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      for (var postDoc in userPostsSnapshot.docs) {
+        await postDoc.reference.delete();
+        log("Deleted post doc: ${postDoc.id}");
       }
-      log("Deleted all posts for user: $userId");
+      log("Deleted all post docs for user: $userId");
+
+      try {
+        final userShowsRef = _storage.ref().child('shows/$userId');
+        final listResult = await userShowsRef.listAll();
+
+        for (var itemRef in listResult.items) {
+          await itemRef.delete();
+          log("Deleted show file: ${itemRef.name}");
+        }
+
+        await userShowsRef.delete();
+        log("Deleted 'shows/$userId' folder in Storage.");
+      } catch (e) {
+        log("No 'shows/$userId' folder to delete or error: $e");
+      }
 
       final profilePictureRef = _storage.ref().child('profilePictures/$userId');
       try {
         await profilePictureRef.delete();
         log("Deleted profile picture for user: $userId");
       } catch (e) {
-        log("No profile picture to delete for user: $userId");
+        log("No profile picture to delete for user: $userId, or error: $e");
       }
 
       final allUsersSnapshot = await _firestore.collection('users').get();
-      for (var userDoc in allUsersSnapshot.docs) {
-        final data = userDoc.data();
+      for (var doc in allUsersSnapshot.docs) {
+        final data = doc.data();
         final friends = List<String>.from(data['friends'] ?? []);
         final pendingFriends = List<String>.from(data['pendingFriends'] ?? []);
         final friendRequests = List<String>.from(data['friendRequests'] ?? []);
@@ -769,31 +790,31 @@ class DatabaseService {
         if (friends.contains(userId) ||
             pendingFriends.contains(userId) ||
             friendRequests.contains(userId)) {
-          await _firestore.collection('users').doc(userDoc.id).update({
+          await doc.reference.update({
             'friends': FieldValue.arrayRemove([userId]),
             'pendingFriends': FieldValue.arrayRemove([userId]),
             'friendRequests': FieldValue.arrayRemove([userId]),
           });
+          log("Removed user: $userId from doc: ${doc.id}");
         }
       }
-      log("Removed user: $userId from all friend-related fields");
 
       final chatroomsSnapshot = await _firestore
           .collection('chatrooms')
           .where('users', arrayContains: userId)
           .get();
-      for (var chatroom in chatroomsSnapshot.docs) {
-        await _firestore.collection('chatrooms').doc(chatroom.id).delete();
-        log("Deleted chatroom: ${chatroom.id} involving user: $userId");
+      for (var chatDoc in chatroomsSnapshot.docs) {
+        await chatDoc.reference.delete();
+        log("Deleted chatroom: ${chatDoc.id} for user: $userId");
       }
 
       await _firestore.collection('users').doc(userId).delete();
-      log("Deleted Firestore document for user: $userId");
+      log("Deleted Firestore user doc for: $userId");
 
-      final user = _auth.currentUser;
-      if (user != null && user.uid == userId) {
-        await user.delete();
-        log("Deleted authentication account for user: $userId");
+      final currentUser = _auth.currentUser;
+      if (currentUser != null && currentUser.uid == userId) {
+        await currentUser.delete();
+        log("Deleted Auth record for user: $userId");
       }
 
       log("Deletion complete for user: $userId");
