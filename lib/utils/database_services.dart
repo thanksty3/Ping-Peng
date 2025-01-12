@@ -472,7 +472,11 @@ class DatabaseService {
   }
 
   Future<void> sendMessage(
-      String chatRoomId, String senderId, String text) async {
+    String chatRoomId,
+    String senderId,
+    String text,
+    String messageStatus,
+  ) async {
     if (text.trim().isEmpty) return;
 
     try {
@@ -480,27 +484,24 @@ class DatabaseService {
         'senderId': senderId,
         'text': text.trim(),
         'timestamp': FieldValue.serverTimestamp(),
-        'status': 'delivered',
+        'status': messageStatus,
       };
 
-      final chatRoomRef = _firestore.collection('chatrooms').doc(chatRoomId);
+      await FirebaseFirestore.instance
+          .collection('chatrooms')
+          .doc(chatRoomId)
+          .collection('messages')
+          .add(messageData);
 
-      await _firestore.runTransaction((transaction) async {
-        transaction.set(
-          chatRoomRef.collection('messages').doc(),
-          messageData,
-        );
-
-        transaction.update(chatRoomRef, {
-          'lastMessage': text.trim(),
-          'lastMessageTimestamp': FieldValue.serverTimestamp(),
-        });
+      await FirebaseFirestore.instance
+          .collection('chatrooms')
+          .doc(chatRoomId)
+          .update({
+        'lastMessage': text,
+        'lastMessageTimestamp': FieldValue.serverTimestamp()
       });
-
-      log("Message sent to chatroom $chatRoomId");
     } catch (e) {
-      log("Failed to send message: ${e.toString()}");
-      rethrow;
+      throw Exception("Failed to send message: $e");
     }
   }
 
@@ -508,10 +509,7 @@ class DatabaseService {
     try {
       final chatRoomDoc =
           await _firestore.collection('chatrooms').doc(chatRoomId).get();
-      if (!chatRoomDoc.exists) {
-        return null;
-      }
-      return chatRoomDoc.data();
+      return chatRoomDoc.exists ? chatRoomDoc.data() : null;
     } catch (e) {
       log("Failed to get chatroom details for $chatRoomId: $e");
       return null;
@@ -528,12 +526,6 @@ class DatabaseService {
       final chatRoomRef = _firestore.collection('chatrooms').doc(chatRoomId);
 
       await _firestore.runTransaction((transaction) async {
-        final chatRoomSnapshot = await transaction.get(chatRoomRef);
-
-        if (!chatRoomSnapshot.exists) {
-          throw Exception("Chatroom does not exist.");
-        }
-
         transaction.update(chatRoomRef, {
           'lastOpened.$currentUserId': FieldValue.serverTimestamp(),
         });
@@ -563,17 +555,12 @@ class DatabaseService {
   }
 
   Stream<QuerySnapshot> getMessages(String chatRoomId) {
-    try {
-      return _firestore
-          .collection('chatrooms')
-          .doc(chatRoomId)
-          .collection('messages')
-          .orderBy('timestamp', descending: true)
-          .snapshots();
-    } catch (e) {
-      log("Failed to fetch messages: $e");
-      rethrow;
-    }
+    return _firestore
+        .collection('chatrooms')
+        .doc(chatRoomId)
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .snapshots();
   }
 
   Future<List<Map<String, dynamic>>> getUnreadMessages(

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_peng/utils/database_services.dart';
@@ -13,34 +14,27 @@ class Chats extends StatefulWidget {
 
 class _ChatsState extends State<Chats> {
   final DatabaseService _databaseService = DatabaseService();
-
   final List<Map<String, dynamic>> _friends = [];
   bool _isLoading = true;
   List<String> _friendIds = [];
-  final int _pageSize = 7;
-  int _currentIndex = 0;
-
   final ScrollController _scrollController = ScrollController();
+  final Map<String, StreamSubscription<DocumentSnapshot>> _friendSubscriptions =
+      {};
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
     _loadFriends();
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _friendSubscriptions.forEach((_, subscription) {
+      subscription.cancel();
+    });
+    _friendSubscriptions.clear();
     super.dispose();
-  }
-
-  void _onScroll() {
-    if (!_isLoading &&
-        _scrollController.position.pixels ==
-            _scrollController.position.maxScrollExtent) {
-      _loadMoreFriends();
-    }
   }
 
   @override
@@ -62,112 +56,72 @@ class _ChatsState extends State<Chats> {
 
   Future<void> _loadFriends() async {
     try {
-      setState(() {
-        _isLoading = true;
-      });
+      setState(() => _isLoading = true);
 
       final currentUser = await _databaseService.getCurrentUser();
-      if (currentUser == null) {
-        throw Exception("No logged-in user found.");
-      }
+      if (currentUser == null) throw Exception("No logged-in user found.");
 
       final userData =
           await _databaseService.getUserDataForUserId(currentUser.uid);
-      if (userData == null || !userData.containsKey('friends')) {
-        throw Exception("Failed to retrieve friends list.");
+      if (userData == null) throw Exception("Failed to retrieve user data.");
+
+      final friendIds = List<String>.from(userData['friends'] ?? []);
+      final blockedUsers = List<String>.from(userData['blockedUsers'] ?? []);
+      final unblockedFriendIds =
+          friendIds.where((id) => !blockedUsers.contains(id)).toList();
+
+      _friendIds = unblockedFriendIds;
+      _friends.clear();
+
+      final friendsData = await _databaseService.getUsersByIds(_friendIds);
+
+      for (var friend in friendsData) {
+        final chatRoomId = await _databaseService.createOrGetChatroom(
+            currentUser.uid, friend['userId']);
+
+        friend['chatRoomId'] = chatRoomId;
+        friend['hasNewMessage'] = false;
+
+        _friendSubscriptions[friend['userId']] = FirebaseFirestore.instance
+            .collection('chatrooms')
+            .doc(chatRoomId)
+            .snapshots()
+            .listen((doc) {
+          if (doc.exists) {
+            final data = doc.data()!;
+            final lastMessageTimestamp =
+                data['lastMessageTimestamp'] as Timestamp?;
+            final lastOpened =
+                data['lastOpened']?[currentUser.uid] as Timestamp?;
+            final lastMessageText = data['lastMessage'] ?? 'No messages yet';
+
+            friend['lastMessage'] = lastMessageText;
+
+            friend['hasNewMessage'] = lastMessageTimestamp != null &&
+                (lastOpened == null ||
+                    lastMessageTimestamp.toDate().isAfter(lastOpened.toDate()));
+
+            setState(() {});
+          }
+        });
       }
 
-      _friendIds = List<String>.from(userData['friends']);
-      _friends.clear();
-      _currentIndex = 0;
-
-      await _loadMoreFriends();
+      setState(() {
+        _friends.addAll(friendsData);
+      });
     } catch (e) {
       debugPrint("Error loading friends: $e");
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: Colors.white,
+        content: Text("Failed to load chats: $e",
+            style: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 16)),
+      ));
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     }
-  }
-
-  Future<void> _loadMoreFriends() async {
-    if (_currentIndex >= _friendIds.length) return;
-
-    setState(() => _isLoading = true);
-
-    final endIndex = (_currentIndex + _pageSize).clamp(0, _friendIds.length);
-    final pageFriendIds = _friendIds.sublist(_currentIndex, endIndex);
-
-    final currentUser = await _databaseService.getCurrentUser();
-    if (currentUser == null) return;
-
-    final friendsData = await _databaseService.getUsersByIds(pageFriendIds);
-
-    for (var friend in friendsData) {
-      final chatRoomId = await _databaseService.createOrGetChatroom(
-        currentUser.uid,
-        friend['userId'],
-      );
-
-      final lastMessageSnapshot = await FirebaseFirestore.instance
-          .collection('chatrooms')
-          .doc(chatRoomId)
-          .collection('messages')
-          .orderBy('timestamp', descending: true)
-          .limit(1)
-          .get();
-
-      final lastMessageDoc = lastMessageSnapshot.docs.isNotEmpty
-          ? lastMessageSnapshot.docs.first
-          : null;
-
-      if (lastMessageDoc != null) {
-        final lastMessageData = lastMessageDoc.data();
-
-        friend['lastMessage'] = lastMessageData['text'] ?? 'No messages yet';
-        friend['lastInteraction'] = lastMessageData['timestamp'] != null
-            ? (lastMessageData['timestamp'] as Timestamp).toDate()
-            : null;
-      } else {
-        friend['lastMessage'] = 'No messages yet';
-        friend['lastInteraction'] = null;
-      }
-
-      final chatRoomData =
-          await _databaseService.getChatroomDetails(chatRoomId);
-      if (chatRoomData != null) {
-        final lastOpenedMap =
-            chatRoomData['lastOpened'] as Map<String, dynamic>?;
-
-        final lastOpenedValue =
-            lastOpenedMap != null ? lastOpenedMap[currentUser.uid] : null;
-
-        if (lastOpenedValue != null && friend['lastInteraction'] != null) {
-          final lastInteractionDate = friend['lastInteraction'] as DateTime;
-          final lastOpenedTimestamp = lastOpenedValue as Timestamp;
-          final lastOpenedDate = lastOpenedTimestamp.toDate();
-
-          friend['hasNewMessage'] = lastInteractionDate.isAfter(lastOpenedDate);
-        } else {
-          friend['hasNewMessage'] = (friend['lastInteraction'] != null);
-        }
-      } else {
-        friend['hasNewMessage'] = (friend['lastInteraction'] != null);
-      }
-    }
-
-    friendsData.sort((a, b) => (b['lastInteraction'] ??
-            DateTime.fromMillisecondsSinceEpoch(0))
-        .compareTo(
-            a['lastInteraction'] ?? DateTime.fromMillisecondsSinceEpoch(0)));
-
-    setState(() {
-      _friends.addAll(friendsData);
-      _isLoading = false;
-    });
-
-    _currentIndex = endIndex;
   }
 
   Future<void> _updateLastOpened(String chatRoomId) async {
@@ -186,10 +140,13 @@ class _ChatsState extends State<Chats> {
         throw Exception("No logged-in user found.");
       }
 
-      final chatRoomId = await _databaseService.createOrGetChatroom(
-        currentUser.uid,
-        friend['userId'] ?? '',
-      );
+      final chatRoomId = friend['chatRoomId'] as String? ??
+          await _databaseService.createOrGetChatroom(
+            currentUser.uid,
+            friend['userId'] ?? '',
+          );
+
+      await _updateLastOpened(chatRoomId);
 
       Navigator.push(
         context,
@@ -203,7 +160,6 @@ class _ChatsState extends State<Chats> {
         ),
       ).then((_) {
         _updateLastOpened(chatRoomId);
-        _loadFriends();
       });
     } catch (e) {
       debugPrint("Error navigating to chatroom: $e");
@@ -238,63 +194,69 @@ class _ChatsState extends State<Chats> {
       itemCount: _friends.length,
       itemBuilder: (context, index) {
         final friend = _friends[index];
-        return GestureDetector(
-          onTap: () => _navigateToChatroom(friend),
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundImage: friend['profilePictureUrl'] != null
-                      ? NetworkImage(friend['profilePictureUrl'])
-                      : null,
-                  backgroundColor: Colors.black,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${friend['firstName']} ${friend['lastName']}',
-                        style: const TextStyle(
-                          fontFamily: 'Jua',
-                          fontSize: 19,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        '@${friend['username']}',
-                        style: const TextStyle(
-                          color: Colors.orange,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        friend['lastMessage'] ?? 'No messages yet',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+
+        return Material(
+          color: Colors.black,
+          child: InkWell(
+            onTap: () => _navigateToChatroom(friend),
+            splashColor: Colors.orange.withOpacity(0.2),
+            highlightColor: Colors.orange.withOpacity(0.1),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundImage: friend['profilePictureUrl'] != null
+                        ? NetworkImage(friend['profilePictureUrl'])
+                        : const AssetImage('assets/images/Black_Peng.png')
+                            as ImageProvider,
+                    backgroundColor: Colors.black,
                   ),
-                ),
-                if (friend['hasNewMessage'] == true) ...[
                   const SizedBox(width: 10),
-                  const CircleAvatar(
-                    radius: 5,
-                    backgroundColor: Colors.orange,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '@${friend['username']}',
+                          style: const TextStyle(
+                            fontFamily: 'Jua',
+                            fontSize: 19,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          '${friend['firstName']} ${friend['lastName']}',
+                          style: const TextStyle(
+                            color: Colors.orange,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          friend['lastMessage'] ?? 'No messages yet',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
+                  if (friend['hasNewMessage']) ...[
+                    const SizedBox(width: 10),
+                    const CircleAvatar(
+                      radius: 5,
+                      backgroundColor: Colors.orange,
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         );

@@ -199,48 +199,59 @@ class _ShowsState extends State<Shows> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
         const SizedBox(height: 20),
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Account(userId: friendData['userId']),
-              ),
-            );
-          },
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CircleAvatar(
-                radius: 27,
-                backgroundImage: friendData['profilePictureUrl'] != null
-                    ? NetworkImage(friendData['profilePictureUrl'])
-                    : const AssetImage('assets/images/P!ngPeng.png')
-                        as ImageProvider,
-              ),
-              const SizedBox(width: 10),
-              Column(
+        Material(
+          color: Colors.black, // Ensure the row matches the background
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Account(userId: friendData['userId']),
+                ),
+              );
+            },
+            splashColor: Colors.orange.withOpacity(0.2), // Ripple effect
+            highlightColor: Colors.orange.withOpacity(0.1),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '${friendData['firstName']} ${friendData['lastName']}',
-                    style: const TextStyle(
-                      fontFamily: 'Jua',
-                      fontSize: 19,
-                      color: Colors.white,
-                    ),
+                  CircleAvatar(
+                    radius: 27,
+                    backgroundImage: (friendData['profilePictureUrl'] != null &&
+                            friendData['profilePictureUrl'].isNotEmpty)
+                        ? NetworkImage(friendData['profilePictureUrl'])
+                        : const AssetImage('assets/images/Black_Peng.png')
+                            as ImageProvider,
+                    backgroundColor: black,
                   ),
-                  const SizedBox(height: 5),
-                  Text(
-                    '@${friendData['username']}',
-                    style: const TextStyle(
-                        color: Colors.orange,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '@${friendData['username']}',
+                        style: const TextStyle(
+                          fontFamily: 'Jua',
+                          fontSize: 19,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        '${friendData['firstName']} ${friendData['lastName']}',
+                        style: const TextStyle(
+                          color: Colors.orange,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
         Expanded(

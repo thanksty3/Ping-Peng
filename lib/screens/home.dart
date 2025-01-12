@@ -140,10 +140,27 @@ class _HomeState extends State<Home> {
       if (currentUser == null) throw Exception("No user logged in.");
 
       final users = await _databaseService.getAllUsersExcept(currentUser.uid);
-      users.shuffle();
+
+      final currentUserData =
+          await _databaseService.getUserDataForUserId(currentUser.uid);
+
+      if (currentUserData == null) {
+        throw Exception("Failed to fetch current user data.");
+      }
+
+      final blockedUsers =
+          List<String>.from(currentUserData['blockedUsers'] ?? []);
+
+      final filteredUsers = users
+          .where(
+            (user) => !blockedUsers.contains(user['userId']),
+          )
+          .toList();
+
+      filteredUsers.shuffle();
 
       setState(() {
-        _users = users;
+        _users = filteredUsers;
         debugPrint(
             "Loaded users: ${_users.map((user) => user['userId']).toList()}");
       });

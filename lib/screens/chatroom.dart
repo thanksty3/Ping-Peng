@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ping_peng/utils/database_services.dart';
 import 'package:ping_peng/utils/lists.dart';
+import 'package:ping_peng/utils/utils.dart';
 import 'package:ping_peng/screens/account.dart';
 
 class Chatroom extends StatefulWidget {
@@ -76,11 +77,12 @@ class _ChatroomState extends State<Chatroom> {
               );
             },
             child: CircleAvatar(
-              radius: 20,
+              radius: 27,
               backgroundImage: widget.friendProfilePictureUrl.isNotEmpty
                   ? NetworkImage(widget.friendProfilePictureUrl)
-                  : null,
-              backgroundColor: Colors.grey,
+                  : const AssetImage('assets/images/Black_Peng.png')
+                      as ImageProvider,
+              backgroundColor: black,
             ),
           ),
           const SizedBox(width: 10),
@@ -122,14 +124,18 @@ class _ChatroomState extends State<Chatroom> {
           itemBuilder: (context, index) {
             final message = messages[index];
             final isMyMessage = message['senderId'] == _currentUserId;
-            return _messageBubble(message['text'] ?? '', isMyMessage);
+            return _messageBubble(
+              message['text'] ?? '',
+              isMyMessage,
+              message['status'] ?? 'sent',
+            );
           },
         );
       },
     );
   }
 
-  Widget _messageBubble(String message, bool isMyMessage) {
+  Widget _messageBubble(String message, bool isMyMessage, String status) {
     final alignment =
         isMyMessage ? Alignment.centerRight : Alignment.centerLeft;
     final color = isMyMessage ? Colors.cyan[100] : Colors.white;
@@ -175,7 +181,6 @@ class _ChatroomState extends State<Chatroom> {
                 ),
                 Expanded(
                   child: Container(
-                    width: 50,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       border: Border.all(color: Colors.orange, width: 2),
@@ -202,7 +207,7 @@ class _ChatroomState extends State<Chatroom> {
                 ),
               ],
             ),
-            const SizedBox(height: 15)
+            const SizedBox(height: 15),
           ],
         ),
       ),
@@ -257,15 +262,25 @@ class _ChatroomState extends State<Chatroom> {
     );
   }
 
-  /// Sends a [message] from the current user to the Firestore chatroom.
   Future<void> _sendMessage(String message) async {
     if (message.trim().isEmpty || _currentUserId == null) return;
 
     try {
+      final chatRoomData =
+          await _databaseService.getChatroomDetails(widget.chatRoomId);
+      final lastOpenedMap =
+          chatRoomData?['lastOpened'] as Map<String, dynamic>? ?? {};
+      final recipientLastOpened =
+          lastOpenedMap[widget.friendUserId] as Timestamp?;
+      final recipientHasOpenedChat = recipientLastOpened != null;
+
+      final messageStatus = recipientHasOpenedChat ? 'seen' : 'delivered';
+
       await _databaseService.sendMessage(
         widget.chatRoomId,
         _currentUserId!,
         message.trim(),
+        messageStatus, // Add the missing fourth argument
       );
       _messageController.clear();
     } catch (e) {
@@ -297,17 +312,15 @@ class _ChatroomState extends State<Chatroom> {
 
   Future<void> _markMessagesAsSeen() async {
     if (_currentUserId == null) return;
+
     try {
       final unreadMessages = await _databaseService.getUnreadMessages(
-        widget.chatRoomId,
-        _currentUserId!,
-      );
+          widget.chatRoomId, _currentUserId!);
       for (var message in unreadMessages) {
-        await _databaseService.updateMessageStatus(
-          widget.chatRoomId,
-          message['id'],
-          'seen',
-        );
+        if (message['status'] == 'delivered') {
+          await _databaseService.updateMessageStatus(
+              widget.chatRoomId, message['id'], 'seen');
+        }
       }
       debugPrint("Marked messages as seen.");
     } catch (e) {
