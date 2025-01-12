@@ -66,11 +66,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     Account(userId: notification['userId'])));
                       },
                       child: CircleAvatar(
-                        radius: 50,
+                        radius: 65,
                         backgroundImage: notification['profilePictureUrl'] !=
                                 null
                             ? NetworkImage(notification['profilePictureUrl'])
-                            : AssetImage('assets/images/Black_Peng.png'),
+                            : const AssetImage('assets/images/Black_Peng.png'),
                         backgroundColor: black,
                       ),
                     ),
@@ -80,16 +80,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${notification['firstName']} ${notification['lastName']}',
+                            '@${notification['username']}',
                             style: const TextStyle(
                               fontFamily: 'Jua',
-                              fontSize: 19,
+                              fontSize: 25,
                               color: Colors.white,
                             ),
                           ),
                           const SizedBox(height: 5),
                           Text(
-                            '@${notification['username']}',
+                            '${notification['firstName']} ${notification['lastName']}',
                             style: const TextStyle(
                               color: Colors.orange,
                               fontWeight: FontWeight.bold,
@@ -154,11 +154,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Future<List<Map<String, dynamic>>> fetchNotifications() async {
     try {
       final currentUser = await _databaseService.getCurrentUser();
-      if (currentUser == null) {
-        throw Exception("No user is logged in.");
-      }
-      return await _databaseService.getUsersByIds(
-          await _databaseService.getFriendRequests(currentUser.uid));
+      if (currentUser == null) throw Exception("No user is logged in.");
+
+      final blockedUsers =
+          await _databaseService.getBlockedUsers(currentUser.uid);
+      final friendRequests =
+          await _databaseService.getFriendRequests(currentUser.uid);
+
+      final filteredRequests =
+          friendRequests.where((id) => !blockedUsers.contains(id)).toList();
+
+      return await _databaseService.getUsersByIds(filteredRequests);
     } catch (e) {
       debugPrint("Error fetching notifications: $e");
       return [];

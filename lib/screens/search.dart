@@ -92,10 +92,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                 backgroundImage: user['profilePictureUrl'] !=
                                         null
                                     ? NetworkImage(user['profilePictureUrl'])
-                                    : null,
-                                child: user['profilePictureUrl'] == null
-                                    ? const Icon(Icons.person)
-                                    : null,
+                                    : const AssetImage(
+                                        'assets/images/Black_Peng.png'),
+                                backgroundColor: black,
                               ),
                               title: Text(
                                 user['username'],

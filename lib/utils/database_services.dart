@@ -859,4 +859,17 @@ class DatabaseService {
       rethrow;
     }
   }
+
+  Future<List<String>> getBlockedUsers(String userId) async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+      if (userDoc.exists) {
+        return List<String>.from(userDoc.data()?['blockedUsers'] ?? []);
+      }
+      return [];
+    } catch (e) {
+      log("Error fetching blocked users: $e");
+      return [];
+    }
+  }
 }

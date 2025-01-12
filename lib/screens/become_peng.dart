@@ -243,6 +243,20 @@ class BecomePengState extends State<BecomePeng> {
                                 ),
                               ),
                             ),
+                            const Text(
+                              'and ',
+                              style: TextStyle(color: white),
+                            ),
+                            InkWell(
+                              onTap: _launchPrivacyUrl,
+                              child: const Text(
+                                'Privacy Policy.',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -352,6 +366,24 @@ class BecomePengState extends State<BecomePeng> {
   }
 
   Future<void> _launchTermsUrl() async {
+    const url =
+        'https://app.termly.io/policy-viewer/policy.html?policyUUID=f157f622-9255-43ce-b8f7-c1cf4375c0c7';
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Could not open Terms & Conditions link.',
+            style: TextStyle(color: white, fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: black,
+        ),
+      );
+    }
+  }
+
+  Future<void> _launchPrivacyUrl() async {
     const url =
         'https://www.termsfeed.com/live/4a68c137-9ad5-4be5-a5d2-c9f2f1730869';
     if (await canLaunchUrl(Uri.parse(url))) {
