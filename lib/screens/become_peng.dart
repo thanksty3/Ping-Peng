@@ -243,6 +243,18 @@ class BecomePengState extends State<BecomePeng> {
                                 ),
                               ),
                             ),
+                            comma,
+                            InkWell(
+                              onTap: _launchEULAUrl,
+                              child: const Text(
+                                'End User License Agreement(EULA)',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                            comma,
                             const Text(
                               'and ',
                               style: TextStyle(color: white),
@@ -385,14 +397,14 @@ class BecomePengState extends State<BecomePeng> {
 
   Future<void> _launchPrivacyUrl() async {
     const url =
-        'https://www.termsfeed.com/live/4a68c137-9ad5-4be5-a5d2-c9f2f1730869';
+        'https://app.termly.io/policy-viewer/policy.html?policyUUID=54f15673-b895-42e1-b7c7-8edf9e118bf6';
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Could not open Terms & Conditions link.',
+            'Could not open Privacy Policy link.',
             style: TextStyle(color: white, fontWeight: FontWeight.bold),
           ),
           backgroundColor: black,
@@ -400,6 +412,29 @@ class BecomePengState extends State<BecomePeng> {
       );
     }
   }
+
+  Future<void> _launchEULAUrl() async {
+    const url =
+        'https://app.termly.io/policy-viewer/policy.html?policyUUID=0fe2e5e2-2d35-458c-9cf1-2034cbd318a9';
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Could not open EULA link.',
+            style: TextStyle(color: white, fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: black,
+        ),
+      );
+    }
+  }
+
+  final Text comma = Text(
+    ', ',
+    style: TextStyle(color: white),
+  );
 
   final OutlineInputBorder enabledBorder = OutlineInputBorder(
     borderSide: const BorderSide(color: white),
