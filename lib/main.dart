@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io' show Platform; // <--- Added import for Platform check
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,15 +16,22 @@ void main() async {
   await Firebase.initializeApp();
 
   if (Platform.isIOS) {
-    final TrackingStatus status =
-        await AppTrackingTransparency.trackingAuthorizationStatus;
-    if (status == TrackingStatus.notDetermined) {
-      await AppTrackingTransparency.requestTrackingAuthorization();
-    }
+    await requestTracking();
   }
 
   runApp(const MyApp());
 }
+
+Future<void> requestTracking() async {
+  final TrackingStatus status =
+      await AppTrackingTransparency.trackingAuthorizationStatus;
+
+  if (status == TrackingStatus.notDetermined) {
+    await AppTrackingTransparency.requestTrackingAuthorization();
+  }
+}
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -37,6 +44,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
