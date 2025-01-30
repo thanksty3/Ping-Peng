@@ -89,12 +89,15 @@ class _SearchScreenState extends State<SearchScreen> {
                             final user = _searchResults[index];
                             return ListTile(
                               leading: CircleAvatar(
-                                backgroundImage: user['profilePictureUrl'] !=
-                                        null
+                                backgroundColor: black,
+                                backgroundImage: (user['profilePictureUrl'] !=
+                                            null &&
+                                        user['profilePictureUrl']
+                                            .trim()
+                                            .isNotEmpty)
                                     ? NetworkImage(user['profilePictureUrl'])
                                     : const AssetImage(
                                         'assets/images/Black_Peng.png'),
-                                backgroundColor: black,
                               ),
                               title: Text(
                                 user['username'],

@@ -23,7 +23,9 @@ class BecomePengState extends State<BecomePeng> {
   final _usernameController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
+
   final _formKey = GlobalKey<FormState>();
+
   bool _agreedToTerms = false;
 
   @override
@@ -48,7 +50,6 @@ class BecomePengState extends State<BecomePeng> {
             child: Form(
               key: _formKey,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   const Text(
                     "Welcome Friend!",
@@ -59,13 +60,12 @@ class BecomePengState extends State<BecomePeng> {
                   ),
                   divider(),
 
+                  // Buttons: Cancel & Create Account
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+                        onPressed: () => Navigator.pop(context),
                         style: buttonStyle(false),
                         child: const Text(
                           'Cancel',
@@ -109,8 +109,8 @@ class BecomePengState extends State<BecomePeng> {
                   // Last Name
                   TextFormField(
                     cursorColor: orange,
-                    controller: _lastNameController,
                     style: const TextStyle(color: white),
+                    controller: _lastNameController,
                     decoration: InputDecoration(
                       labelText: 'Last Name (optional)',
                       labelStyle: const TextStyle(color: white),
@@ -123,8 +123,8 @@ class BecomePengState extends State<BecomePeng> {
                   // Email
                   TextFormField(
                     cursorColor: orange,
-                    controller: _emailController,
                     style: const TextStyle(color: white),
+                    controller: _emailController,
                     decoration: InputDecoration(
                       labelText: 'Email',
                       labelStyle: const TextStyle(color: white),
@@ -147,8 +147,8 @@ class BecomePengState extends State<BecomePeng> {
                   // Username
                   TextFormField(
                     cursorColor: orange,
-                    controller: _usernameController,
                     style: const TextStyle(color: white),
+                    controller: _usernameController,
                     decoration: InputDecoration(
                       labelText: 'Username',
                       labelStyle: const TextStyle(color: white),
@@ -167,8 +167,8 @@ class BecomePengState extends State<BecomePeng> {
                   // Password
                   TextFormField(
                     cursorColor: orange,
-                    controller: _passwordController,
                     style: const TextStyle(color: white),
+                    controller: _passwordController,
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Password',
@@ -191,8 +191,8 @@ class BecomePengState extends State<BecomePeng> {
                   // Verify Password
                   TextFormField(
                     cursorColor: orange,
-                    controller: _verifyPasswordController,
                     style: const TextStyle(color: white),
+                    controller: _verifyPasswordController,
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Verify Password',
@@ -210,10 +210,11 @@ class BecomePengState extends State<BecomePeng> {
                       return null;
                     },
                   ),
-
-                  // EULA / Terms acceptance
                   divider(),
+
+                  // Terms & Conditions, EULA, Privacy
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Checkbox(
                         value: _agreedToTerms,
@@ -225,7 +226,6 @@ class BecomePengState extends State<BecomePeng> {
                           });
                         },
                       ),
-                      // Modified: Make "Terms and Conditions" clickable
                       Expanded(
                         child: Wrap(
                           children: [
@@ -247,7 +247,7 @@ class BecomePengState extends State<BecomePeng> {
                             InkWell(
                               onTap: _launchEULAUrl,
                               child: const Text(
-                                'End User License Agreement(EULA)',
+                                'End User License Agreement (EULA)',
                                 style: TextStyle(
                                   color: Colors.blue,
                                   decoration: TextDecoration.underline,
@@ -306,7 +306,6 @@ class BecomePengState extends State<BecomePeng> {
     }
 
     UserCredential? userCredential;
-
     try {
       userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -320,6 +319,7 @@ class BecomePengState extends State<BecomePeng> {
         _lastNameController.text,
         _emailController.text,
         _usernameController.text,
+        agreedToTerms: _agreedToTerms,
       );
 
       Navigator.pushReplacement(
@@ -344,37 +344,29 @@ class BecomePengState extends State<BecomePeng> {
         default:
           errorMessage = 'An unknown error occurred.';
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Error: $errorMessage',
-            style: const TextStyle(
-              color: white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          backgroundColor: black,
-        ),
-      );
+      _showError(errorMessage);
     } catch (e) {
       if (userCredential?.user != null) {
         await userCredential!.user!.delete();
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Error: ${e.toString()}',
-            style: const TextStyle(
-              color: white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          backgroundColor: black,
-        ),
-      );
+      _showError(e.toString());
     }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Error: $message',
+          style: const TextStyle(
+            color: white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        backgroundColor: black,
+      ),
+    );
   }
 
   Future<void> _launchTermsUrl() async {
@@ -383,15 +375,7 @@ class BecomePengState extends State<BecomePeng> {
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Could not open Terms & Conditions link.',
-            style: TextStyle(color: white, fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: black,
-        ),
-      );
+      _showError('Could not open Terms & Conditions link.');
     }
   }
 
@@ -401,15 +385,7 @@ class BecomePengState extends State<BecomePeng> {
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Could not open Privacy Policy link.',
-            style: TextStyle(color: white, fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: black,
-        ),
-      );
+      _showError('Could not open Privacy Policy link.');
     }
   }
 
@@ -419,19 +395,12 @@ class BecomePengState extends State<BecomePeng> {
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Could not open EULA link.',
-            style: TextStyle(color: white, fontWeight: FontWeight.bold),
-          ),
-          backgroundColor: black,
-        ),
-      );
+      _showError('Could not open EULA link.');
     }
   }
 
-  final Text comma = Text(
+  //commas in text
+  final Text comma = const Text(
     ', ',
     style: TextStyle(color: white),
   );

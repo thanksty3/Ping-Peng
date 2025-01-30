@@ -16,6 +16,7 @@ void main() async {
   await Firebase.initializeApp();
 
   if (Platform.isIOS) {
+    debugPrint('iOS platform detected, requesting ATT...');
     await requestTracking();
   }
 

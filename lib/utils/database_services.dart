@@ -23,13 +23,9 @@ class DatabaseService {
     return _auth.currentUser;
   }
 
-  Future<void> createUser(
-    String uid,
-    String firstName,
-    String lastName,
-    String email,
-    String username,
-  ) async {
+  Future<void> createUser(String uid, String firstName, String lastName,
+      String email, String username,
+      {required bool agreedToTerms}) async {
     try {
       final doesUsernameExist = await checkIfUsernameExists(username);
       if (doesUsernameExist) {
@@ -41,6 +37,7 @@ class DatabaseService {
         "lastName": lastName.trim(),
         "email": email.trim(),
         "username": username.trim(),
+        "agreedToTerms": agreedToTerms,
         "pengQuote": "",
         "myInterests": [],
         "profilePictureUrl": null,
@@ -52,6 +49,19 @@ class DatabaseService {
       log("User created successfully for UID: $uid");
     } catch (e) {
       log("Failed to create user: $e");
+      rethrow;
+    }
+  }
+
+  Future<bool> checkAgreeToTerms(String userId) async {
+    try {
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+      if (!userDoc.exists) {
+        throw Exception("User document does not exist.");
+      }
+      return userDoc.data()?['agreedToTerms'] ?? false;
+    } catch (e) {
+      log("Failed to check agreedToTerms: $e");
       rethrow;
     }
   }
