@@ -453,7 +453,7 @@ class _AccountState extends State<Account> {
     return Text(
       text,
       style: const TextStyle(
-        fontSize: 40,
+        fontSize: 35,
         fontWeight: FontWeight.bold,
         fontFamily: 'Jua',
         color: white,
