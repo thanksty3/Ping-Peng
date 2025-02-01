@@ -175,9 +175,11 @@ class _ShowsState extends State<Shows> {
       if (currentUser == null) throw Exception("No user is logged in.");
 
       final userId = currentUser.uid;
+      final username = (await _databaseService.getUserData())?['username'];
+
       final ref = await _databaseService.uploadPostToStorage(file, userId);
 
-      await _databaseService.addPost(userId, ref, type);
+      await _databaseService.addPost(userId, username, ref, type);
 
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Post uploaded successfully!",

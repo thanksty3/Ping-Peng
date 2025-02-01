@@ -87,6 +87,8 @@ class _SplashScreenState extends State<SplashScreen> {
       await FirebaseAuth.instance.currentUser?.reload();
       User? user = FirebaseAuth.instance.currentUser;
 
+      await user?.reload();
+
       if (user != null) {
         Navigator.pushReplacementNamed(context, '/home');
       } else {

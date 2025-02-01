@@ -621,10 +621,12 @@ class DatabaseService {
     }
   }
 
-  Future<void> addPost(String userId, String mediaUrl, String type) async {
+  Future<void> addPost(
+      String userId, String username, String mediaUrl, String type) async {
     try {
       await _postCollection.add({
         'userId': userId,
+        'username': username,
         'mediaUrl': mediaUrl,
         'type': type,
         'timestamp': FieldValue.serverTimestamp(),
