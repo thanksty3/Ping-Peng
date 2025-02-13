@@ -261,7 +261,7 @@ class _AccountState extends State<Account> {
                         style: const TextStyle(
                           color: white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: 18,
                         ),
                       ),
                     ),
@@ -442,10 +442,7 @@ class _AccountState extends State<Account> {
     return Text(
       '$_firstName $_lastName',
       style: const TextStyle(
-        fontSize: 25,
-        fontFamily: 'Jua',
-        color: orange,
-      ),
+          fontSize: 20, color: orange, fontWeight: FontWeight.bold),
     );
   }
 
@@ -453,9 +450,8 @@ class _AccountState extends State<Account> {
     return Text(
       text,
       style: const TextStyle(
-        fontSize: 35,
+        fontSize: 25,
         fontWeight: FontWeight.bold,
-        fontFamily: 'Jua',
         color: white,
       ),
     );
@@ -643,7 +639,7 @@ class _AccountState extends State<Account> {
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 'Cancel',
-                style: TextStyle(color: orange),
+                style: TextStyle(color: orange, fontWeight: FontWeight.bold),
               ),
             ),
             TextButton(

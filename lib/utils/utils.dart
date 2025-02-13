@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ping_peng/screens/account.dart';
 import 'package:ping_peng/screens/chats.dart';
 import 'package:ping_peng/screens/home.dart';
 import 'package:ping_peng/screens/notifications.dart';
@@ -138,7 +139,6 @@ class ShowsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: <Widget>[
         header('Shows'),
-        const SizedBox(width: 35),
         IconButton(
           icon: const Icon(Icons.search, color: orange, size: 30),
           onPressed: () {
@@ -148,6 +148,12 @@ class ShowsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
             );
           },
         ),
+        IconButton(
+            icon: const Icon(Icons.person_2_rounded, color: orange, size: 30),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const Account()));
+            }),
         IconButton(
           icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
@@ -184,7 +190,6 @@ class ChatsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: <Widget>[
         header('Chats'),
-        const SizedBox(width: 45),
         IconButton(
           icon: const Icon(Icons.search, color: orange, size: 30),
           onPressed: () {
@@ -194,6 +199,12 @@ class ChatsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
             );
           },
         ),
+        IconButton(
+            icon: const Icon(Icons.person_2_rounded, color: orange, size: 30),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const Account()));
+            }),
         IconButton(
           icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
@@ -266,10 +277,16 @@ class SearchNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         },
       ),
       title: Text(
-        'Search',
+        '\t\t\t\t\t\tSearch',
         style: TextStyle(color: orange, fontSize: 40, fontFamily: 'Jua'),
       ),
       actions: <Widget>[
+        IconButton(
+            icon: const Icon(Icons.person_2_rounded, color: orange, size: 30),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const Account()));
+            }),
         IconButton(
           icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
