@@ -628,7 +628,6 @@ class DatabaseService {
         'userId': userId,
         'username': username,
         'mediaUrl': mediaUrl,
-        'type': type,
         'timestamp': FieldValue.serverTimestamp(),
       });
       log("Post added successfully for user: $userId");
@@ -640,25 +639,18 @@ class DatabaseService {
 
   Future<List<Map<String, dynamic>>> getUserPosts(String userId) async {
     try {
-      final now = DateTime.now();
       final querySnapshot = await _postCollection
           .where('userId', isEqualTo: userId)
           .orderBy('timestamp', descending: true)
           .get();
 
-      return querySnapshot.docs
-          .map((doc) {
-            final data = doc.data() as Map<String, dynamic>;
-            final timestamp = (data['timestamp'] as Timestamp).toDate();
-            final isExpired = now.difference(timestamp).inHours >= 24;
-            return {
-              'postId': doc.id,
-              ...data,
-              'isExpired': isExpired,
-            };
-          })
-          .where((post) => !post['isExpired'])
-          .toList();
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return {
+          'postId': doc.id,
+          ...data,
+        };
+      }).toList();
     } catch (e) {
       log("Failed to fetch user posts: $e");
       return [];

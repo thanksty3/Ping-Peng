@@ -63,7 +63,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    Account(userId: notification['userId'])));
+                                    Account(userId: notification['userId']),
+                                fullscreenDialog: true));
                       },
                       child: CircleAvatar(
                         radius: 65,

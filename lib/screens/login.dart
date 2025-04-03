@@ -110,7 +110,8 @@ class LoginState extends State<Login> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const BecomePeng()),
+                                builder: (context) => const BecomePeng(),
+                                fullscreenDialog: true),
                           );
                         },
                         child: const Text(
@@ -129,7 +130,8 @@ class LoginState extends State<Login> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const ForgotPassword()),
+                                builder: (context) => const ForgotPassword(),
+                                fullscreenDialog: true),
                           );
                         },
                         child: const Text(
@@ -185,12 +187,15 @@ class LoginState extends State<Login> {
         if (isNewUser) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const EditProfilePage()),
+            MaterialPageRoute(
+                builder: (context) => const EditProfilePage(),
+                fullscreenDialog: true),
           );
         } else {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const Home()),
+            MaterialPageRoute(
+                builder: (context) => const Home(), fullscreenDialog: true),
           );
         }
       }

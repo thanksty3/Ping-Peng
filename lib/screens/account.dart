@@ -218,8 +218,8 @@ class _AccountState extends State<Account> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => EditProfilePage(),
-                          ),
+                              builder: (context) => EditProfilePage(),
+                              fullscreenDialog: true),
                         ).then((updatedProfilePictureUrl) {
                           if (updatedProfilePictureUrl != null) {
                             setState(() {
@@ -295,13 +295,13 @@ class _AccountState extends State<Account> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Chatroom(
-                          username: _username,
-                          chatRoomId: '${widget.userId}_$currentUserId',
-                          friendProfilePictureUrl: _profilePictureUrl,
-                          friendUserId: widget.userId!,
-                        ),
-                      ),
+                          builder: (context) => Chatroom(
+                                username: _username,
+                                chatRoomId: '${widget.userId}_$currentUserId',
+                                friendProfilePictureUrl: _profilePictureUrl,
+                                friendUserId: widget.userId!,
+                              ),
+                          fullscreenDialog: true),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -394,17 +394,21 @@ class _AccountState extends State<Account> {
                     children: posts.map((post) {
                       return Column(
                         children: [
-                          Container(
-                            margin: const EdgeInsets.symmetric(vertical: 8),
-                            child: post['type'] == 'photo'
-                                ? Image.network(
-                                    post['mediaUrl'],
-                                    fit: BoxFit.cover,
-                                  )
-                                : Center(
-                                    child: Icon(Icons.videocam,
-                                        color: orange, size: 100),
-                                  ),
+                          Column(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                child: post['type'] == 'photo'
+                                    ? Image.network(
+                                        post['mediaUrl'],
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Center(
+                                        child: Icon(Icons.videocam,
+                                            color: orange, size: 100),
+                                      ),
+                              ),
+                            ],
                           ),
                           divider(),
                           if (_isCurrentUser)

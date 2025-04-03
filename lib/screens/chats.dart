@@ -151,13 +151,13 @@ class _ChatsState extends State<Chats> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => Chatroom(
-            username: '@${friend['username']}',
-            chatRoomId: chatRoomId,
-            friendProfilePictureUrl: friend['profilePictureUrl'] ?? '',
-            friendUserId: friend['userId'] ?? '',
-          ),
-        ),
+            builder: (context) => Chatroom(
+                  username: '@${friend['username']}',
+                  chatRoomId: chatRoomId,
+                  friendProfilePictureUrl: friend['profilePictureUrl'] ?? '',
+                  friendUserId: friend['userId'] ?? '',
+                ),
+            fullscreenDialog: true),
       ).then((_) {
         _updateLastOpened(chatRoomId);
       });

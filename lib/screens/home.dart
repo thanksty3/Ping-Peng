@@ -92,7 +92,7 @@ class _HomeState extends State<Home> {
 
   void _loadInterstitialAd() {
     InterstitialAd.load(
-      adUnitId: 'ca-app-pub-8128309454998324/1143919685',
+      adUnitId: 'ca-app-pub-8128309454998324/6153237582',
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
@@ -205,7 +205,9 @@ class HomeNavBottomNavigationBar extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Shows()),
+                MaterialPageRoute(
+                    builder: (context) => const Shows(),
+                    fullscreenDialog: true),
               );
             },
           ),
@@ -233,7 +235,9 @@ class HomeNavBottomNavigationBar extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Chats()),
+                MaterialPageRoute(
+                    builder: (context) => const Chats(),
+                    fullscreenDialog: true),
               );
             },
           ),

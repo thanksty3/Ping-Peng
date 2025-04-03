@@ -324,7 +324,8 @@ class BecomePengState extends State<BecomePeng> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const Login()),
+        MaterialPageRoute(
+            builder: (context) => const Login(), fullscreenDialog: true),
       );
     } on FirebaseAuthException catch (e) {
       String errorMessage;

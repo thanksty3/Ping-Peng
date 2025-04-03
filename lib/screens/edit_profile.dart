@@ -135,12 +135,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
         await _databaseService.setNewUserFlag(user.uid, false);
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const Home()),
+          MaterialPageRoute(
+              builder: (context) => const Home(), fullscreenDialog: true),
         );
       } else {
         Navigator.pop(
           context,
-          MaterialPageRoute(builder: (context) => const Account()),
+          MaterialPageRoute(
+              builder: (context) => const Account(), fullscreenDialog: true),
         );
       }
     } catch (e) {

@@ -72,8 +72,8 @@ class _ChatroomState extends State<Chatroom> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Account(userId: widget.friendUserId),
-                ),
+                    builder: (context) => Account(userId: widget.friendUserId),
+                    fullscreenDialog: true),
               );
             },
             child: CircleAvatar(

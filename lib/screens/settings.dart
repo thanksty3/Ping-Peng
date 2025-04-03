@@ -34,7 +34,8 @@ class Settings extends StatelessWidget {
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const Chats()));
+                              builder: (context) => const Chats(),
+                              fullscreenDialog: true));
                     },
                     style: buttonStyle(true),
                     child: Row(
@@ -67,7 +68,8 @@ class Settings extends StatelessWidget {
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const Home()));
+                              builder: (context) => const Home(),
+                              fullscreenDialog: true));
                     },
                     style: buttonStyle(true),
                     child: Row(
@@ -97,7 +99,8 @@ class Settings extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const ForgotPassword()),
+                            builder: (context) => const ForgotPassword(),
+                            fullscreenDialog: true),
                       );
                     },
                     style: buttonStyle(true),
@@ -128,7 +131,8 @@ class Settings extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const Account()),
+                            builder: (context) => const Account(),
+                            fullscreenDialog: true),
                       );
                     },
                     style: buttonStyle(true),
@@ -158,7 +162,9 @@ class Settings extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const Shows()),
+                        MaterialPageRoute(
+                            builder: (context) => const Shows(),
+                            fullscreenDialog: true),
                       );
                     },
                     style: buttonStyle(true),
@@ -243,7 +249,8 @@ class Settings extends StatelessWidget {
     if (!context.mounted) return;
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => const Login()),
+      MaterialPageRoute(
+          builder: (context) => const Login(), fullscreenDialog: true),
     );
   }
 
@@ -310,7 +317,8 @@ class Settings extends StatelessWidget {
 
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const Login()),
+              MaterialPageRoute(
+                  builder: (context) => const Login(), fullscreenDialog: true),
             );
           } catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -330,7 +338,9 @@ class Settings extends StatelessWidget {
         }
 
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => const Login()));
+            context,
+            MaterialPageRoute(
+                builder: (context) => const Login(), fullscreenDialog: true));
       }
     }
   }

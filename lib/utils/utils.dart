@@ -89,7 +89,8 @@ class HomeNavAppBar extends StatelessWidget implements PreferredSizeWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => const NotificationsScreen()),
+                builder: (context) => const NotificationsScreen(),
+                fullscreenDialog: true),
           );
         },
       ),
@@ -99,7 +100,10 @@ class HomeNavAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => SearchScreen()),
+              MaterialPageRoute(
+                builder: (context) => SearchScreen(),
+                fullscreenDialog: true,
+              ),
             );
           },
         ),
@@ -108,7 +112,9 @@ class HomeNavAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const Settings()),
+              MaterialPageRoute(
+                  builder: (context) => const Settings(),
+                  fullscreenDialog: true),
             );
           },
         ),
@@ -133,7 +139,8 @@ class ShowsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => const NotificationsScreen()),
+                builder: (context) => const NotificationsScreen(),
+                fullscreenDialog: true),
           );
         },
       ),
@@ -144,22 +151,28 @@ class ShowsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => SearchScreen()),
+              MaterialPageRoute(
+                  builder: (context) => SearchScreen(), fullscreenDialog: true),
             );
           },
         ),
         IconButton(
             icon: const Icon(Icons.person_2_rounded, color: orange, size: 30),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Account()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const Account(),
+                      fullscreenDialog: true));
             }),
         IconButton(
           icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const Settings()),
+              MaterialPageRoute(
+                  builder: (context) => const Settings(),
+                  fullscreenDialog: true),
             );
           },
         ),
@@ -184,7 +197,8 @@ class ChatsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => const NotificationsScreen()),
+                builder: (context) => const NotificationsScreen(),
+                fullscreenDialog: true),
           );
         },
       ),
@@ -195,22 +209,28 @@ class ChatsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => SearchScreen()),
+              MaterialPageRoute(
+                  builder: (context) => SearchScreen(), fullscreenDialog: true),
             );
           },
         ),
         IconButton(
             icon: const Icon(Icons.person_2_rounded, color: orange, size: 30),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Account()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const Account(),
+                      fullscreenDialog: true));
             }),
         IconButton(
           icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const Settings()),
+              MaterialPageRoute(
+                  builder: (context) => const Settings(),
+                  fullscreenDialog: true),
             );
           },
         ),
@@ -239,7 +259,9 @@ class ChatsNavBottomNavigationBar extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Shows()),
+                MaterialPageRoute(
+                    builder: (context) => const Shows(),
+                    fullscreenDialog: true),
               );
             },
           ),
@@ -248,7 +270,8 @@ class ChatsNavBottomNavigationBar extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Home()),
+                MaterialPageRoute(
+                    builder: (context) => const Home(), fullscreenDialog: true),
               );
             },
           ),
@@ -272,7 +295,8 @@ class SearchNavAppBar extends StatelessWidget implements PreferredSizeWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => const NotificationsScreen()),
+                builder: (context) => const NotificationsScreen(),
+                fullscreenDialog: true),
           );
         },
       ),
@@ -284,15 +308,20 @@ class SearchNavAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
             icon: const Icon(Icons.person_2_rounded, color: orange, size: 30),
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Account()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const Account(),
+                      fullscreenDialog: true));
             }),
         IconButton(
           icon: const Icon(Icons.settings, color: orange, size: 30),
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const Settings()),
+              MaterialPageRoute(
+                  builder: (context) => const Settings(),
+                  fullscreenDialog: true),
             );
           },
         ),
@@ -321,7 +350,9 @@ class SearchNavBottomNavigationBar extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Shows()),
+                MaterialPageRoute(
+                    builder: (context) => const Shows(),
+                    fullscreenDialog: true),
               );
             },
           ),
@@ -330,7 +361,8 @@ class SearchNavBottomNavigationBar extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Home()),
+                MaterialPageRoute(
+                    builder: (context) => const Home(), fullscreenDialog: true),
               );
             },
           ),
@@ -339,7 +371,9 @@ class SearchNavBottomNavigationBar extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Chats()),
+                MaterialPageRoute(
+                    builder: (context) => const Chats(),
+                    fullscreenDialog: true),
               );
             },
           ),
@@ -364,7 +398,8 @@ class AccountNavAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => SearchScreen()),
+              MaterialPageRoute(
+                  builder: (context) => SearchScreen(), fullscreenDialog: true),
             );
           },
         ),
@@ -373,7 +408,9 @@ class AccountNavAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const Settings()),
+              MaterialPageRoute(
+                  builder: (context) => const Settings(),
+                  fullscreenDialog: true),
             );
           },
         ),
@@ -402,7 +439,9 @@ class AccountNavBottomNavigationBar extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Shows()),
+                MaterialPageRoute(
+                    builder: (context) => const Shows(),
+                    fullscreenDialog: true),
               );
             },
           ),
@@ -411,7 +450,8 @@ class AccountNavBottomNavigationBar extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Home()),
+                MaterialPageRoute(
+                    builder: (context) => const Home(), fullscreenDialog: true),
               );
             },
           ),
@@ -420,7 +460,9 @@ class AccountNavBottomNavigationBar extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const Chats()),
+                MaterialPageRoute(
+                    builder: (context) => const Chats(),
+                    fullscreenDialog: true),
               );
             },
           ),
@@ -443,7 +485,8 @@ class SettingsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => const NotificationsScreen()),
+                builder: (context) => const NotificationsScreen(),
+                fullscreenDialog: true),
           );
         },
       ),
@@ -455,7 +498,8 @@ class SettingsNavAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => SearchScreen()),
+              MaterialPageRoute(
+                  builder: (context) => SearchScreen(), fullscreenDialog: true),
             );
           },
         ),

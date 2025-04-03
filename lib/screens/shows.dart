@@ -208,8 +208,8 @@ class _ShowsState extends State<Shows> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Account(userId: friendData['userId']),
-                ),
+                    builder: (context) => Account(userId: friendData['userId']),
+                    fullscreenDialog: true),
               );
             },
             splashColor: Colors.orange.withOpacity(0.2), // Ripple effect
@@ -235,9 +235,9 @@ class _ShowsState extends State<Shows> {
                       Text(
                         '@${friendData['username']}',
                         style: const TextStyle(
-                          fontFamily: 'Jua',
                           fontSize: 19,
                           color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 5),
@@ -291,15 +291,21 @@ class ShowsNavBottomNavigationBar extends StatelessWidget {
           IconButton(
             icon: Image.asset('assets/icons/orange-foot.png', height: 80),
             onPressed: () {
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => const Home()));
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const Home(),
+                      fullscreenDialog: true));
             },
           ),
           IconButton(
             icon: const Icon(Icons.chat, color: Colors.white, size: 40),
             onPressed: () {
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => const Chats()));
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const Chats(),
+                      fullscreenDialog: true));
             },
           ),
         ],

@@ -115,9 +115,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        Account(userId: user['userId']),
-                                  ),
+                                      builder: (context) =>
+                                          Account(userId: user['userId']),
+                                      fullscreenDialog: true),
                                 );
                               },
                             );
